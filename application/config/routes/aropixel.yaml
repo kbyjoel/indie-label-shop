@@ -1,0 +1,3 @@
+aropixel_admin:
+    resource: '@AropixelAdminBundle/Resources/config/routes.yaml'
+    prefix: /philosophy-club-band

@@ -1,0 +1,21 @@
+aropixel_admin:
+    client:
+        name: "Indie Label"
+        link: "https://www.indie-label-shop.local/"
+        email: "mail@post.aropixel.com"
+    copyright:
+        name: "Aropixel"
+        link: "https://www.aropixel.com/"
+    theme:
+        menu_position: fullscreen
+        logo_path: "aropixeladmin/img/logo-400-v1.png"
+        logo_width: 100px
+        missing_img_path: "aropixeladmin/img/logo-400-v1.png"
+        logo_menu_width: 200px
+        logo_login_path: "aropixeladmin/img/logo-400-v1.png"
+        logo_menu_path: "aropixeladmin/img/logo-400-v1.png"
+        background_color: "#dedede"
+        btn_background_color: "#000"
+        btn_color: "#fff"
+    translations:
+        locales: ['fr', 'en']
