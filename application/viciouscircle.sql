@@ -1924,7 +1924,7 @@ CREATE TABLE IF NOT EXISTS `taches_labels` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `titre` varchar(255) NOT NULL,
   `description` text NOT NULL,
-  `delai` varchar(255) NOT NULL COMMENT 'Format strftime (ex:+1 month)',
+  `delai` varchar(255) NOT NULL COMMENT 'Release strftime (ex:+1 month)',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Liste des taches prédéfinies pour un label' AUTO_INCREMENT=1 ;
 

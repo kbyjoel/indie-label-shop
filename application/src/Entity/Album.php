@@ -62,10 +62,25 @@ class Album implements Translatable
     #[ORM\JoinTable(name: 'album_artist')]
     private Collection $artists;
 
+    /**
+     * @var Collection<int, Release>
+     */
+    #[ORM\OneToMany(targetEntity: Release::class, mappedBy: 'album', cascade: ['persist', 'remove'])]
+    private Collection $releases;
+
+    /**
+     * @var Collection<int, Tracklist>
+     */
+    #[ORM\OneToMany(targetEntity: Tracklist::class, mappedBy: 'album', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $tracklists;
+
     public function __construct()
     {
         $this->similarAlbums = new ArrayCollection();
         $this->artists = new ArrayCollection();
+        $this->releases = new ArrayCollection();
+        $this->tracklists = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -206,6 +221,66 @@ class Album implements Translatable
     public function removeArtist(Artist $artist): static
     {
         $this->artists->removeElement($artist);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Release>
+     */
+    public function getReleases(): Collection
+    {
+        return $this->releases;
+    }
+
+    public function addRelease(Release $release): static
+    {
+        if (!$this->releases->contains($release)) {
+            $this->releases->add($release);
+            $release->setAlbum($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRelease(Release $release): static
+    {
+        if ($this->releases->removeElement($release)) {
+            // set the owning side to null (unless already changed)
+            if ($release->getAlbum() === $this) {
+                $release->setAlbum(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Tracklist>
+     */
+    public function getTracklists(): Collection
+    {
+        return $this->tracklists;
+    }
+
+    public function addTracklist(Tracklist $tracklist): static
+    {
+        if (!$this->tracklists->contains($tracklist)) {
+            $this->tracklists->add($tracklist);
+            $tracklist->setAlbum($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTracklist(Tracklist $tracklist): static
+    {
+        if ($this->tracklists->removeElement($tracklist)) {
+            // set the owning side to null (unless already changed)
+            if ($tracklist->getAlbum() === $this) {
+                $tracklist->setAlbum(null);
+            }
+        }
 
         return $this;
     }

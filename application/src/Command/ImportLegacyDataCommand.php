@@ -5,6 +5,10 @@ namespace App\Command;
 use App\Entity\Album;
 use App\Entity\Artist;
 use App\Entity\Band;
+use App\Entity\Release;
+use App\Entity\Track;
+use App\Entity\Tracklist;
+use App\Entity\Media;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -41,6 +45,10 @@ class ImportLegacyDataCommand extends Command
         $this->importAlbums($io);
         $this->importAlbumSimilar($io);
         $this->importAlbumArtists($io);
+        $this->importMedia($io);
+        $this->importReleases($io);
+        $this->importTracks($io);
+        $this->importTracklists($io);
 
         $io->success('Import completed!');
 
@@ -243,5 +251,171 @@ class ImportLegacyDataCommand extends Command
 
         $this->entityManager->flush();
         $io->writeln('Album artists relations processed.');
+    }
+
+    private function importMedia(SymfonyStyle $io): void
+    {
+        $io->section('Importing Media Types');
+
+        $conn = $this->entityManager->getConnection();
+        $stmt = $conn->prepare('SELECT * FROM supports');
+        $legacySupports = $stmt->executeQuery()->fetchAllAssociative();
+
+        foreach ($legacySupports as $legacySupport) {
+            $io->writeln(sprintf('Processing Media: %s', $legacySupport['libelle']));
+
+            $media = $this->entityManager->getRepository(Media::class)->findOneBy(['name' => $legacySupport['libelle']]);
+            if (!$media) {
+                $media = new Media();
+                $media->setName($legacySupport['libelle']);
+                $media->setIsDigital($legacySupport['digital_id'] !== null);
+                $this->entityManager->persist($media);
+            }
+        }
+
+        $this->entityManager->flush();
+        $io->writeln('Media types processed.');
+    }
+
+    private function importReleases(SymfonyStyle $io): void
+    {
+        $io->section('Importing Releases');
+
+        $conn = $this->entityManager->getConnection();
+        $stmt = $conn->prepare('SELECT * FROM formats');
+        $legacyFormats = $stmt->executeQuery()->fetchAllAssociative();
+
+        foreach ($legacyFormats as $legacyFormat) {
+            $io->writeln(sprintf('Processing Release: %s', $legacyFormat['titre']));
+
+            // Resolve Album
+            $albumTitle = $conn->prepare('SELECT titre FROM albums WHERE id = :id')->executeQuery(['id' => $legacyFormat['album_id']])->fetchOne();
+            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['title' => $albumTitle]);
+
+            // Resolve Media
+            $supportName = $conn->prepare('SELECT libelle FROM supports WHERE id = :id')->executeQuery(['id' => $legacyFormat['support_id']])->fetchOne();
+            $media = $this->entityManager->getRepository(Media::class)->findOneBy(['name' => $supportName]);
+
+            if ($album && $media) {
+                $release = new Release();
+                $release->setAlbum($album);
+                $release->setMedia($media);
+                $release->setTitle($legacyFormat['titre']);
+                $release->setPrice((string)$legacyFormat['prix']);
+                $release->setStatus($legacyFormat['status']);
+
+                $this->entityManager->persist($release);
+            }
+        }
+
+        $this->entityManager->flush();
+        $io->writeln('Releases processed.');
+    }
+
+    private function importTracks(SymfonyStyle $io): void
+    {
+        $io->section('Importing Tracks');
+
+        $conn = $this->entityManager->getConnection();
+        $stmt = $conn->prepare('SELECT * FROM titres');
+        $legacyTracks = $stmt->executeQuery()->fetchAllAssociative();
+
+        foreach ($legacyTracks as $legacyTrack) {
+            $io->writeln(sprintf('Processing Track: %s', $legacyTrack['titre1']));
+
+            $track = $this->entityManager->getRepository(Track::class)->findOneBy(['title' => $legacyTrack['titre1']]);
+            if (!$track) {
+                $track = new Track();
+                $track->setTitle($legacyTrack['titre1']);
+                $track->setDuration($legacyTrack['duree']);
+                $track->setIsrc($legacyTrack['isrc']);
+                $track->setLyrics($legacyTrack['paroles']);
+                $this->entityManager->persist($track);
+            }
+        }
+
+        $this->entityManager->flush();
+        $io->writeln('Tracks processed.');
+    }
+
+    private function importTracklists(SymfonyStyle $io): void
+    {
+        $io->section('Importing Tracklists (Relations)');
+
+        $conn = $this->entityManager->getConnection();
+
+        // 1. Import from titres_albums (Master tracklist)
+        $io->writeln('Processing master tracklists from titres_albums...');
+        $stmtMaster = $conn->prepare('SELECT * FROM titres_albums');
+        $masterRelations = $stmtMaster->executeQuery()->fetchAllAssociative();
+
+        foreach ($masterRelations as $relation) {
+            $legacyAlbumId = $relation['album_id'];
+            $legacyTrackId = $relation['titre_id'];
+
+            $albumTitle = $conn->prepare('SELECT titre FROM albums WHERE id = :id')->executeQuery(['id' => $legacyAlbumId])->fetchOne();
+            $trackTitle = $conn->prepare('SELECT titre1 FROM titres WHERE id = :id')->executeQuery(['id' => $legacyTrackId])->fetchOne();
+
+            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['title' => $albumTitle]);
+            $track = $this->entityManager->getRepository(Track::class)->findOneBy(['title' => $trackTitle]);
+
+            if ($album && $track) {
+                $tracklist = $this->entityManager->getRepository(Tracklist::class)->findOneBy([
+                    'album' => $album,
+                    'track' => $track
+                ]);
+
+                if (!$tracklist) {
+                    $tracklist = new Tracklist();
+                    $tracklist->setAlbum($album);
+                    $tracklist->setTrack($track);
+                    $tracklist->setPosition((int)$relation['position']);
+                    $this->entityManager->persist($tracklist);
+                }
+            }
+        }
+        $this->entityManager->flush();
+
+        // 2. Import from formats_titres (Release specific tracklists)
+        $io->writeln('Processing release specific tracklists from formats_titres...');
+        $stmtRelease = $conn->prepare('SELECT * FROM formats_titres');
+        $releaseRelations = $stmtRelease->executeQuery()->fetchAllAssociative();
+
+        foreach ($releaseRelations as $relation) {
+            $legacyFormatId = $relation['format_id'];
+            $legacyTrackId = $relation['titre_id'];
+
+            // Get new Release and Track
+            $formatData = $conn->prepare('SELECT titre, album_id FROM formats WHERE id = :id')->executeQuery(['id' => $legacyFormatId])->fetchAssociative();
+            if (!$formatData) continue;
+
+            $albumTitle = $conn->prepare('SELECT titre FROM albums WHERE id = :id')->executeQuery(['id' => $formatData['album_id']])->fetchOne();
+            $trackTitle = $conn->prepare('SELECT titre1 FROM titres WHERE id = :id')->executeQuery(['id' => $legacyTrackId])->fetchOne();
+
+            $release = $this->entityManager->getRepository(Release::class)->findOneBy(['title' => $formatData['titre']]);
+            $track = $this->entityManager->getRepository(Track::class)->findOneBy(['title' => $trackTitle]);
+
+            if ($release && $track) {
+                // Find or create the tracklist entry for this album/track
+                $album = $release->getAlbum();
+                $tracklist = $this->entityManager->getRepository(Tracklist::class)->findOneBy([
+                    'album' => $album,
+                    'track' => $track
+                ]);
+
+                if (!$tracklist) {
+                    $tracklist = new Tracklist();
+                    $tracklist->setAlbum($album);
+                    $tracklist->setTrack($track);
+                    $tracklist->setPosition((int)$relation['position']);
+                    $this->entityManager->persist($tracklist);
+                }
+
+                $tracklist->addRelease($release);
+            }
+        }
+
+        $this->entityManager->flush();
+        $io->writeln('Tracklists processed.');
     }
 }
