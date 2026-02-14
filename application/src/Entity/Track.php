@@ -6,18 +6,38 @@ use App\Repository\TrackRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Sylius\Component\Core\Model\ProductVariant as BaseProductVariant;
 
 #[ORM\Entity(repositoryClass: TrackRepository::class)]
-#[ORM\Table(name: 'track')]
-class Track
+#[ORM\Table(name: 'indie_track')]
+class Track extends BaseProductVariant
 {
-    use TimestampableEntity;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    protected $id;
+
+    #[ORM\Column(type: 'string', unique: true)]
+    protected $code;
+
+    #[ORM\ManyToOne(targetEntity: Album::class)]
+    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    protected $product;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    protected $position;
+
+    #[ORM\Column(type: 'integer')]
+    protected $onHold = 0;
+
+    #[ORM\Column(type: 'integer')]
+    protected $onHand = 0;
+
+    #[ORM\Column(type: 'boolean')]
+    protected $tracked = false;
+
+    #[ORM\Column(type: 'integer')]
+    protected $version = 1;
 
     #[ORM\Column(length: 255)]
     private ?string $title = null;
@@ -36,16 +56,19 @@ class Track
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setName(?string $name): void
+    {
+        $this->title = $name;
+    }
+
+    public function setTitle(?string $title): void
     {
         $this->title = $title;
-
-        return $this;
     }
 
     public function getDuration(): ?string

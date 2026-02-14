@@ -9,7 +9,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 #[ORM\Entity(repositoryClass: ArtistRepository::class)]
-#[ORM\Table(name: 'artist')]
+#[ORM\Table(name: 'indie_artist')]
 class Artist
 {
     use TimestampableEntity;

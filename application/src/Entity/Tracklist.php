@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TracklistRepository::class)]
-#[ORM\Table(name: 'tracklist')]
+#[ORM\Table(name: 'indie_tracklist')]
 class Tracklist
 {
     #[ORM\Id]
@@ -20,7 +20,7 @@ class Tracklist
     #[ORM\JoinColumn(nullable: false)]
     private ?Album $album = null;
 
-    #[ORM\ManyToOne(targetEntity: Track::class)]
+    #[ORM\ManyToOne(targetEntity: Track::class, cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Track $track = null;
 
@@ -31,7 +31,7 @@ class Tracklist
      * @var Collection<int, Release>
      */
     #[ORM\ManyToMany(targetEntity: Release::class, inversedBy: 'tracklists')]
-    #[ORM\JoinTable(name: 'tracklist_release')]
+    #[ORM\JoinTable(name: 'indie_tracklist_release')]
     private Collection $releases;
 
     public function __construct()

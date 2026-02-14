@@ -8,7 +8,7 @@ doctrine:
 
         profiling_collect_backtrace: '%kernel.debug%'
     orm:
-        validate_xml_mapping: true
+        validate_xml_mapping: false
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         identity_generation_preferences:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: identity
@@ -22,6 +22,28 @@ doctrine:
                 alias: App
         controller_resolver:
             auto_mapping: false
+        resolve_target_entities:
+            Sylius\Component\Core\Model\AddressInterface: App\Entity\Address
+            Sylius\Component\Core\Model\ChannelInterface: App\Entity\Channel
+            Sylius\Component\Core\Model\CustomerInterface: App\Entity\Customer
+            Sylius\Component\Core\Model\OrderInterface: App\Entity\Order
+            Sylius\Component\Core\Model\OrderItemInterface: App\Entity\OrderItem
+            Sylius\Component\Core\Model\OrderItemUnitInterface: App\Entity\OrderItemUnit
+            Sylius\Component\Inventory\Model\InventoryUnitInterface: App\Entity\OrderItemUnit
+            Sylius\Component\Core\Model\PaymentInterface: App\Entity\Payment
+            Sylius\Component\Core\Model\PaymentMethodInterface: App\Entity\PaymentMethod
+            Sylius\Component\Core\Model\ProductInterface: App\Entity\Product
+            Sylius\Component\Product\Model\ProductInterface: App\Entity\Product
+            Sylius\Component\Product\Model\ProductTranslationInterface: App\Entity\ProductTranslation
+            Sylius\Component\Product\Model\ProductVariantInterface: App\Entity\ProductVariant
+            Sylius\Component\Core\Model\ProductVariantInterface: App\Entity\ProductVariant
+            Sylius\Component\Core\Model\PromotionInterface: App\Entity\Promotion
+            Sylius\Component\Core\Model\ShipmentInterface: App\Entity\Shipment
+            Sylius\Component\Core\Model\ShippingMethodInterface: App\Entity\ShippingMethod
+            Sylius\Component\Addressing\Model\CountryInterface: App\Entity\Country
+            Sylius\Component\Addressing\Model\ProvinceInterface: App\Entity\Province
+            Sylius\Component\Addressing\Model\ZoneInterface: App\Entity\Zone
+            Sylius\Component\Addressing\Model\ZoneMemberInterface: App\Entity\ZoneMember
 
 when@test:
     doctrine:

@@ -8,7 +8,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
-#[ORM\Table(name: 'media')]
+#[ORM\Table(name: 'indie_media')]
 class Media
 {
     use TimestampableEntity;

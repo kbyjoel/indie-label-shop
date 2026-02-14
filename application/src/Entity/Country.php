@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Entity;
+
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Sylius\Component\Addressing\Model\Country as BaseCountry;
+
+#[ORM\Entity]
+#[ORM\Table(name: 'sylius_country')]
+class Country extends BaseCountry
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    protected $id;
+
+    #[ORM\Column(type: 'string', unique: true)]
+    protected $code;
+
+    #[ORM\Column(type: 'boolean')]
+    protected $enabled = true;
+
+    /** @var Collection<array-key, Province> */
+    #[ORM\OneToMany(mappedBy: 'country', targetEntity: Province::class, cascade: ['all'], orphanRemoval: true)]
+    protected $provinces;
+}

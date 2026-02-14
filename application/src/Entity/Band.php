@@ -12,7 +12,7 @@ use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Gedmo\Translatable\Translatable;
 
 #[ORM\Entity(repositoryClass: BandRepository::class)]
-#[ORM\Table(name: 'band')]
+#[ORM\Table(name: 'indie_band')]
 class Band implements Translatable
 {
     use TimestampableEntity;
@@ -58,7 +58,7 @@ class Band implements Translatable
      * @var Collection<int, Artist>
      */
     #[ORM\ManyToMany(targetEntity: Artist::class)]
-    #[ORM\JoinTable(name: 'band_artist')]
+    #[ORM\JoinTable(name: 'indie_band_artist')]
     private Collection $members;
 
     public function __construct()

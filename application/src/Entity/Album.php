@@ -8,19 +8,35 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
-use Gedmo\Translatable\Translatable;
+use Sylius\Component\Core\Model\Product as BaseProduct;
+use Sylius\Component\Product\Model\ProductTranslationInterface;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
-#[ORM\Table(name: 'album')]
-class Album implements Translatable
+#[ORM\Table(name: 'indie_album')]
+class Album extends BaseProduct
 {
-    use TimestampableEntity;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    protected $id;
+
+    #[ORM\Column(type: 'string', unique: true)]
+    protected $code;
+
+    /** @var Collection<array-key, ProductTranslationInterface> */
+    #[ORM\OneToMany(mappedBy: 'translatable', targetEntity: ProductTranslation::class, cascade: ['all'], fetch: 'EAGER', orphanRemoval: true)]
+    protected $translations;
+
+    /** @var Collection<array-key, Channel> */
+    #[ORM\ManyToMany(targetEntity: Channel::class)]
+    #[ORM\JoinTable(name: 'sylius_product_channels')]
+    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'channel_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    protected $channels;
+
+    /** @var Collection<array-key, Release> */
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: Release::class, cascade: ['all'], orphanRemoval: true)]
+    protected $variants;
 
     #[ORM\ManyToOne(targetEntity: Band::class)]
     private ?Band $band = null;
@@ -38,35 +54,27 @@ class Album implements Translatable
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $releaseDate = null;
 
-    #[Gedmo\Translatable]
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $description = null;
-
     #[ORM\Column(length: 20)]
     private ?string $status = 'offline';
-
-    #[Gedmo\Locale]
-    private $locale;
 
     /**
      * @var Collection<int, Album>
      */
     #[ORM\ManyToMany(targetEntity: self::class)]
-    #[ORM\JoinTable(name: 'album_similar')]
+    #[ORM\JoinTable(name: 'indie_album_similar')]
     private Collection $similarAlbums;
 
     /**
      * @var Collection<int, Artist>
      */
     #[ORM\ManyToMany(targetEntity: Artist::class)]
-    #[ORM\JoinTable(name: 'album_artist')]
+    #[ORM\JoinTable(name: 'indie_album_artist')]
     private Collection $artists;
 
     /**
      * @var Collection<int, Release>
      */
-    #[ORM\OneToMany(targetEntity: Release::class, mappedBy: 'album', cascade: ['persist', 'remove'])]
-    private Collection $releases;
+    protected Collection $releases;
 
     /**
      * @var Collection<int, Tracklist>
@@ -77,9 +85,10 @@ class Album implements Translatable
 
     public function __construct()
     {
+        parent::__construct();
         $this->similarAlbums = new ArrayCollection();
         $this->artists = new ArrayCollection();
-        $this->releases = new ArrayCollection();
+        $this->releases = $this->variants;
         $this->tracklists = new ArrayCollection();
     }
 
@@ -105,23 +114,19 @@ class Album implements Translatable
         return $this->slug;
     }
 
-    public function setSlug(string $slug): static
+    public function setSlug(?string $slug): void
     {
         $this->slug = $slug;
-
-        return $this;
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setName(?string $name): void
     {
-        $this->title = $title;
-
-        return $this;
+        $this->title = $name;
     }
 
     public function getCatalogNumber(): ?string
@@ -153,11 +158,9 @@ class Album implements Translatable
         return $this->description;
     }
 
-    public function setDescription(string $description): static
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
-
-        return $this;
     }
 
     public function getStatus(): ?string
@@ -174,7 +177,6 @@ class Album implements Translatable
 
     public function setTranslatableLocale($locale)
     {
-        $this->locale = $locale;
     }
 
     /**

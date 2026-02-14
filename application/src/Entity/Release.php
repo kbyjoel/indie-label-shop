@@ -8,22 +8,38 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Sylius\Component\Core\Model\ProductVariant as BaseProductVariant;
 
 #[ORM\Entity(repositoryClass: ReleaseRepository::class)]
-#[ORM\Table(name: 'release')]
-class Release
+#[ORM\Table(name: 'indie_release')]
+class Release extends BaseProductVariant
 {
-    use TimestampableEntity;
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    protected $id;
 
-    #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'editions')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Album $album = null;
+    #[ORM\Column(type: 'string', unique: true)]
+    protected $code;
+
+    #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'variants')]
+    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    protected $product;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    protected $position;
+
+    #[ORM\Column(type: 'integer')]
+    protected $onHold = 0;
+
+    #[ORM\Column(type: 'integer')]
+    protected $onHand = 0;
+
+    #[ORM\Column(type: 'boolean')]
+    protected $tracked = false;
+
+    #[ORM\Column(type: 'integer')]
+    protected $version = 1;
 
     #[ORM\ManyToOne(targetEntity: Media::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -46,24 +62,30 @@ class Release
 
     public function __construct()
     {
+        parent::__construct();
         $this->tracklists = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getAlbum(): ?Album
     {
-        return $this->album;
+        return $this->product;
     }
 
     public function setAlbum(?Album $album): static
     {
-        $this->album = $album;
+        $this->product = $album;
 
         return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->title = $name;
     }
 
     public function getMedia(): ?Media
@@ -83,11 +105,9 @@ class Release
         return $this->title;
     }
 
-    public function setTitle(string $title): static
+    public function setTitle(?string $title): void
     {
         $this->title = $title;
-
-        return $this;
     }
 
     public function getPrice(): ?string
