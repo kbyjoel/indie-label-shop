@@ -14,10 +14,10 @@ class ProductVariant extends BaseProductVariant
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     protected $id;
 
-    #[ORM\Column(type: 'string', unique: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     protected $code;
 
     #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'variants')]

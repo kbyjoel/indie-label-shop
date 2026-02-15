@@ -16,9 +16,9 @@ class Promotion extends BasePromotion
     #[ORM\Column]
     protected $id;
 
-    #[ORM\Column(type: 'string', unique: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     protected $code;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     protected $name;
 }

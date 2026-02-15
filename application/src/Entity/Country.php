@@ -14,10 +14,10 @@ class Country extends BaseCountry
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     protected $id;
 
-    #[ORM\Column(type: 'string', unique: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     protected $code;
 
     #[ORM\Column(type: 'boolean')]

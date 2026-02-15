@@ -13,7 +13,7 @@ class OrderItem extends BaseOrderItem
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     protected $id;
 
     #[ORM\ManyToOne(targetEntity: Order::class, inversedBy: 'items')]

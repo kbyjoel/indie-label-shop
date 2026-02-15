@@ -13,16 +13,16 @@ class Payment extends BasePayment
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     protected $id;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     protected $state = self::STATE_NEW;
 
     #[ORM\Column(type: 'integer')]
     protected $amount = 0;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     protected $currencyCode;
 
     #[ORM\ManyToOne(targetEntity: Order::class, inversedBy: 'payments')]

@@ -14,10 +14,10 @@ class ZoneMember extends BaseZoneMember
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     protected $id;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     protected $code;
 
     #[ORM\ManyToOne(targetEntity: Zone::class, inversedBy: 'members')]

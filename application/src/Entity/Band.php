@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\BandRepository;
+use Aropixel\AdminBundle\Entity\TranslatableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -13,9 +14,11 @@ use Gedmo\Translatable\Translatable;
 
 #[ORM\Entity(repositoryClass: BandRepository::class)]
 #[ORM\Table(name: 'indie_band')]
+#[Gedmo\TranslationEntity(class: BandTranslation::class)]
 class Band implements Translatable
 {
     use TimestampableEntity;
+    use TranslatableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -51,8 +54,9 @@ class Band implements Translatable
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[Gedmo\Locale]
-    private $locale;
+    #[ORM\OneToOne(targetEntity: ArtistImage::class, inversedBy: "artist", cascade: ["persist", "remove"])]
+    #[ORM\JoinColumn(name: "image_id", referencedColumnName: "id", onDelete: "SET NULL")]
+    private ?ArtistImage $image;
 
     /**
      * @var Collection<int, Artist>
@@ -61,9 +65,16 @@ class Band implements Translatable
     #[ORM\JoinTable(name: 'indie_band_artist')]
     private Collection $members;
 
+    /**
+     * @var Collection<int, BandTranslation>
+     */
+    #[ORM\OneToMany(targetEntity: BandTranslation::class, mappedBy: 'object', cascade: ['persist', 'remove'])]
+    private ?Collection $translations = null;
+
     public function __construct()
     {
         $this->members = new ArrayCollection();
+        $this->translations = new ArrayCollection();
     }
 
     public function getId(): ?int

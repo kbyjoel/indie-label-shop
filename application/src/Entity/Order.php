@@ -14,10 +14,10 @@ class Order extends BaseOrder
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     protected $id;
 
-    #[ORM\Column(type: 'string', unique: true, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
     protected $number;
 
     #[ORM\ManyToOne(targetEntity: Customer::class)]
@@ -36,7 +36,7 @@ class Order extends BaseOrder
     #[ORM\JoinColumn(name: 'billing_address_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     protected $billingAddress;
 
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     protected $state = self::STATE_CART;
 
     #[ORM\Column(type: 'integer')]
