@@ -13,32 +13,8 @@ use Sylius\Component\Product\Model\ProductTranslationInterface;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 #[ORM\Table(name: 'indie_album')]
-class Album extends BaseProduct
+class Album extends Product
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    protected $id;
-
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
-    protected $code;
-
-    /** @var Collection<array-key, ProductTranslationInterface> */
-    #[ORM\OneToMany(mappedBy: 'translatable', targetEntity: ProductTranslation::class, cascade: ['all'], fetch: 'EAGER', orphanRemoval: true)]
-    protected $translations;
-
-    #[ORM\ManyToMany(targetEntity: Channel::class)]
-    #[ORM\JoinTable(name: 'indie_album_channels')]
-    #[ORM\JoinColumn(name: 'album_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    #[ORM\InverseJoinColumn(name: 'channel_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    protected $channels;
-
-    /** @var Collection<array-key, Release> */
-    #[ORM\OneToMany(mappedBy: 'product', targetEntity: Release::class, cascade: ['all'], orphanRemoval: true)]
-    protected $variants;
-
-    #[ORM\ManyToOne(targetEntity: Band::class)]
-    private ?Band $band = null;
 
     #[Gedmo\Slug(fields: ['title'])]
     #[ORM\Column(length: 255)]
@@ -94,18 +70,6 @@ class Album extends BaseProduct
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getBand(): ?Band
-    {
-        return $this->band;
-    }
-
-    public function setBand(?Band $band): static
-    {
-        $this->band = $band;
-
-        return $this;
     }
 
     public function getSlug(): ?string

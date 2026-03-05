@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Model\OrderItem as BaseOrderItem;
 
 #[ORM\Entity]
@@ -36,4 +37,19 @@ class OrderItem extends BaseOrderItem
     /** @var Collection<array-key, OrderItemUnit> */
     #[ORM\OneToMany(mappedBy: 'orderItem', targetEntity: OrderItemUnit::class, cascade: ['all'], orphanRemoval: true)]
     protected $units;
+
+    public function setQuantity(int $quantity): void
+    {
+        $this->quantity = $quantity;
+    }
+
+    public function setUnitPrice(int $unitPrice): void
+    {
+        $this->unitPrice = $unitPrice;
+    }
+
+    public function setTotal(int $total): void
+    {
+        $this->total = $total;
+    }
 }

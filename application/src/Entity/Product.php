@@ -11,6 +11,9 @@ use Sylius\Component\Product\Model\ProductTranslationInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'sylius_product')]
+#[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorColumn(name: 'discr', type: 'string')]
+#[ORM\DiscriminatorMap(['merch' => Product::class, 'album' => Album::class])]
 class Product extends BaseProduct
 {
     #[ORM\Id]
@@ -35,6 +38,33 @@ class Product extends BaseProduct
     /** @var Collection<array-key, ProductVariant> */
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductVariant::class, cascade: ['all'], orphanRemoval: true)]
     protected $variants;
+
+    /** @var Collection<array-key, ProductOption> */
+    #[ORM\ManyToMany(targetEntity: ProductOption::class)]
+    #[ORM\JoinTable(name: 'sylius_product_options')]
+    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'option_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    protected $options;
+
+    #[ORM\ManyToOne(targetEntity: Band::class)]
+    #[ORM\JoinColumn(name: 'band_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?Band $band = null;
+
+    /**
+     * @return Band|null
+     */
+    public function getBand(): ?Band
+    {
+        return $this->band;
+    }
+
+    /**
+     * @param Band|null $band
+     */
+    public function setBand(?Band $band): void
+    {
+        $this->band = $band;
+    }
 
     // Ajout d'autres propriétés au besoin...
 }

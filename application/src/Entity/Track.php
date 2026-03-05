@@ -6,39 +6,11 @@ use App\Repository\TrackRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Sylius\Component\Core\Model\ProductVariant as BaseProductVariant;
 
 #[ORM\Entity(repositoryClass: TrackRepository::class)]
 #[ORM\Table(name: 'indie_track')]
-class Track extends BaseProductVariant
+class Track extends ProductVariant
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    protected $id;
-
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
-    protected $code;
-
-    #[ORM\ManyToOne(targetEntity: Album::class)]
-    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    protected $product;
-
-    #[ORM\Column(type: 'integer', nullable: true)]
-    protected $position;
-
-    #[ORM\Column(type: 'integer')]
-    protected $onHold = 0;
-
-    #[ORM\Column(type: 'integer')]
-    protected $onHand = 0;
-
-    #[ORM\Column(type: 'boolean')]
-    protected $tracked = false;
-
-    #[ORM\Column(type: 'integer')]
-    protected $version = 1;
-
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 

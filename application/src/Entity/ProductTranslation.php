@@ -12,8 +12,8 @@ use Sylius\Component\Core\Model\ProductTranslation as BaseProductTranslation;
 class ProductTranslation extends BaseProductTranslation
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
     protected $id;
 
     #[ORM\Column(type: 'string', length: 255)]

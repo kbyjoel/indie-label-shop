@@ -53,4 +53,14 @@ class Order extends BaseOrder
     /** @var Collection<array-key, Payment> */
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: Payment::class, cascade: ['all'])]
     protected $payments;
+
+    public function setTotal(int $total): void
+    {
+        $this->total = $total;
+    }
+
+    public function setNumber(?string $number): void
+    {
+        $this->number = $number;
+    }
 }

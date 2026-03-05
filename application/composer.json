@@ -7,7 +7,7 @@
         "php": ">=8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "aropixel/admin-bundle": "dev-release/symfony7",
+        "aropixel/admin-bundle": "dev-release/finalversion",
         "doctrine/doctrine-bundle": "^3.2",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6",
@@ -101,6 +101,8 @@
         }
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^4.3",
+        "fakerphp/faker": "^1.24",
         "phpunit/phpunit": "^13.0",
         "symfony/browser-kit": "7.4.*",
         "symfony/css-selector": "7.4.*",

@@ -1662,17 +1662,26 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         link?: scalar|Param|null, // Default: "http://www.aropixel.com"
  *     },
  *     theme?: array{
- *         login_img?: scalar|Param|null, // Default: ""
- *         menu_position?: scalar|Param|null, // Default: "fullscreen"
- *         logo_path?: scalar|Param|null, // Default: "bundles/aropixeladmin/img/logo.png"
- *         logo_width?: scalar|Param|null, // Default: "150px"
- *         logo_menu_path?: scalar|Param|null, // Default: "bundles/aropixeladmin/img/logo-opened-menu.gif"
- *         logo_menu_width?: scalar|Param|null, // Default: "50px"
- *         missing_img_path?: scalar|Param|null, // Default: "bundles/aropixeladmin/img/logo-vert.png"
- *         logo_login_path?: scalar|Param|null, // Default: "bundles/aropixeladmin/img/sigle_fond-blanc_code-transparent.png"
- *         background_color?: scalar|Param|null, // Default: "#0CABA8"
- *         btn_background_color?: scalar|Param|null, // Default: "#0CABA8"
- *         btn_color?: scalar|Param|null, // Default: "#fff"
+ *         logo?: array{
+ *             path?: scalar|Param|null, // Default: "bundles/aropixeladmin/img/logo.png"
+ *             width?: scalar|Param|null, // Default: "150px"
+ *             menu?: array{
+ *                 path?: scalar|Param|null, // Default: "bundles/aropixeladmin/img/logo-opened-menu.gif"
+ *                 width?: scalar|Param|null, // Default: "50px"
+ *             },
+ *             login?: array{
+ *                 path?: scalar|Param|null, // Default: "bundles/aropixeladmin/img/sigle_fond-blanc_code-transparent.png"
+ *             },
+ *         },
+ *         colors?: array{
+ *             background_color?: scalar|Param|null, // Default: "#0CABA8"
+ *             btn_background_color?: scalar|Param|null, // Default: "#0CABA8"
+ *             btn_color?: scalar|Param|null, // Default: "#fff"
+ *         },
+ *         images?: array{
+ *             login_img?: scalar|Param|null, // Default: ""
+ *             placeholder_img_path?: scalar|Param|null, // Default: "bundles/aropixeladmin/img/logo-vert.png"
+ *         },
  *     },
  * }
  * @psalm-type ConfigType = array{

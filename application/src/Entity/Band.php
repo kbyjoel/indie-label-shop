@@ -54,10 +54,6 @@ class Band implements Translatable
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\OneToOne(targetEntity: ArtistImage::class, inversedBy: "artist", cascade: ["persist", "remove"])]
-    #[ORM\JoinColumn(name: "image_id", referencedColumnName: "id", onDelete: "SET NULL")]
-    private ?ArtistImage $image;
-
     /**
      * @var Collection<int, Artist>
      */
@@ -69,7 +65,7 @@ class Band implements Translatable
      * @var Collection<int, BandTranslation>
      */
     #[ORM\OneToMany(targetEntity: BandTranslation::class, mappedBy: 'object', cascade: ['persist', 'remove'])]
-    private ?Collection $translations = null;
+    protected ?Collection $translations = null;
 
     public function __construct()
     {

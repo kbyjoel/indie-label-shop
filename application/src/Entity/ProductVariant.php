@@ -10,6 +10,9 @@ use Sylius\Component\Product\Model\ProductInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'sylius_product_variant')]
+#[ORM\InheritanceType('JOINED')]
+#[ORM\DiscriminatorColumn(name: 'discr', type: 'string')]
+#[ORM\DiscriminatorMap(['merch' => ProductVariant::class, 'release' => Release::class, 'track' => Track::class])]
 class ProductVariant extends BaseProductVariant
 {
     #[ORM\Id]
@@ -38,4 +41,11 @@ class ProductVariant extends BaseProductVariant
 
     #[ORM\Column(type: 'integer')]
     protected $version = 1;
+
+    /** @var Collection<array-key, ProductOptionValue> */
+    #[ORM\ManyToMany(targetEntity: ProductOptionValue::class)]
+    #[ORM\JoinTable(name: 'sylius_product_variant_option_value')]
+    #[ORM\JoinColumn(name: 'variant_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'option_value_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    protected $optionValues;
 }
