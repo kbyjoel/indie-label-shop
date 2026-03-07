@@ -61,6 +61,10 @@ class Band implements Translatable
     #[ORM\JoinTable(name: 'indie_band_artist')]
     private Collection $members;
 
+    #[ORM\OneToOne(targetEntity: BandImage::class, inversedBy: "band", cascade: ["persist", "remove"], orphanRemoval: true)]
+    #[ORM\JoinColumn(name: "image_id", referencedColumnName: "id", onDelete: "SET NULL")]
+    private ?BandImage $image = null;
+
     /**
      * @var Collection<int, BandTranslation>
      */
@@ -214,4 +218,22 @@ class Band implements Translatable
 
         return $this;
     }
+
+
+    public function getImage(): ?BandImage
+    {
+        return $this->image;
+    }
+
+    public function setImage(?BandImage $image): self
+    {
+        if ($image === null || $image->getImage() === null) {
+            $this->image = null;
+        } else {
+            $this->image = $image;
+            $this->image->setBand($this);
+        }
+        return $this;
+    }
+
 }
