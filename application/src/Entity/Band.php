@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\BandRepository;
+use Aropixel\AdminBundle\Entity\PublishableTrait;
 use Aropixel\AdminBundle\Entity\TranslatableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -19,6 +20,7 @@ class Band implements Translatable
 {
     use TimestampableEntity;
     use TranslatableTrait;
+    use PublishableTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

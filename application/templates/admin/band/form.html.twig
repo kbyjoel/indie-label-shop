@@ -1,0 +1,53 @@
+{% extends '@AropixelAdmin/Form/base.html.twig' %}
+
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
+
+{% set is_edit = band.id is not null %}
+{% set title = is_edit ? 'Modifier le groupe : ' ~ band.name : 'Ajouter un groupe' %}
+
+{% block meta_title %}{{ title }}{% endblock %}
+
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        { label: 'text.home', url: url('_admin') },
+        { label: 'Groupes', url: url('admin_band_index')  },
+        { label: is_edit ? 'Modification' : 'Ajout'  },
+    ]) }}
+{% endblock %}
+
+{% block tabbable %}
+    {{ forms.tabs([
+        { id: 'panel-tab-artist', label: 'Groupe' },
+        { id: 'panel-tab-socials', label: 'Réseaux sociaux' },
+    ]) }}
+{% endblock %}
+{% block mainPanel %}
+
+    {# Tab 1: Artist Basic Info #}
+    <div class="tab-pane active" id="panel-tab-artist">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.name) }}
+                {{ form_row(form.description) }}
+                {{ form_row(form.image) }}
+            </div>
+        </div>
+    </div>
+
+    {# Tab 2: Artist Socials Info #}
+    <div class="tab-pane" id="panel-tab-socials">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.website) }}
+                {{ form_row(form.email) }}
+                {{ form_row(form.facebook) }}
+                {{ form_row(form.twitter) }}
+                {{ form_row(form.instagram) }}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
