@@ -3,9 +3,9 @@
 namespace App\Form\Admin;
 
 use App\Entity\Album;
+use App\Entity\AlbumTranslation;
 use App\Entity\Artist;
 use App\Entity\Band;
-use App\Entity\ProductTranslation;
 use Aropixel\AdminBundle\Form\Type\DateTimeType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
 use Aropixel\AdminBundle\Form\Type\Image\Single\ImageType;
@@ -44,8 +44,8 @@ class AlbumType extends AbstractType
             ->add('description', TranslatableType::class, [
                 'label' => 'Description',
                 'required' => false,
-                'personal_translation' => ProductTranslation::class,
-                'property_path' => 'translations',
+                'personal_translation' => AlbumTranslation::class,
+                'property_path' => 'albumTranslations',
                 'widget' => EditorType::class,
             ])
             ->add('band', EntityType::class, [

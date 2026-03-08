@@ -3,18 +3,22 @@
 namespace App\Entity;
 
 use App\Repository\AlbumRepository;
+use Aropixel\AdminBundle\Entity\PublishableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Gedmo\Translatable\Translatable;
 use Sylius\Component\Core\Model\Product as BaseProduct;
 use Sylius\Component\Product\Model\ProductTranslationInterface;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 #[ORM\Table(name: 'indie_album')]
-class Album extends Product
+#[Gedmo\TranslationEntity(class: AlbumTranslation::class)]
+class Album extends Product implements Translatable
 {
+    use PublishableTrait;
 
     #[Gedmo\Slug(fields: ['title'])]
     #[ORM\Column(length: 255)]
@@ -31,6 +35,18 @@ class Album extends Product
 
     #[ORM\Column(length: 20)]
     private ?string $status = 'offline';
+
+    #[Gedmo\Translatable]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    /**
+     * @var Collection<int, AlbumTranslation>
+     */
+    #[ORM\OneToMany(targetEntity: AlbumTranslation::class, mappedBy: 'object', cascade: ['persist', 'remove'])]
+    protected ?Collection $albumTranslations = null;
+
+    private ?string $translatableLocale = null;
 
     /**
      * @var Collection<int, Album>
@@ -68,6 +84,7 @@ class Album extends Product
         $this->artists = new ArrayCollection();
         $this->releases = $this->variants;
         $this->tracklists = new ArrayCollection();
+        $this->albumTranslations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -141,8 +158,30 @@ class Album extends Product
         return $this;
     }
 
-    public function setTranslatableLocale($locale)
+    public function setTranslatableLocale($locale): void
     {
+        $this->translatableLocale = $locale;
+    }
+
+    /**
+     * @return Collection<int, AlbumTranslation>
+     */
+    public function getAlbumTranslations(): Collection
+    {
+        return $this->albumTranslations;
+    }
+
+    public function addAlbumTranslation(AlbumTranslation $t): void
+    {
+        if (!$this->albumTranslations->contains($t)) {
+            $this->albumTranslations[] = $t;
+            $t->setObject($this);
+        }
+    }
+
+    public function removeAlbumTranslation(AlbumTranslation $t): void
+    {
+        $this->albumTranslations->removeElement($t);
     }
 
     /**
