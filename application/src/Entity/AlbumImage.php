@@ -1,19 +1,23 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: Aropixel
+ * Date: 08/03/2026
+ * Time: 21:30
+ */
 
 namespace App\Entity;
 
-use App\Entity\Band;
 use Aropixel\AdminBundle\Entity\AttachedImage;
-
 use Aropixel\AdminBundle\Entity\CroppableInterface;
 use Aropixel\AdminBundle\Entity\CroppableTrait;
-
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'indie_band_image')]
-class BandImage extends AttachedImage implements CroppableInterface
+#[ORM\Table(name: 'indie_album_image')]
+class AlbumImage extends AttachedImage implements CroppableInterface
 {
     use CroppableTrait;
 
@@ -22,34 +26,35 @@ class BandImage extends AttachedImage implements CroppableInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(targetEntity: Band::class, inversedBy: 'image')]
-    #[ORM\JoinColumn(name: 'band_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?Band $band = null;
+    #[ORM\OneToOne(targetEntity: Album::class, inversedBy: 'artwork')]
+    private ?Album $album = null;
 
-
-    #[ORM\OneToMany(targetEntity: BandImageCrop::class, mappedBy: "image", cascade: ["remove", "persist"])]
+    #[ORM\OneToMany(targetEntity: AlbumImageCrop::class, mappedBy: "artwork", cascade: ["remove", "persist"])]
     protected ?Collection $crops = null;
 
+    public function __construct()
+    {
+        $this->crops = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getBand(): ?Band
+    public function getAlbum(): ?Album
     {
-        return $this->band;
+        return $this->album;
     }
 
-    public function setBand(?Band $band): self
+    public function setAlbum(?Album $album): self
     {
-        $this->band = $band;
+        $this->album = $album;
 
         return $this;
     }
 
-
-    public function addCrop(BandImageCrop $crop): self
+    public function addCrop(AlbumImageCrop $crop): self
     {
         if (!$this->crops->contains($crop)) {
             $this->crops[] = $crop;
@@ -59,7 +64,7 @@ class BandImage extends AttachedImage implements CroppableInterface
         return $this;
     }
 
-    public function removeCrop(BandImageCrop $crop): self
+    public function removeCrop(AlbumImageCrop $crop): self
     {
         if ($this->crops->contains($crop)) {
             $this->crops->removeElement($crop);
@@ -71,5 +76,4 @@ class BandImage extends AttachedImage implements CroppableInterface
 
         return $this;
     }
-
 }

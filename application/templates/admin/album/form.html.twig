@@ -1,0 +1,65 @@
+{% extends '@AropixelAdmin/Form/base.html.twig' %}
+
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
+
+{% set is_edit = album.id is not null %}
+{% set title = is_edit ? 'Modifier l\'album : ' ~ album.title : 'Ajouter un album' %}
+
+{% block meta_title %}{{ title }}{% endblock %}
+
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        { label: 'text.home', url: url('_admin') },
+        { label: 'Albums', url: url('admin_album_index')  },
+        { label: is_edit ? 'Modification' : 'Ajout'  },
+    ]) }}
+{% endblock %}
+
+{% block tabbable %}
+    {{ forms.tabs([
+        { id: 'panel-tab-general', label: 'Général' },
+        { id: 'panel-tab-description', label: 'Description' },
+        { id: 'panel-tab-relations', label: 'Relations' },
+    ]) }}
+{% endblock %}
+
+{% block mainPanel %}
+
+    {# Tab 1: General Info #}
+    <div class="tab-pane active" id="panel-tab-general">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.artwork) }}
+                {{ form_row(form.title) }}
+                {{ form_row(form.catalogNumber) }}
+                {{ form_row(form.releaseDate) }}
+                {{ form_row(form.status) }}
+                {{ form_row(form.slug) }}
+            </div>
+        </div>
+    </div>
+
+    {# Tab 2: Description #}
+    <div class="tab-pane" id="panel-tab-description">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.description) }}
+            </div>
+        </div>
+    </div>
+
+    {# Tab 3: Relations #}
+    <div class="tab-pane" id="panel-tab-relations">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.band) }}
+                {{ form_row(form.artists) }}
+                {{ form_row(form.similarAlbums) }}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

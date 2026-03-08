@@ -8,6 +8,7 @@ use App\Entity\Band;
 use App\Entity\ProductTranslation;
 use Aropixel\AdminBundle\Form\Type\DateTimeType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
+use Aropixel\AdminBundle\Form\Type\Image\Single\ImageType;
 use Aropixel\AdminBundle\Form\Type\Select2Type;
 use Aropixel\AdminBundle\Form\Type\TranslatableType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -24,7 +25,11 @@ class AlbumType extends AbstractType
         $builder
             ->add('status', HiddenType::class)
             ->add('slug', HiddenType::class)
-            ->add('title', TextType::class, [
+            ->add('artwork', ImageType::class, [
+                'label' => 'Image',
+                'required' => false,
+            ])
+            ->add('name', TextType::class, [
                 'label' => 'Titre',
                 'required' => true,
             ])

@@ -58,6 +58,9 @@ class Album extends Product
     #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $tracklists;
 
+    #[ORM\OneToOne(targetEntity: AlbumImage::class, mappedBy: 'album', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private ?AlbumImage $artwork = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -247,6 +250,22 @@ class Album extends Product
             }
         }
 
+        return $this;
+    }
+
+    public function getArtwork(): ?AlbumImage
+    {
+        return $this->artwork;
+    }
+
+    public function setArtwork(?AlbumImage $artwork): self
+    {
+        if ($artwork === null || $artwork->getImage() === null) {
+            $this->artwork = null;
+        } else {
+            $this->artwork = $artwork;
+            $this->artwork->setAlbum($this);
+        }
         return $this;
     }
 }

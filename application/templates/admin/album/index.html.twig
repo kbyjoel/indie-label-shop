@@ -1,0 +1,19 @@
+{% extends '@AropixelAdmin/List/datatable.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+
+{% block meta_title %}Albums{% endblock %}
+
+{% block header_title %}Albums{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        { label: 'text.home', url: url('_admin') },
+        { label: 'Albums' }
+    ]) }}
+{% endblock %}
+
+{% block header_buttons %}
+    <a href="{{ path('admin_album_new') }}" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus"></i> Ajouter un album
+    </a>
+{% endblock %}

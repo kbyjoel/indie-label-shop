@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20260308173835 extends AbstractMigration
+final class Version20260308202540 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -27,10 +27,12 @@ final class Version20260308173835 extends AbstractMigration
         $this->addSql('CREATE TABLE indie_album (slug VARCHAR(255) NOT NULL, title VARCHAR(255) NOT NULL, catalog_number VARCHAR(100) DEFAULT NULL, release_date DATE DEFAULT NULL, status VARCHAR(20) NOT NULL, id INT NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE indie_album_similar (album_source INT NOT NULL, album_target INT NOT NULL, INDEX IDX_E4C840C18DF142C4 (album_source), INDEX IDX_E4C840C19414124B (album_target), PRIMARY KEY (album_source, album_target)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE indie_album_artist (album_id INT NOT NULL, artist_id INT NOT NULL, INDEX IDX_1D5D4DBB1137ABCF (album_id), INDEX IDX_1D5D4DBBB7970CF8 (artist_id), PRIMARY KEY (album_id, artist_id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE indie_album_image (title VARCHAR(255) DEFAULT NULL, link VARCHAR(255) DEFAULT NULL, description LONGTEXT DEFAULT NULL, attr_title VARCHAR(255) DEFAULT NULL, attr_alt VARCHAR(255) DEFAULT NULL, attr_class VARCHAR(255) DEFAULT NULL, position INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, id INT AUTO_INCREMENT NOT NULL, image_id INT DEFAULT NULL, album_id INT DEFAULT NULL, INDEX IDX_AD875A0E3DA5256D (image_id), UNIQUE INDEX UNIQ_AD875A0E1137ABCF (album_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE indie_album_image_crop (filter VARCHAR(255) NOT NULL, crop VARCHAR(255) DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, id INT AUTO_INCREMENT NOT NULL, image_id INT DEFAULT NULL, INDEX IDX_54B4D3863DA5256D (image_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE indie_artist (id INT AUTO_INCREMENT NOT NULL, last_name VARCHAR(255) NOT NULL, first_name VARCHAR(255) NOT NULL, address LONGTEXT NOT NULL, zip_code VARCHAR(30) NOT NULL, city VARCHAR(255) NOT NULL, phone VARCHAR(30) NOT NULL, email VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE indie_band (id INT AUTO_INCREMENT NOT NULL, status VARCHAR(20) NOT NULL, slug VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, website VARCHAR(255) DEFAULT NULL, email VARCHAR(255) DEFAULT NULL, facebook VARCHAR(255) DEFAULT NULL, twitter VARCHAR(255) DEFAULT NULL, instagram VARCHAR(255) DEFAULT NULL, description LONGTEXT DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE indie_band_artist (band_id INT NOT NULL, artist_id INT NOT NULL, INDEX IDX_E61EBF2149ABEB17 (band_id), INDEX IDX_E61EBF21B7970CF8 (artist_id), PRIMARY KEY (band_id, artist_id)) DEFAULT CHARACTER SET utf8mb4');
-        $this->addSql('CREATE TABLE indie_band_image (title VARCHAR(255) DEFAULT NULL, link VARCHAR(255) DEFAULT NULL, description LONGTEXT DEFAULT NULL, attr_title VARCHAR(255) DEFAULT NULL, attr_alt VARCHAR(255) DEFAULT NULL, attr_class VARCHAR(255) DEFAULT NULL, position INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, id INT AUTO_INCREMENT NOT NULL, image_id INT DEFAULT NULL, band_id INT DEFAULT NULL, INDEX IDX_3A39A5513DA5256D (image_id), INDEX IDX_3A39A55149ABEB17 (band_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
+        $this->addSql('CREATE TABLE indie_band_image (title VARCHAR(255) DEFAULT NULL, link VARCHAR(255) DEFAULT NULL, description LONGTEXT DEFAULT NULL, attr_title VARCHAR(255) DEFAULT NULL, attr_alt VARCHAR(255) DEFAULT NULL, attr_class VARCHAR(255) DEFAULT NULL, position INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, id INT AUTO_INCREMENT NOT NULL, image_id INT DEFAULT NULL, band_id INT DEFAULT NULL, INDEX IDX_3A39A5513DA5256D (image_id), UNIQUE INDEX UNIQ_3A39A55149ABEB17 (band_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE indie_band_image_crop (filter VARCHAR(255) NOT NULL, crop VARCHAR(255) DEFAULT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, id INT AUTO_INCREMENT NOT NULL, image_id INT DEFAULT NULL, INDEX IDX_C13242AA3DA5256D (image_id), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE indie_band_translation (id INT AUTO_INCREMENT NOT NULL, locale VARCHAR(8) NOT NULL, field VARCHAR(32) NOT NULL, content LONGTEXT DEFAULT NULL, object_id INT DEFAULT NULL, INDEX IDX_F2DE3183232D562B (object_id), INDEX indie_band_translation_idx (locale, object_id, field), PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
         $this->addSql('CREATE TABLE indie_media (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(100) NOT NULL, is_digital TINYINT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY (id)) DEFAULT CHARACTER SET utf8mb4');
@@ -71,6 +73,9 @@ final class Version20260308173835 extends AbstractMigration
         $this->addSql('ALTER TABLE indie_album_similar ADD CONSTRAINT FK_E4C840C19414124B FOREIGN KEY (album_target) REFERENCES indie_album (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE indie_album_artist ADD CONSTRAINT FK_1D5D4DBB1137ABCF FOREIGN KEY (album_id) REFERENCES indie_album (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE indie_album_artist ADD CONSTRAINT FK_1D5D4DBBB7970CF8 FOREIGN KEY (artist_id) REFERENCES indie_artist (id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE indie_album_image ADD CONSTRAINT FK_AD875A0E3DA5256D FOREIGN KEY (image_id) REFERENCES aropixel_image (id)');
+        $this->addSql('ALTER TABLE indie_album_image ADD CONSTRAINT FK_AD875A0E1137ABCF FOREIGN KEY (album_id) REFERENCES indie_album (id)');
+        $this->addSql('ALTER TABLE indie_album_image_crop ADD CONSTRAINT FK_54B4D3863DA5256D FOREIGN KEY (image_id) REFERENCES indie_album_image (id)');
         $this->addSql('ALTER TABLE indie_band_artist ADD CONSTRAINT FK_E61EBF2149ABEB17 FOREIGN KEY (band_id) REFERENCES indie_band (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE indie_band_artist ADD CONSTRAINT FK_E61EBF21B7970CF8 FOREIGN KEY (artist_id) REFERENCES indie_artist (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE indie_band_image ADD CONSTRAINT FK_3A39A5513DA5256D FOREIGN KEY (image_id) REFERENCES aropixel_image (id)');
@@ -123,6 +128,9 @@ final class Version20260308173835 extends AbstractMigration
         $this->addSql('ALTER TABLE indie_album_similar DROP FOREIGN KEY FK_E4C840C19414124B');
         $this->addSql('ALTER TABLE indie_album_artist DROP FOREIGN KEY FK_1D5D4DBB1137ABCF');
         $this->addSql('ALTER TABLE indie_album_artist DROP FOREIGN KEY FK_1D5D4DBBB7970CF8');
+        $this->addSql('ALTER TABLE indie_album_image DROP FOREIGN KEY FK_AD875A0E3DA5256D');
+        $this->addSql('ALTER TABLE indie_album_image DROP FOREIGN KEY FK_AD875A0E1137ABCF');
+        $this->addSql('ALTER TABLE indie_album_image_crop DROP FOREIGN KEY FK_54B4D3863DA5256D');
         $this->addSql('ALTER TABLE indie_band_artist DROP FOREIGN KEY FK_E61EBF2149ABEB17');
         $this->addSql('ALTER TABLE indie_band_artist DROP FOREIGN KEY FK_E61EBF21B7970CF8');
         $this->addSql('ALTER TABLE indie_band_image DROP FOREIGN KEY FK_3A39A5513DA5256D');
@@ -170,6 +178,8 @@ final class Version20260308173835 extends AbstractMigration
         $this->addSql('DROP TABLE indie_album');
         $this->addSql('DROP TABLE indie_album_similar');
         $this->addSql('DROP TABLE indie_album_artist');
+        $this->addSql('DROP TABLE indie_album_image');
+        $this->addSql('DROP TABLE indie_album_image_crop');
         $this->addSql('DROP TABLE indie_artist');
         $this->addSql('DROP TABLE indie_band');
         $this->addSql('DROP TABLE indie_band_artist');
