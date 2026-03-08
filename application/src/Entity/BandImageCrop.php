@@ -6,6 +6,7 @@ use Aropixel\AdminBundle\Entity\Crop;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
+#[ORM\Table(name: 'indie_band_image_crop')]
 class BandImageCrop extends Crop
 {
     #[ORM\Id]

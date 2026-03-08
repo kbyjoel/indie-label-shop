@@ -63,9 +63,8 @@ class Band implements Translatable
     #[ORM\JoinTable(name: 'indie_band_artist')]
     private Collection $members;
 
-    #[ORM\OneToOne(targetEntity: BandImage::class, inversedBy: "band", cascade: ["persist", "remove"], orphanRemoval: true)]
-    #[ORM\JoinColumn(name: "image_id", referencedColumnName: "id", onDelete: "SET NULL")]
-    private ?BandImage $image = null;
+    #[ORM\OneToMany(mappedBy: 'band', targetEntity: BandImage::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $images;
 
     /**
      * @var Collection<int, BandTranslation>
@@ -77,6 +76,7 @@ class Band implements Translatable
     {
         $this->members = new ArrayCollection();
         $this->translations = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -222,19 +222,48 @@ class Band implements Translatable
     }
 
 
+    /**
+     * @return Collection<int, BandImage>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(BandImage $image): self
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setBand($this);
+        }
+        return $this;
+    }
+
+    public function removeImage(BandImage $image): self
+    {
+        if ($this->images->removeElement($image)) {
+            if ($image->getBand() === $this) {
+                $image->setBand(null);
+            }
+        }
+        return $this;
+    }
+
     public function getImage(): ?BandImage
     {
-        return $this->image;
+        return $this->images->first() ?: null;
     }
 
     public function setImage(?BandImage $image): self
     {
-        if ($image === null || $image->getImage() === null) {
-            $this->image = null;
-        } else {
-            $this->image = $image;
-            $this->image->setBand($this);
+        foreach ($this->images as $existingImage) {
+            $this->removeImage($existingImage);
         }
+
+        if ($image !== null) {
+            $this->addImage($image);
+        }
+
         return $this;
     }
 

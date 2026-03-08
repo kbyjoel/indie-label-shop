@@ -1,0 +1,15 @@
+{% import '@AropixelAdmin/Macro/actions.html.twig' as list %}
+
+{{ list.actions([
+    {
+        'route': 'admin_product_option_edit',
+        'params': { 'id': item.id },
+        'label': 'Modifier'
+    },
+    {
+        'route': 'admin_product_option_delete',
+        'params': { 'id': item.id },
+        'label': 'Supprimer',
+        'delete': true
+    }
+]) }}

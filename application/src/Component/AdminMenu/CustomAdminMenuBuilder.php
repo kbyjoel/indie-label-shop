@@ -36,6 +36,8 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
     {
         $menu = new Menu('content', 'Catalogue');
         $menu->addItem(new Link('Groupes', 'admin_band_index', [], ['icon' => 'fas fa-newspaper']));
+        $menu->addItem(new Link('Médias', 'admin_media_index', [], ['icon' => 'fas fa-photo-video']));
+        $menu->addItem(new Link('Options', 'admin_product_option_index', [], ['icon' => 'fas fa-list-ul']));
 
         return $menu;
     }

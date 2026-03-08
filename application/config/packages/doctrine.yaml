@@ -44,6 +44,10 @@ doctrine:
             Sylius\Component\Addressing\Model\ProvinceInterface: App\Entity\Province
             Sylius\Component\Addressing\Model\ZoneInterface: App\Entity\Zone
             Sylius\Component\Addressing\Model\ZoneMemberInterface: App\Entity\ZoneMember
+            Sylius\Component\Product\Model\ProductOptionInterface: App\Entity\ProductOption
+            Sylius\Component\Product\Model\ProductOptionTranslationInterface: App\Entity\ProductOptionTranslation
+            Sylius\Component\Product\Model\ProductOptionValueInterface: App\Entity\ProductOptionValue
+            Sylius\Component\Product\Model\ProductOptionValueTranslationInterface: App\Entity\ProductOptionValueTranslation
 
 when@test:
     doctrine:

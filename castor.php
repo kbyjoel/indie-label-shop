@@ -122,7 +122,7 @@ function migrate(): void
 #[AsTask(description: 'Loads fixtures', namespace: 'app:db', aliases: ['fixture'])]
 function fixtures(): void
 {
-    // io()->title('Loads fixtures');
+    io()->title('Loads fixtures');
 
-    // docker_compose_run('bin/console doctrine:fixture:load -n');
+    docker_compose_run('bin/console doctrine:fixture:load -n');
 }

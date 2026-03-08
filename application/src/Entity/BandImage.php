@@ -12,6 +12,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
+#[ORM\Table(name: 'indie_band_image')]
 class BandImage extends AttachedImage implements CroppableInterface
 {
     use CroppableTrait;
@@ -21,7 +22,8 @@ class BandImage extends AttachedImage implements CroppableInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'image')]
+    #[ORM\ManyToOne(targetEntity: Band::class, inversedBy: 'images')]
+    #[ORM\JoinColumn(name: 'band_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Band $band = null;
 
 

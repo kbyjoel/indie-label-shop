@@ -18,4 +18,11 @@ class ProductOptionTranslation extends BaseProductOptionTranslation
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected $name;
+
+    #[ORM\ManyToOne(targetEntity: ProductOption::class, inversedBy: 'translations')]
+    #[ORM\JoinColumn(name: 'translatable_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    protected ?\Sylius\Resource\Model\TranslatableInterface $translatable = null;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    protected ?string $locale = null;
 }

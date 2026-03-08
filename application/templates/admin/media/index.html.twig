@@ -1,0 +1,20 @@
+{% extends '@AropixelAdmin/List/datatable.html.twig' %}
+
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+
+{% block meta_title %}Médias{% endblock %}
+
+{% block header_title %}Médias{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        { label: 'text.home'|trans, url: url('_admin') },
+        { label: 'Médias' }
+    ]) }}
+{% endblock %}
+
+{% block header_actions %}
+    <a href="{{ url('admin_media_new') }}" class="btn btn-primary">
+        <i class="icon-plus3 mr-2"></i> Ajouter un média
+    </a>
+{% endblock %}

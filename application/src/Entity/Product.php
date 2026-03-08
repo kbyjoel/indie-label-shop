@@ -25,7 +25,7 @@ class Product extends BaseProduct
     protected $code;
 
     /** @var Collection<array-key, ProductTranslationInterface> */
-    #[ORM\OneToMany(mappedBy: 'translatable', targetEntity: ProductTranslation::class, cascade: ['all'], fetch: 'EAGER', orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'translatable', targetEntity: ProductTranslation::class, cascade: ['all'], fetch: 'EAGER', orphanRemoval: true, indexBy: 'locale')]
     protected $translations;
 
     /** @var Collection<array-key, Channel> */

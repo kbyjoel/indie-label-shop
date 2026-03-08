@@ -1,0 +1,27 @@
+{% extends '@AropixelAdmin/Form/base.html.twig' %}
+
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+
+{% set is_edit = media.id is not null %}
+{% set title = is_edit ? 'Modifier le média : ' ~ media.name : 'Ajouter un média' %}
+
+{% block meta_title %}{{ title }}{% endblock %}
+
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        { label: 'text.home'|trans, url: url('_admin') },
+        { label: 'Médias', url: url('admin_media_index') },
+        { label: is_edit ? 'Modification' : 'Ajout' }
+    ]) }}
+{% endblock %}
+
+{% block mainPanel %}
+    <div class="card card-centered card-centered-large">
+        <div class="card-body">
+            {{ form_row(form.name) }}
+            {{ form_row(form.isDigital) }}
+        </div>
+    </div>
+{% endblock %}

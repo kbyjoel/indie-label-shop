@@ -17,8 +17,15 @@ class ProductOptionValue extends BaseProductOptionValue
     #[ORM\Column(type: 'integer')]
     protected $id;
 
-    #[ORM\Column(type: 'string', unique: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     protected $code;
+
+    #[ORM\ManyToOne(targetEntity: ProductOption::class, inversedBy: 'values')]
+    #[ORM\JoinColumn(name: 'option_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    protected $option;
+
+    #[ORM\OneToMany(mappedBy: 'translatable', targetEntity: ProductOptionValueTranslation::class, cascade: ['all'], fetch: 'EAGER', orphanRemoval: true, indexBy: 'locale')]
+    protected $translations;
 
     protected function createTranslation(): ProductOptionValueTranslationInterface
     {
