@@ -3,11 +3,13 @@
 namespace App\Form\Admin;
 
 use App\Entity\Album;
+use App\Entity\AlbumImage;
 use App\Entity\AlbumTranslation;
 use App\Entity\Artist;
 use App\Entity\Band;
 use Aropixel\AdminBundle\Form\Type\DateTimeType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
+use Aropixel\AdminBundle\Form\Type\FilterableEntitiesType;
 use Aropixel\AdminBundle\Form\Type\Image\Single\ImageType;
 use Aropixel\AdminBundle\Form\Type\Select2Type;
 use Aropixel\AdminBundle\Form\Type\TranslatableType;
@@ -27,6 +29,7 @@ class AlbumType extends AbstractType
             ->add('slug', HiddenType::class)
             ->add('artwork', ImageType::class, [
                 'label' => 'Image',
+                'data_class' => AlbumImage::class,
                 'required' => false,
             ])
             ->add('name', TextType::class, [
@@ -55,21 +58,19 @@ class AlbumType extends AbstractType
                 'placeholder' => 'Choisir un groupe',
                 'required' => false,
             ])
-            ->add('artists', Select2Type::class, [
-                'label' => 'Artistes',
-                'repository' => Artist::class,
-                'route' => 'admin_artist_ajax_search',
-                'choice_label' => 'lastName',
-                'multiple' => true,
-                'required' => false,
-            ])
-            ->add('similarAlbums', Select2Type::class, [
+//            ->add('artists', Select2Type::class, [
+//                'label' => 'Artistes',
+//                'repository' => Artist::class,
+//                'route' => 'admin_artist_ajax_search',
+//                'choice_label' => 'lastName',
+//                'multiple' => true,
+//                'required' => false,
+//            ])
+            ->add('similarAlbums', FilterableEntitiesType::class, [
                 'label' => 'Albums similaires',
                 'repository' => Album::class,
-                'route' => 'admin_album_ajax_search',
-                'choice_label' => 'title',
-                'multiple' => true,
-                'required' => false,
+                'route' => 'admin_album_select2',
+
             ])
         ;
     }

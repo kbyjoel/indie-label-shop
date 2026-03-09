@@ -4,7 +4,7 @@
 {% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
 
 {% set is_edit = album.id is not null %}
-{% set title = is_edit ? 'Modifier l\'album : ' ~ album.title : 'Ajouter un album' %}
+{% set title = is_edit ? 'Modifier l\'album : ' ~ album.name : 'Ajouter un album' %}
 
 {% block meta_title %}{{ title }}{% endblock %}
 
@@ -32,12 +32,11 @@
     <div class="tab-pane active" id="panel-tab-general">
         <div class="card card-centered card-centered-large">
             <div class="card-body">
-                {{ form_row(form.artwork) }}
-                {{ form_row(form.title) }}
+                {{ form_row(form.name) }}
+                {{ form_row(form.band) }}
                 {{ form_row(form.catalogNumber) }}
                 {{ form_row(form.releaseDate) }}
-                {{ form_row(form.status) }}
-                {{ form_row(form.slug) }}
+                {{ form_row(form.artwork) }}
             </div>
         </div>
     </div>
@@ -55,8 +54,6 @@
     <div class="tab-pane" id="panel-tab-relations">
         <div class="card card-centered card-centered-large">
             <div class="card-body">
-                {{ form_row(form.band) }}
-                {{ form_row(form.artists) }}
                 {{ form_row(form.similarAlbums) }}
             </div>
         </div>

@@ -6,6 +6,7 @@ use App\Entity\Album;
 use App\Form\Admin\AlbumType;
 use App\Repository\AlbumRepository;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
+use Aropixel\AdminBundle\Component\Select2\Select2;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -95,5 +96,17 @@ class AlbumController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_album_index');
+    }
+
+    #[Route("/select2", name: "select2", methods: ["GET"])]
+    public function select2(Select2 $select2): Response
+    {
+        return $select2
+            ->withEntity(Album::class)
+            ->searchIn(['name'])
+            ->render(fn(Album $c) => [
+                $c->getId(),
+                $c->getName(),
+            ]);
     }
 }
