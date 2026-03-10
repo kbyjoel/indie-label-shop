@@ -1,7 +1,5 @@
 {% extends '@AropixelAdmin/Form/base.html.twig' %}
 
-{% form_theme form.tracklists with _self only %}
-
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
 {% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
 
@@ -19,110 +17,6 @@
         { label: is_edit ? 'Modification' : 'Ajout'  },
     ]) }}
 {% endblock %}
-
-
-{% block _album_tracklists_row %}
-    {{ form_widget(form) }}
-{% endblock %}
-
-
-{% block _album_tracklists_widget %}
-
-    {% apply spaceless %}
-        <div data-form-type="collection" {{ block('widget_container_attributes') }}>
-
-            <div class="mb-3">
-                <a href="#" data-form-collection-add="{{ id }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus"></i> Ajouter un morceau
-                </a>
-            </div>
-
-            {% if prototype is defined and allow_add %}
-                {% set item = prototype %}
-                {% set prototype_html = block('_album_tracklists_entry_row') %}
-                <div class="d-none" data-prototype-content>
-                    {{ prototype_html|raw }}
-                </div>
-                <div data-prototype="{{ prototype_html|e('html_attr') }}"></div>
-            {% endif %}
-
-            <table class="table table-striped table-hover mt-3">
-                <thead>
-                <tr>
-                    <th style="width: 50px;"></th>
-                    <th style="width: 80px;">Pos.</th>
-                    <th>Titre</th>
-                    <th style="width: 150px;" class="text-end">Actions</th>
-                </tr>
-                </thead>
-                <tbody data-form-collection="list">
-                {% for item in form %}
-                    {{ block('_album_tracklists_entry_row') }}
-                {% endfor %}
-                </tbody>
-            </table>
-
-        </div>
-    {% endapply %}
-
-{% endblock %}
-
-
-{% block _album_tracklists_entry_row %}
-    <tr class="collection-item" data-form-collection="item" data-form-collection-index="{{ item.vars.name }}">
-        <td class="align-middle">
-            <a href="#" data-form-collection="move" class="move btn btn-link btn-xs p-0 text-muted">
-                <i class="fas fa-arrows-alt"></i>
-            </a>
-        </td>
-        <td class="align-middle">
-            {{ form_widget(item.position, { 'attr': { 'class': 'form-control-sm' } }) }}
-        </td>
-        <td class="align-middle">
-            <span class="track-title-display">
-                {% if item.track.name.vars.value %}
-                    {{ item.track.name.vars.value }}
-                {% else %}
-                    <em class="text-muted">Nouveau morceau</em>
-                {% endif %}
-            </span>
-        </td>
-        <td class="align-middle text-end">
-            <div class="btn-group dropstart">
-                <button type="button" class="badge badge-light badge-icon" data-bs-toggle="dropdown">
-                    <i class="fas fa-ellipsis-h"></i>
-                </button>
-                <div class="dropdown-menu dropdown-menu-end" data-bs-popper="static">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#modal-track-{{ item.vars.id }}" class="dropdown-item has-icon"><i class="fas fa-edit"></i> {{ 'text.edit'|trans }}</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item has-icon delete text-danger" href="#" data-form-collection="delete"><i class="fas fa-trash"></i> {{ 'text.delete'|trans }}</a>
-                </div>
-            </div>
-
-            {# Modal for editing track details #}
-            <div class="modal fade" id="modal-track-{{ item.vars.id }}" tabindex="-1" aria-labelledby="modal-track-label-{{ item.vars.id }}" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header text-start">
-                            <h5 class="modal-title" id="modal-track-label-{{ item.vars.id }}">Détails du morceau</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body text-start">
-                            {{ form_row(item.track.name, { 'attr': { 'data-track-title-input': '' } }) }}
-                            {{ form_row(item.track.duration) }}
-                            {{ form_row(item.track.isrc) }}
-                            {{ form_row(item.track.lyrics) }}
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </td>
-    </tr>
-{% endblock %}
-
 
 {% block tabbable %}
     {{ forms.tabs([
@@ -161,7 +55,7 @@
     <div class="tab-pane" id="panel-tab-tracks">
         <div class="card card-centered card-centered-large">
             <div class="card-body">
-                {{ form_row(form.tracklists) }}
+                {{ form_widget(form.tracklists) }}
             </div>
         </div>
     </div>
@@ -175,25 +69,4 @@
         </div>
     </div>
 
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-    <script>
-        document.addEventListener('input', function (e) {
-            if (e.target.hasAttribute('data-track-title-input')) {
-                const row = e.target.closest('.collection-item');
-                if (row) {
-                    const display = row.querySelector('.track-title-display');
-                    if (display) {
-                        if (!e.target.value) {
-                            display.innerHTML = '<em class="text-muted">Nouveau morceau</em>';
-                        } else {
-                            display.textContent = e.target.value;
-                        }
-                    }
-                }
-            }
-        });
-    </script>
 {% endblock %}
