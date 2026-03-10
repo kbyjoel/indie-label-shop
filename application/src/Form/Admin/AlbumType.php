@@ -7,6 +7,7 @@ use App\Entity\AlbumImage;
 use App\Entity\AlbumTranslation;
 use App\Entity\Artist;
 use App\Entity\Band;
+use App\Form\Admin\TracklistType;
 use Aropixel\AdminBundle\Form\Type\DateTimeType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
 use Aropixel\AdminBundle\Form\Type\FilterableEntitiesType;
@@ -15,6 +16,7 @@ use Aropixel\AdminBundle\Form\Type\Select2Type;
 use Aropixel\AdminBundle\Form\Type\TranslatableType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -71,6 +73,13 @@ class AlbumType extends AbstractType
                 'repository' => Album::class,
                 'route' => 'admin_album_select2',
 
+            ])
+            ->add('tracklists', CollectionType::class, [
+                'entry_type' => TracklistType::class,
+                'label' => false,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
             ])
         ;
     }
