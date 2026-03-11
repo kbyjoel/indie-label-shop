@@ -33,6 +33,9 @@ class Track extends ProductVariant
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $lyrics = null;
 
+    #[ORM\OneToOne(mappedBy: 'track', targetEntity: TrackWavFile::class, cascade: ['persist', 'remove'])]
+    private ?TrackWavFile $wavFile = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -85,6 +88,23 @@ class Track extends ProductVariant
     public function setLyrics(?string $lyrics): static
     {
         $this->lyrics = $lyrics;
+
+        return $this;
+    }
+
+    public function getWavFile(): ?TrackWavFile
+    {
+        return $this->wavFile;
+    }
+
+    public function setWavFile(?TrackWavFile $wavFile): self
+    {
+        // set the owning side of the relation if necessary
+        if ($wavFile !== null && $wavFile->getTrack() !== $this) {
+            $wavFile->setTrack($this);
+        }
+
+        $this->wavFile = $wavFile;
 
         return $this;
     }

@@ -88,9 +88,9 @@ services:
         profiles:
             - default
 
-    # worker_messenger:
-    #     <<: *worker_base
-    #     command: php -d memory_limit=1G /var/www/application/bin/console messenger:consume async --memory-limit=128M
+    worker_messenger:
+        <<: *worker_base
+        command: php -d memory_limit=1G /var/www/application/bin/console messenger:consume async --memory-limit=256M
 
     builder:
         build:

@@ -3,7 +3,9 @@
 namespace App\Form\Admin;
 
 use App\Entity\Track;
+use App\Entity\TrackWavFile;
 use Aropixel\AdminBundle\Form\Type\EditorType;
+use Aropixel\AdminBundle\Form\Type\File\Single\FileType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -30,6 +32,11 @@ class TrackType extends AbstractType
                 'label' => 'Paroles',
                 'required' => false,
                 'toolbar' => 'simple',
+            ])
+            ->add('wavFile', FileType::class, [
+                'label' => 'Fichier WAV',
+                'data_class' => TrackWavFile::class,
+                'required' => false,
             ])
         ;
     }

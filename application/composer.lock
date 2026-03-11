@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/aropixel/admin-bundle.git",
-                "reference": "743ac35320beb6fac41d7ff1a96eed8d9ba6cea2"
+                "reference": "17b34c6e1dbfea78c461fcb68047dcb815c4fc3d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aropixel/admin-bundle/zipball/743ac35320beb6fac41d7ff1a96eed8d9ba6cea2",
-                "reference": "743ac35320beb6fac41d7ff1a96eed8d9ba6cea2",
+                "url": "https://api.github.com/repos/aropixel/admin-bundle/zipball/17b34c6e1dbfea78c461fcb68047dcb815c4fc3d",
+                "reference": "17b34c6e1dbfea78c461fcb68047dcb815c4fc3d",
                 "shasum": ""
             },
             "require": {
@@ -66,7 +66,7 @@
                 "issues": "https://github.com/aropixel/admin-bundle/issues",
                 "source": "https://github.com/aropixel/admin-bundle/tree/release/finalversion"
             },
-            "time": "2026-03-11T18:21:01+00:00"
+            "time": "2026-03-11T19:06:37+00:00"
         },
         {
             "name": "behat/transliterator",
