@@ -53,6 +53,10 @@ class Tracklist
     {
         $this->album = $album;
 
+        if ($this->track && $album) {
+            $this->track->setProduct($album);
+        }
+
         return $this;
     }
 
@@ -64,6 +68,10 @@ class Tracklist
     public function setTrack(?Track $track): static
     {
         $this->track = $track;
+
+        if ($track && $this->album) {
+            $track->setProduct($this->album);
+        }
 
         return $this;
     }

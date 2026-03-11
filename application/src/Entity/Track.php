@@ -5,12 +5,22 @@ namespace App\Entity;
 use App\Repository\TrackRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Uid\Uuid;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity(repositoryClass: TrackRepository::class)]
 #[ORM\Table(name: 'indie_track')]
+#[ORM\HasLifecycleCallbacks]
 class Track extends ProductVariant
 {
+    #[ORM\PrePersist]
+    public function generateCode(): void
+    {
+        if (!$this->getCode()) {
+            $this->setCode(Uuid::v4()->toBase58());
+        }
+    }
+
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
