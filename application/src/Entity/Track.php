@@ -33,8 +33,8 @@ class Track extends ProductVariant
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $lyrics = null;
 
-    #[ORM\OneToOne(mappedBy: 'track', targetEntity: TrackWavFile::class, cascade: ['persist', 'remove'])]
-    private ?TrackWavFile $wavFile = null;
+    #[ORM\OneToOne(targetEntity: TrackMasterFile::class, mappedBy: 'track', cascade: ['persist', 'remove'])]
+    private ?TrackMasterFile $masterFile = null;
 
     public function getId(): ?int
     {
@@ -92,19 +92,19 @@ class Track extends ProductVariant
         return $this;
     }
 
-    public function getWavFile(): ?TrackWavFile
+    public function getMasterFile(): ?TrackMasterFile
     {
-        return $this->wavFile;
+        return $this->masterFile;
     }
 
-    public function setWavFile(?TrackWavFile $wavFile): self
+    public function setMasterFile(?TrackMasterFile $masterFile): self
     {
         // set the owning side of the relation if necessary
-        if ($wavFile !== null && $wavFile->getTrack() !== $this) {
-            $wavFile->setTrack($this);
+        if ($masterFile !== null && $masterFile->getTrack() !== $this) {
+            $masterFile->setTrack($this);
         }
 
-        $this->wavFile = $wavFile;
+        $this->masterFile = $masterFile;
 
         return $this;
     }

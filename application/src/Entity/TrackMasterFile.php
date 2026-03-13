@@ -6,8 +6,8 @@ use Aropixel\AdminBundle\Entity\AttachedFile;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'indie_track_wav_file')]
-class TrackWavFile extends AttachedFile
+#[ORM\Table(name: 'indie_track_master_file')]
+class TrackMasterFile extends AttachedFile
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

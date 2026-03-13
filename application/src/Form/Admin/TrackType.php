@@ -3,7 +3,7 @@
 namespace App\Form\Admin;
 
 use App\Entity\Track;
-use App\Entity\TrackWavFile;
+use App\Entity\TrackMasterFile;
 use Aropixel\AdminBundle\Form\Type\EditorType;
 use Aropixel\AdminBundle\Form\Type\File\Single\FileType;
 use Symfony\Component\Form\AbstractType;
@@ -33,10 +33,11 @@ class TrackType extends AbstractType
                 'required' => false,
                 'toolbar' => 'simple',
             ])
-            ->add('wavFile', FileType::class, [
-                'label' => 'Fichier WAV',
-                'data_class' => TrackWavFile::class,
+            ->add('masterFile', FileType::class, [
+                'label' => 'Fichier Master',
+                'data_class' => TrackMasterFile::class,
                 'required' => false,
+                'accept' => 'audio/flac,audio/wav',
             ])
         ;
     }
