@@ -14,7 +14,7 @@ class TrackMasterFile extends AttachedFile
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(targetEntity: Track::class, inversedBy: 'wavFile')]
+    #[ORM\OneToOne(targetEntity: Track::class, inversedBy: 'masterFile')]
     private ?Track $track = null;
 
     public function getId(): ?int

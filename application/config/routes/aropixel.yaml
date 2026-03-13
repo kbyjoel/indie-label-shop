@@ -1,3 +1,7 @@
 aropixel_admin:
     resource: '@AropixelAdminBundle/Resources/config/routes.yaml'
     prefix: /philosophy-club-band
+
+# Public download route (must be outside of protected prefix)
+aropixel_admin_download:
+    resource: '@AropixelAdminBundle/Resources/config/routes/download.yaml'

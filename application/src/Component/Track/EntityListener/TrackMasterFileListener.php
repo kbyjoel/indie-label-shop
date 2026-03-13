@@ -17,19 +17,19 @@ class TrackMasterFileListener
     ) {
     }
 
-    public function postPersist(TrackMasterFile $trackWavFile): void
+    public function postPersist(TrackMasterFile $trackMasterFile): void
     {
-        $this->dispatchEncodingMessage($trackWavFile);
+        $this->dispatchEncodingMessage($trackMasterFile);
     }
 
-    public function postUpdate(TrackMasterFile $trackWavFile): void
+    public function postUpdate(TrackMasterFile $trackMasterFile): void
     {
-        $this->dispatchEncodingMessage($trackWavFile);
+        $this->dispatchEncodingMessage($trackMasterFile);
     }
 
-    private function dispatchEncodingMessage(TrackMasterFile $trackWavFile): void
+    private function dispatchEncodingMessage(TrackMasterFile $trackMasterFile): void
     {
-        $track = $trackWavFile->getTrack();
+        $track = $trackMasterFile->getTrack();
         if ($track && $track->getId()) {
             $this->bus->dispatch(new EncodeTrackMp3Message($track->getId()));
         }

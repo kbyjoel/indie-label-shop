@@ -22,8 +22,8 @@ class EncodeTrackMp3Handler
             return;
         }
 
-        $wavFile = $track->getWavFile();
-        if (!$wavFile || !$wavFile->getFile()) {
+        $masterFile = $track->getMasterFile();
+        if (!$masterFile || !$masterFile->getFile()) {
             return;
         }
 
