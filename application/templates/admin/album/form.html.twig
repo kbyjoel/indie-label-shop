@@ -1,57 +1,9 @@
 {% extends '@AropixelAdmin/Form/base.html.twig' %}
 
-{% form_theme form.tracklists with _self %}
+{% form_theme form.tracklists 'admin/album/_layout.html.twig' %}
 
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
 {% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
-
-{% block _album_tracklists_entry_track_masterFile_file_widget %}
-    {# En surcharge native Symfony, l'objet FormView du champ est "form" (équivalent de "field" précédemment) #}
-    {# L'équivalent de "item" (TracklistType) est ici "form.parent.parent.parent" #}
-    {% set attachedFile = form.parent.vars.attachedFile is defined ? form.parent.vars.attachedFile : null %}
-    {% set type = type is defined ? type : 'files' %}
-    {% set item = form.parent.parent.parent %}
-    {% set entityClass = item.vars.value ? get_class(item.vars.value) : '' %}
-
-    <div class="fl-manager"
-         data-fl-type="{{ type }}"
-         data-fl-attach-path="{{ path('file_attach') }}"
-         data-fl-attach-id="{{ attachedFile ? attachedFile.id : '' }}"
-         data-fl-attach-class="{{ form.parent.vars.attach_class }}"
-         data-fl-entity-class="{{ entityClass }}"
-         data-fl-multiple="0"
-         {% if form.vars.accept is defined and form.vars.accept %}data-fl-accept="{{ form.vars.accept }}"{% endif %}
-         {% if form.vars.max_size is defined and form.vars.max_size %}data-fl-max-size="{{ form.vars.max_size }}"{% endif %}>
-
-        <div class="tableFiles">
-            {% if attachedFile and attachedFile.file %}
-                <div class="itemFile d-flex align-items-center">
-                    <span class="m-r-10 text-truncate" style="max-width: 150px;" title="{{ attachedFile.title|raw }}">{{ attachedFile.title|raw }}</span>
-                    <a class="btn btn-primary btn-icon btn-xs m-r-5" data-bs-toggle="modal" data-bs-target="#modalFilesLibrary" title="{{ 'Changer le fichier'|trans }}">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <a class="btn btn-primary btn-icon btn-xs m-r-5" href="{{ aropixel_file_url(attachedFile.file) }}" title="{{ 'Télécharger'|trans }}">
-                        <i class="fas fa-download"></i>
-                    </a>
-                    <a class="btn btn-danger text-white btn-icon btn-xs iconUnlinkFile" title="{{ 'Supprimer'|trans }}">
-                        <i class="fa fa-unlink"></i>
-                    </a>
-                    {{ form_widget(form) }}
-                </div>
-            {% else %}
-                <div class="itemNew d-flex align-items-center">
-                    <div class="d-none">
-                        {{ form_widget(form) }}
-                    </div>
-                    <a class="btn btn-outline-primary btn-xs" data-bs-toggle="modal" data-bs-target="#modalFilesLibrary">
-                        <i class="fas fa-plus mr-1"></i>
-                        {{ 'Ajouter'|trans }}
-                    </a>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-{% endblock %}
 
 
 {% set is_edit = album.id is not null %}

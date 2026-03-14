@@ -1,0 +1,53 @@
+{% block _album_tracklists_entry_track_masterFile_widget %}
+    {% set attachedFile = form.vars.value %}
+    {% set type = type is defined ? type : 'files' %}
+    {% set item = form.parent.parent.parent %}
+    {% set entityClass = item.vars.value ? get_class(item.vars.value) : '' %}
+
+    <div class="fl-manager"
+         data-fl-type="{{ type }}"
+         data-fl-attach-path="{{ path('file_attach') }}"
+         data-fl-attach-id="{{ attachedFile ? attachedFile.id : '' }}"
+         data-fl-attach-class="{{ form.vars.attach_class }}"
+         data-fl-entity-class="{{ entityClass }}"
+         data-fl-multiple="0"
+         {% if form.vars.accept is defined and form.vars.accept %}data-fl-accept="{{ form.vars.accept }}"{% endif %}
+         {% if form.vars.max_size is defined and form.vars.max_size %}data-fl-max-size="{{ form.vars.max_size }}"{% endif %}>
+
+        <div class="tableFiles" data-placeholder='<div class="itemNew d-flex align-items-center"><span class="text-muted">{% trans %}files.widget.no_selected_file{% endtrans %}</span></div>'>
+
+            {# On ne peut pas appeler form_widget(form) directement dans son propre bloc de widget, car cela crée une boucle de rendu #}
+            {# On doit rendre chaque champ fils individuellement pour les inputs de formulaire persistants #}
+            <div class="d-none persistent-form-widgets">
+                {{ form_widget(form.file) }}
+                {{ form_widget(form.title) }}
+                {{ form_widget(form.alt) }}
+            </div>
+
+            {%- if attachedFile and attachedFile.file -%}
+
+                <div class="itemFile d-flex align-items-center">
+                    <span class="m-r-20">{{ attachedFile.title|raw }}</span>
+                    <a class="btn btn-primary btn-icon btn-xs m-r-10" data-bs-toggle="modal" data-bs-target="#modalFilesLibrary" title="{{ 'Ajouter un fichier'|trans }}">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a class="btn btn-primary btn-icon btn-xs m-r-10" href="{{ aropixel_file_url(attachedFile.file) }}">
+                        <i class="fas fa-download"></i>
+                    </a>
+                    <a class="btn btn-danger text-white btn-icon btn-xs iconUnlinkFile"><i class="fa fa-unlink"></i></a>
+                </div>
+
+            {%- else -%}
+
+                <div class="itemNew d-flex align-items-center">
+                    <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalFilesLibrary">
+                        <i class="icon-files-empty2 mr-2"></i>
+                        {{ 'Ajouter un fichier'|trans }}
+                    </a>
+                </div>
+
+            {%- endif -%}
+
+        </div>
+    </div>
+{% endblock %}
