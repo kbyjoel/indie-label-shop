@@ -1,0 +1,3 @@
+form[name="album"] input[name*="[position]"] {
+    width: 50px;
+}

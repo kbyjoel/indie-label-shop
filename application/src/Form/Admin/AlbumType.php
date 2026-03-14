@@ -76,8 +76,12 @@ class AlbumType extends AbstractType
                 'columns' => [
                     'Pos.' => 'position',
                     'Titre' => 'track.name',
+                    'Master' => 'track.masterFile.file',
                 ],
-                'display_field' => 'track.name',
+                'render_columns' => [
+                    'track.masterFile.file' => true,
+                ],
+
                 'button_add_label' => 'Ajouter un morceau',
                 'modal_title' => 'Détails du morceau',
             ])
