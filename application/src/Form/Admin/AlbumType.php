@@ -6,6 +6,7 @@ use App\Entity\Album;
 use App\Entity\AlbumImage;
 use App\Entity\AlbumTranslation;
 use App\Entity\Band;
+use App\Entity\Release;
 use Aropixel\AdminBundle\Form\Type\DateTimeType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
 use Aropixel\AdminBundle\Form\Type\FilterableEntitiesType;
@@ -80,6 +81,16 @@ class AlbumType extends AbstractType
                 ],
                 'button_add_label' => 'Ajouter un morceau',
                 'modal_title' => 'Détails du morceau',
+            ])
+            ->add('releases', ModalCollectionType::class, [
+                'entry_type' => ReleaseType::class,
+                'columns' => [
+                    'Média' => 'media',
+                    'Titre' => 'name',
+                    'Prix' => 'price',
+                ],
+                'button_add_label' => 'Ajouter une release',
+                'modal_title' => 'Détails de la release',
             ])
         ;
     }

@@ -26,6 +26,7 @@
         { id: 'panel-tab-general', label: 'Général' },
         { id: 'panel-tab-description', label: 'Description' },
         { id: 'panel-tab-tracks', label: 'Tracks' },
+        { id: 'panel-tab-releases', label: 'Releases' },
         { id: 'panel-tab-relations', label: 'Relations' },
     ]) }}
 {% endblock %}
@@ -60,6 +61,15 @@
         <div class="card card-centered card-centered-large">
             <div class="card-body">
                 {{ form_widget(form.tracklists) }}
+            </div>
+        </div>
+    </div>
+
+    {# Tab 4: Releases #}
+    <div class="tab-pane" id="panel-tab-releases">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_widget(form.releases) }}
             </div>
         </div>
     </div>
