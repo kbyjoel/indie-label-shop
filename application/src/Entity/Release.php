@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Entity\ReleaseImage;
+
 use App\Repository\ReleaseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -31,6 +33,10 @@ class Release extends ProductVariant
      */
     #[ORM\ManyToMany(targetEntity: Tracklist::class, mappedBy: 'releases')]
     private Collection $tracklists;
+
+    #[ORM\OneToOne(targetEntity: ReleaseImage::class, mappedBy: "release", cascade: ["persist", "remove"], orphanRemoval: true)]
+    private ?ReleaseImage $image = null;
+
 
     public function __construct()
     {
@@ -132,4 +138,22 @@ class Release extends ProductVariant
 
         return $this;
     }
+
+
+    public function getImage(): ?ReleaseImage
+    {
+        return $this->image;
+    }
+
+    public function setImage(?ReleaseImage $image): self
+    {
+        if ($image === null || $image->getImage() === null) {
+            $this->image = null;
+        } else {
+            $this->image = $image;
+            $this->image->setRelease($this);
+        }
+        return $this;
+    }
+
 }
