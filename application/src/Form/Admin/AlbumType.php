@@ -11,7 +11,7 @@ use Aropixel\AdminBundle\Form\Type\DateTimeType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
 use Aropixel\AdminBundle\Form\Type\FilterableEntitiesType;
 use Aropixel\AdminBundle\Form\Type\Image\Single\ImageType;
-use Aropixel\AdminBundle\Form\Type\ModalCollectionType;
+use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Aropixel\AdminBundle\Form\Type\TranslatableType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -72,7 +72,7 @@ class AlbumType extends AbstractType
                 'route' => 'admin_album_select2',
 
             ])
-            ->add('tracklists', ModalCollectionType::class, [
+            ->add('tracklists', CollectionType::class, [
                 'entry_type' => TracklistType::class,
                 'columns' => [
                     'Pos.' => 'position',
@@ -82,7 +82,7 @@ class AlbumType extends AbstractType
                 'button_add_label' => 'Ajouter un morceau',
                 'modal_title' => 'Détails du morceau',
             ])
-            ->add('releases', ModalCollectionType::class, [
+            ->add('releases', CollectionType::class, [
                 'entry_type' => ReleaseType::class,
                 'columns' => [
                     'Média' => 'media',
