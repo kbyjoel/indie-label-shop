@@ -4,7 +4,7 @@ namespace App\Form\Admin;
 
 use App\Entity\ProductOption;
 use App\Entity\ProductOptionTranslation;
-use Aropixel\AdminBundle\Form\Type\TranslatableType;
+use Aropixel\AdminBundle\Form\Type\SyliusTranslatableType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -24,7 +24,7 @@ class ProductOptionType extends AbstractType
                 'label' => 'Position',
                 'required' => false,
             ])
-            ->add('name', TranslatableType::class, [
+            ->add('name', SyliusTranslatableType::class, [
                 'label' => 'Nom',
                 'required' => true,
                 'personal_translation' => ProductOptionTranslation::class,

@@ -7,8 +7,7 @@ use App\Entity\Product;
 use App\Entity\ProductOption;
 use App\Entity\ProductTranslation;
 use Aropixel\AdminBundle\Form\Type\EditorType;
-use Aropixel\AdminBundle\Form\Type\Select2Type;
-use Aropixel\AdminBundle\Form\Type\TranslatableType;
+use Aropixel\AdminBundle\Form\Type\SyliusTranslatableType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -24,14 +23,14 @@ class ProductType extends AbstractType
                 'label' => 'Code',
                 'required' => true,
             ])
-            ->add('name', TranslatableType::class, [
+            ->add('name', SyliusTranslatableType::class, [
                 'label' => 'Nom',
                 'required' => true,
                 'personal_translation' => ProductTranslation::class,
                 'property_path' => 'translations',
                 'widget' => TextType::class,
             ])
-            ->add('description', TranslatableType::class, [
+            ->add('description', SyliusTranslatableType::class, [
                 'label' => 'Description',
                 'required' => false,
                 'personal_translation' => ProductTranslation::class,
