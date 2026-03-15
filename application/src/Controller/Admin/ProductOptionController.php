@@ -38,7 +38,7 @@ class ProductOptionController extends AbstractController
             ->searchIn(['id', 'code'])
             ->renderJson(fn(ProductOption $productOption) => [
                 $productOption->getId(),
-                $productOption->getName(),
+                $this->renderView('admin/product_option/_link.html.twig', ['item' => $productOption]),
                 $productOption->getCode(),
                 $productOption->getPosition(),
                 $this->renderView('admin/product_option/_actions.html.twig', ['item' => $productOption]),

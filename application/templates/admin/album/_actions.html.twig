@@ -1,6 +1,7 @@
 {% import '@AropixelAdmin/Macro/actions.html.twig' as list %}
 
-{{ list.actions({
-    'edit': path('admin_album_edit', {'id': item.id}),
-    'delete': path('admin_album_delete', {'id': item.id})
-}) }}
+{{ list.actions(
+    item,
+    path('admin_album_edit', {'id': item.id}),
+    path('admin_album_delete', {'id': item.id})
+) }}
