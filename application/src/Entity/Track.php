@@ -36,6 +36,12 @@ class Track extends ProductVariant
     #[ORM\OneToOne(targetEntity: TrackMasterFile::class, mappedBy: 'track', cascade: ['persist', 'remove'])]
     private ?TrackMasterFile $masterFile = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $previewPath = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $waveformPath = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +111,30 @@ class Track extends ProductVariant
         }
 
         $this->masterFile = $masterFile;
+
+        return $this;
+    }
+
+    public function getPreviewPath(): ?string
+    {
+        return $this->previewPath;
+    }
+
+    public function setPreviewPath(?string $previewPath): self
+    {
+        $this->previewPath = $previewPath;
+
+        return $this;
+    }
+
+    public function getWaveformPath(): ?string
+    {
+        return $this->waveformPath;
+    }
+
+    public function setWaveformPath(?string $waveformPath): self
+    {
+        $this->waveformPath = $waveformPath;
 
         return $this;
     }

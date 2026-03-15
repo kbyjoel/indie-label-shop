@@ -5,3 +5,40 @@ flysystem:
             adapter: 'local'
             options:
                 directory: '%kernel.project_dir%/var/storage/default'
+
+        previews.storage:
+            adapter: 'local'
+            options:
+                # Local adapter options
+                directory: '%kernel.project_dir%/public/previews'
+
+when@prod:
+    flysystem:
+        storages:
+            private.storage:
+                adapter: 'asyncaws'
+                options:
+                    client: 'cellar_spaces_service'
+                    bucket: '%env(CELLAR_BUCKET)%'
+                    prefix: 'private'
+            public.storage:
+                adapter: 'asyncaws'
+                options:
+                    client: 'cellar_spaces_service'
+                    bucket: '%env(CELLAR_BUCKET)%'
+                    prefix: 'public'
+            previews.storage:
+                adapter: 'asyncaws'
+                options:
+                    client: 'cellar_spaces_service'
+                    bucket: '%env(CELLAR_BUCKET)%'
+                    prefix: 'previews'
+
+    services:
+        cellar_spaces_service:
+            class: 'AsyncAws\S3\S3Client'
+            arguments:
+                -
+                    endpoint: '%env(CELLAR_ENDPOINT)%'
+                    accessKeyId: '%env(CELLAR_KEY_ID)%'
+                    accessKeySecret: '%env(CELLAR_KEY_SECRET)%'
