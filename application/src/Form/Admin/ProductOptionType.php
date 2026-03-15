@@ -4,6 +4,7 @@ namespace App\Form\Admin;
 
 use App\Entity\ProductOption;
 use App\Entity\ProductOptionTranslation;
+use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Aropixel\AdminBundle\Form\Type\SyliusTranslatableType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -31,6 +32,13 @@ class ProductOptionType extends AbstractType
                 'property_path' => 'translations',
                 'widget' => TextType::class,
             ])
+            ->add('values', CollectionType::class, [
+                'entry_type' => ProductOptionValueType::class,
+                'columns' => [
+                    'Valeur' => 'value',
+                ],
+
+            ]);
         ;
     }
 

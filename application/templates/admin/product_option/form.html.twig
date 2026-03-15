@@ -1,5 +1,6 @@
 {% extends '@AropixelAdmin/Form/base.html.twig' %}
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
 
 {% set is_edit = productOption.id is not null %}
 {% set title = is_edit ? 'Modifier l\'option : ' ~ productOption.name : 'Ajouter une option' %}
@@ -16,12 +17,32 @@
     ]) }}
 {% endblock %}
 
+{% block tabbable %}
+    {{ forms.tabs([
+        { id: 'panel-tab-general', label: 'Général' },
+        { id: 'panel-tab-values', label: 'Valeurs' },
+    ]) }}
+{% endblock %}
+
 {% block mainPanel %}
-    <div class="card card-centered card-centered-large">
-        <div class="card-body">
-            {{ form_row(form.name) }}
-            {{ form_row(form.code) }}
-            {{ form_row(form.position) }}
+    {# Tab 1: General Info #}
+    <div class="tab-pane active" id="panel-tab-general">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.name) }}
+                {{ form_row(form.code) }}
+                {{ form_row(form.position) }}
+            </div>
         </div>
     </div>
+
+    {# Tab 2: Values #}
+    <div class="tab-pane" id="panel-tab-values">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_widget(form.values) }}
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
