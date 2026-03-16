@@ -7,6 +7,7 @@ use App\Entity\Product;
 use App\Entity\ProductOption;
 use App\Entity\ProductTranslation;
 use Aropixel\AdminBundle\Form\Type\EditorType;
+use Aropixel\AdminBundle\Form\Type\FilterableEntitiesType;
 use Aropixel\AdminBundle\Form\Type\SyliusTranslatableType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -44,12 +45,11 @@ class ProductType extends AbstractType
                 'placeholder' => 'Choisir un groupe',
                 'required' => false,
             ])
-            ->add('options', Select2Type::class, [
+            ->add('options', FilterableEntitiesType::class, [
                 'label' => 'Options',
                 'repository' => ProductOption::class,
-                'route' => 'admin_product_option_ajax_search',
+                'route' => 'admin_product_option_select2',
                 'choice_label' => 'code',
-                'multiple' => true,
                 'required' => false,
             ])
         ;

@@ -5,6 +5,8 @@ namespace App\Form\Admin;
 use App\Entity\Product;
 use App\Entity\ProductOptionValue;
 use App\Entity\ProductVariant;
+use Aropixel\AdminBundle\Form\Type\FilterableEntitiesType;
+use Aropixel\AdminBundle\Form\Type\FilterableEntityType;
 use Aropixel\AdminBundle\Form\Type\Select2Type;
 use Aropixel\AdminBundle\Form\Type\ToggleSwitchType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -35,19 +37,18 @@ class ProductVariantType extends AbstractType
                 'label' => 'Suivi des stocks',
                 'required' => false,
             ])
-            ->add('product', EntityType::class, [
+            ->add('product', FilterableEntityType::class, [
                 'class' => Product::class,
-                'choice_label' => 'code',
+                'choice_label' => 'name',
                 'label' => 'Produit',
                 'placeholder' => 'Choisir un produit',
                 'required' => true,
             ])
-            ->add('optionValues', Select2Type::class, [
+            ->add('optionValues', FilterableEntitiesType::class, [
                 'label' => 'Valeurs d\'options',
                 'repository' => ProductOptionValue::class,
                 'route' => 'admin_product_option_value_ajax_search',
-                'choice_label' => 'code',
-                'multiple' => true,
+                'choice_label' => 'name',
                 'required' => false,
             ])
         ;

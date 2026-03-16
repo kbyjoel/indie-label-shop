@@ -2,10 +2,12 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Album;
 use App\Entity\ProductOption;
 use App\Form\Admin\ProductOptionType;
 use App\Repository\ProductOptionRepository;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
+use Aropixel\AdminBundle\Component\Select2\Select2;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -95,5 +97,17 @@ class ProductOptionController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_product_option_index');
+    }
+
+    #[Route("/select2", name: "select2", methods: ["GET"])]
+    public function select2(Select2 $select2): Response
+    {
+        return $select2
+            ->withEntity(ProductOption::class)
+            ->searchIn(['name'])
+            ->render(fn(ProductOption $po) => [
+                $po->getId(),
+                $po->getName(),
+            ]);
     }
 }

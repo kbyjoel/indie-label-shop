@@ -23,6 +23,7 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
     {
         $additionalMenus = [];
         $additionalMenus[] = $this->buildContentMenu();
+        $additionalMenus[] = $this->buildMerchMenu();
 
         // Menus reserved for ROLE_SUPER_ADMIN
         if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
@@ -38,6 +39,14 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
         $menu->addItem(new Link('Groupes', 'admin_band_index', [], ['icon' => 'fas fa-newspaper']));
         $menu->addItem(new Link('Albums', 'admin_album_index', [], ['icon' => 'fas fa-compact-disc']));
         $menu->addItem(new Link('Médias', 'admin_media_index', [], ['icon' => 'fas fa-photo-video']));
+
+        return $menu;
+    }
+
+    private function buildMerchMenu(): Menu
+    {
+        $menu = new Menu('content', 'Merchandising');
+        $menu->addItem(new Link('Produits', 'admin_product_index', [], ['icon' => 'fas fa-list-ul']));
         $menu->addItem(new Link('Options', 'admin_product_option_index', [], ['icon' => 'fas fa-list-ul']));
 
         return $menu;

@@ -1,0 +1,20 @@
+{% extends '@AropixelAdmin/Form/base.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+
+{% set is_edit = product.id is not null %}
+{% set title = is_edit ? 'Modifier le produit : ' ~ product.name : 'Ajouter un produit' %}
+
+{% block meta_title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        { label: 'text.home'|trans, url: url('_admin') },
+        { label: 'Product'|trans, url: path('admin_product_index') },
+        { label: (product.id ? 'text.edit'|trans : 'text.add'|trans) }
+    ]) }}
+{% endblock %}
+
+{% block formbody %}
+    {{ form_rest(form) }}
+{% endblock %}
