@@ -2,10 +2,12 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Album;
 use App\Entity\Product;
 use App\Form\Admin\ProductType;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,6 +33,9 @@ class ProductController extends AbstractController
                 ['label' => 'Nom', 'field' => 'name'],
                 ['label' => '', 'field' => '', 'class' => 'no-sort'],
             ])
+            ->filter(function(QueryBuilder $qb) {
+                $qb->andWhere($qb->getRootAliases()[0] . ' NOT INSTANCE OF ' . Album::class);
+            })
             ->searchIn(['name'])
             ->renderJson(fn(Product $product) => [
                 $product->getId(),
