@@ -1,5 +1,6 @@
 {% extends '@AropixelAdmin/Form/base.html.twig' %}
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
 
 {% set is_edit = product.id is not null %}
 {% set title = is_edit ? 'Modifier le produit : ' ~ product.name : 'Ajouter un produit' %}
@@ -15,6 +16,35 @@
     ]) }}
 {% endblock %}
 
-{% block formbody %}
-    {{ form_rest(form) }}
+{% block tabbable %}
+    {{ forms.tabs([
+        { id: 'panel-tab-general', label: 'Général' },
+        { id: 'panel-tab-variants', label: 'Déclinaisons' },
+    ]) }}
+{% endblock %}
+
+{% block mainPanel %}
+    {# Tab 1: General Info #}
+    <div class="tab-pane active" id="panel-tab-general">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.name) }}
+                {{ form_row(form.code) }}
+                {{ form_row(form.band) }}
+                {{ form_row(form.description) }}
+            </div>
+        </div>
+    </div>
+
+    {# Tab 2: Values #}
+    <div class="tab-pane" id="panel-tab-variants">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.options) }}
+                <hr />
+                {{ form_widget(form.variants) }}
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

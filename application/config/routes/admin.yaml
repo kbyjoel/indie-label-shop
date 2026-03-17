@@ -1,4 +1,4 @@
 admin_controllers:
     resource: ../../src/Controller/Admin/
     type: attribute
-    prefix: /philosophy-club-band
+    prefix: /%admin_path%

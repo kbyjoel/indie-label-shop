@@ -38,7 +38,8 @@ class ProductVariantType extends AbstractType
                 'required' => false,
             ])
             ->add('product', FilterableEntityType::class, [
-                'class' => Product::class,
+                'repository' => Product::class,
+                'route' => 'admin_product_select2',
                 'choice_label' => 'name',
                 'label' => 'Produit',
                 'placeholder' => 'Choisir un produit',
@@ -47,7 +48,7 @@ class ProductVariantType extends AbstractType
             ->add('optionValues', FilterableEntitiesType::class, [
                 'label' => 'Valeurs d\'options',
                 'repository' => ProductOptionValue::class,
-                'route' => 'admin_product_option_value_ajax_search',
+                'route' => 'admin_product_option_value_select2',
                 'choice_label' => 'name',
                 'required' => false,
             ])

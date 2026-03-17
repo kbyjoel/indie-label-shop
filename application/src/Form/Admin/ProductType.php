@@ -6,6 +6,7 @@ use App\Entity\Band;
 use App\Entity\Product;
 use App\Entity\ProductOption;
 use App\Entity\ProductTranslation;
+use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
 use Aropixel\AdminBundle\Form\Type\FilterableEntitiesType;
 use Aropixel\AdminBundle\Form\Type\SyliusTranslatableType;
@@ -46,11 +47,21 @@ class ProductType extends AbstractType
                 'required' => false,
             ])
             ->add('options', FilterableEntitiesType::class, [
-                'label' => 'Options',
+                'label' => 'Variantes',
                 'repository' => ProductOption::class,
                 'route' => 'admin_product_option_select2',
-                'choice_label' => 'code',
+                'choice_label' => 'name',
                 'required' => false,
+            ])
+            ->add('variants', CollectionType::class, [
+                'label' => 'Déclinaisons',
+                'entry_type' => ProductVariantType::class,
+                'columns' => [
+                    'Titre' => 'optionValues',
+                    'Stock' => 'onHand',
+                ],
+                'button_add_label' => 'Ajouter une déclinaison',
+                'modal_title' => 'Détails de la déclinaison',
             ])
         ;
     }

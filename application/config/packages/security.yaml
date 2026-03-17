@@ -23,7 +23,7 @@ security:
     firewalls:
         backoffice:
             context: primary_auth
-            pattern: ^/philosophy-club-band
+            pattern: ^/%admin_path%
             form_login:
                 provider: admin_user_provider
                 login_path: aropixel_admin_security_login
@@ -35,7 +35,7 @@ security:
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 2592000 # 1 month in seconds
-                path: /philosophy-club-band
+                path: /%admin_path%
             logout:
                 path: aropixel_admin_security_logout
                 target: aropixel_admin_security_login
@@ -60,11 +60,11 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/philosophy-club-band/login$, role: PUBLIC_ACCESS }
-        - { path: ^/philosophy-club-band/reset/, role: PUBLIC_ACCESS }
-        - { path: ^/philosophy-club-band/activation/, role: PUBLIC_ACCESS }
-        - { path: ^/philosophy-club-band/first/, role: PUBLIC_ACCESS }
-        - { path: ^/philosophy-club-band, role: ROLE_ADMIN }
+        - { path: ^/%admin_path%/login$, role: PUBLIC_ACCESS }
+        - { path: ^/%admin_path%/reset/, role: PUBLIC_ACCESS }
+        - { path: ^/%admin_path%/activation/, role: PUBLIC_ACCESS }
+        - { path: ^/%admin_path%/first/, role: PUBLIC_ACCESS }
+        - { path: ^/%admin_path%, role: ROLE_ADMIN }
 
 when@test:
     security:
