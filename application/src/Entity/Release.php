@@ -22,9 +22,6 @@ class Release extends ProductVariant
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $price = null;
-
     #[ORM\Column(length: 20)]
     private ?string $status = 'offline';
 
@@ -86,18 +83,6 @@ class Release extends ProductVariant
     public function setTitle(?string $title): void
     {
         $this->title = $title;
-    }
-
-    public function getPrice(): ?string
-    {
-        return $this->price;
-    }
-
-    public function setPrice(string $price): static
-    {
-        $this->price = $price;
-
-        return $this;
     }
 
     public function getStatus(): ?string

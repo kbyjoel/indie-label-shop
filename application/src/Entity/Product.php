@@ -16,6 +16,13 @@ use Sylius\Component\Product\Model\ProductTranslationInterface;
 #[ORM\DiscriminatorMap(['merch' => Product::class, 'album' => Album::class])]
 class Product extends BaseProduct
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setCurrentLocale('fr');
+        $this->setFallbackLocale('fr');
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -50,17 +57,21 @@ class Product extends BaseProduct
     #[ORM\JoinColumn(name: 'band_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?Band $band = null;
 
-    /**
-     * @return Band|null
-     */
+    public function getName(): ?string
+    {
+        return $this->getTranslation()->getName();
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->getTranslation()->setName($name);
+    }
+
     public function getBand(): ?Band
     {
         return $this->band;
     }
 
-    /**
-     * @param Band|null $band
-     */
     public function setBand(?Band $band): void
     {
         $this->band = $band;

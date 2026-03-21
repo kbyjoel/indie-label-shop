@@ -42,6 +42,28 @@
             <div class="card-body">
                 {{ form_row(form.options) }}
                 <hr />
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Déclinaison</th>
+                        <th>Prix</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for variant in product.variants %}
+                        <tr>
+                            <td>{{ variant.optionValuesLabel }}</td>
+                            <td>{{ variant.price }}</td>
+                            <td>{{ variant.onHand }}</td>
+                            <td>
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
                 {{ form_widget(form.variants) }}
             </div>
         </div>

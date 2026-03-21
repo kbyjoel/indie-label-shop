@@ -57,7 +57,7 @@ class ProductType extends AbstractType
                 'label' => 'Déclinaisons',
                 'entry_type' => ProductVariantType::class,
                 'columns' => [
-                    'Titre' => 'optionValues',
+                    'Titre' => 'optionValuesLabel',
                     'Stock' => 'onHand',
                 ],
                 'button_add_label' => 'Ajouter une déclinaison',

@@ -16,6 +16,13 @@ use Sylius\Component\Product\Model\ProductInterface;
 #[ORM\DiscriminatorMap(['merch' => ProductVariant::class, 'release' => Release::class, 'track' => Track::class])]
 class ProductVariant extends BaseProductVariant
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setCurrentLocale('fr');
+        $this->setFallbackLocale('fr');
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -42,6 +49,40 @@ class ProductVariant extends BaseProductVariant
 
     #[ORM\Column(type: 'integer')]
     protected $version = 1;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    protected ?int $price = null;
+
+    public function getName(): ?string
+    {
+        return $this->product?->getName();
+    }
+
+    public function setName(?string $name): void
+    {
+    }
+
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?int $price): self
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    public function getOptionValuesLabel(): string
+    {
+        $labels = [];
+        foreach ($this->getOptionValues() as $optionValue) {
+            $option = $optionValue->getOption();
+            $labels[] = sprintf('%s: %s', $option->getName(), $optionValue->getValue());
+        }
+
+        return implode(', ', $labels);
+    }
 
     /** @var Collection<array-key, ProductOptionValue> */
     #[ORM\ManyToMany(targetEntity: ProductOptionValue::class)]

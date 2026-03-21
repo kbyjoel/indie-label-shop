@@ -26,11 +26,19 @@ class ProductOptionValueController extends AbstractController
     }
 
     #[Route("/select2", name: "select2", methods: ["GET"])]
-    public function select2(Select2 $select2): Response
+    public function select2(Request $request, Select2 $select2): Response
     {
+        $optionId = $request->query->get('optionId');
+
         return $select2
             ->withEntity(ProductOptionValue::class)
             ->searchIn(['name'])
+            ->filter(function($qb) use ($optionId) {
+                if ($optionId) {
+                    $qb->andWhere('e.option = :optionId')
+                       ->setParameter('optionId', $optionId);
+                }
+            })
             ->render(fn(ProductOptionValue $pov) => [
                 $pov->getId(),
                 $pov->getName(),

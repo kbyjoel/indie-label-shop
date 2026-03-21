@@ -14,6 +14,13 @@ use Sylius\Resource\Model\TranslationInterface;
 #[ORM\Table(name: 'sylius_product_option')]
 class ProductOption extends BaseProductOption
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setCurrentLocale('fr');
+        $this->setFallbackLocale('fr');
+    }
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -36,6 +43,16 @@ class ProductOption extends BaseProductOption
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
     protected $updatedAt;
+
+    public function getName(): ?string
+    {
+        return $this->getTranslation()->getName();
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->getTranslation()->setName($name);
+    }
 
     protected function createTranslation(): ProductOptionTranslationInterface
     {

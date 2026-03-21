@@ -35,7 +35,7 @@ class ReleaseType extends AbstractType
             ->add('price', MoneyType::class, [
                 'label' => 'Prix',
                 'currency' => 'EUR',
-                'divisor' => 1,
+                'divisor' => 100,
                 'required' => true,
             ])
             ->add('media', EntityType::class, [
