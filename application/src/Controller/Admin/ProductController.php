@@ -5,7 +5,9 @@ namespace App\Controller\Admin;
 use App\Entity\Album;
 use App\Entity\Product;
 use App\Entity\ProductOption;
+use App\Entity\ProductVariant;
 use App\Form\Admin\ProductType;
+use App\Form\Admin\ProductVariantType;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Aropixel\AdminBundle\Component\Select2\Select2;
 use Doctrine\ORM\EntityManagerInterface;
@@ -71,10 +73,28 @@ class ProductController extends AbstractController
     #[Route("/{id}/edit", name: "edit", methods: ["GET", "POST"])]
     public function edit(Request $request, Product $product): Response
     {
+        // On récupère les IDs des options actuelles avant la soumission du formulaire
+        $originalOptions = $product->getOptions()->map(fn(ProductOption $option) => $option->getId())->toArray();
+
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // Identifier les nouvelles options ajoutées
+            foreach ($product->getOptions() as $option) {
+                if (!in_array($option->getId(), $originalOptions)) {
+                    // Pour chaque nouvelle option, on ajoute ses valeurs aux variantes existantes
+                    foreach ($product->getVariants() as $variant) {
+                        foreach ($option->getValues() as $optionValue) {
+                            if (!$variant->getOptionValues()->contains($optionValue)) {
+                                $variant->addOptionValue($optionValue);
+                            }
+                        }
+                    }
+                }
+            }
+
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
             return $this->redirectToRoute('admin_product_edit', ['id' => $product->getId()]);
@@ -82,6 +102,32 @@ class ProductController extends AbstractController
 
         return $this->render('admin/product/form.html.twig', [
             'product' => $product,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route("/variant/{id}/edit", name: "variant_edit", methods: ["GET", "POST"])]
+    public function variantEdit(Request $request, ProductVariant $variant): Response
+    {
+        $form = $this->createForm(ProductVariantType::class, $variant, [
+            'action' => $this->generateUrl('admin_product_variant_edit', ['id' => $variant->getId()]),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->em->flush();
+
+            if ($request->isXmlHttpRequest()) {
+                return new Response(null, Response::HTTP_NO_CONTENT);
+            }
+
+            $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+            return $this->redirectToRoute('admin_product_edit', ['id' => $variant->getProduct()->getId()]);
+        }
+
+        $template = $request->isXmlHttpRequest() ? 'admin/product/variant/_form.html.twig' : 'admin/product/variant/edit.html.twig';
+        return $this->render($template, [
+            'variant' => $variant,
             'form' => $form->createView(),
         ]);
     }

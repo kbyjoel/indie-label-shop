@@ -1,0 +1,82 @@
+{% set option1 = product.options|first %}
+{% set option2 = product.options|last %}
+{% set option2_values = [] %}
+{% for variant in product.variants %}
+    {% for ov in variant.optionValues %}
+        {% if ov.option.id == option2.id and ov.id not in option2_values|map(v => v.id) %}
+            {% set option2_values = option2_values|merge([ov]) %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
+{# Si après avoir ajouté une option, aucune variante n'a de valeur pour celle-ci, #}
+{# on peut quand même afficher les colonnes si l'option a des valeurs définies. #}
+{% if option2_values|length == 0 %}
+    {% for ov in option2.values %}
+        {% set option2_values = option2_values|merge([ov]) %}
+    {% endfor %}
+{% endif %}
+
+<table class="table table-bordered table-striped text-center">
+    <thead>
+    <tr>
+        <th>{{ option1.name }} \ {{ option2.name }}</th>
+        {% for ov2 in option2_values %}
+            <th>{{ ov2.name }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {% set rows = {} %}
+    {% for variant in product.variants %}
+        {% set v_opt1 = null %}
+        {% set v_opt2 = null %}
+        {% for ov in variant.optionValues %}
+            {% if ov.option.id == option1.id %}{% set v_opt1 = ov %}{% endif %}
+            {% if ov.option.id == option2.id %}{% set v_opt2 = ov %}{% endif %}
+        {% endfor %}
+
+        {% if v_opt1 and v_opt2 %}
+            {% set row_key = 'r' ~ v_opt1.id %}
+            {% if rows[row_key] is not defined %}
+                {% set rows = rows|merge({(row_key): {name: v_opt1.name, cols: {}}}) %}
+            {% endif %}
+            {% set row_data = rows[row_key] %}
+            {% set col_key = 'c' ~ v_opt2.id %}
+            {% set row_cols = row_data.cols|merge({(col_key): variant}) %}
+            {% set rows = rows|merge({(row_key): row_data|merge({cols: row_cols})}) %}
+        {% endif %}
+    {% endfor %}
+
+    {% if rows|length > 0 %}
+        {% for row_id, row in rows %}
+            <tr>
+                <th class="text-left">{{ row.name }}</th>
+                {% for ov2 in option2_values %}
+                    {% set col_key = 'c' ~ ov2.id %}
+                    {% if row.cols[col_key] is defined %}
+                        {% set variant = row.cols[col_key] %}
+                        <td class="variant-cell clickable"
+                            data-url="{{ path('admin_product_variant_edit', {id: variant.id}) }}"
+                            style="cursor: pointer;">
+                            <div class="small">
+                                <strong>{{ variant.onHand }}</strong>
+                                <br>
+                                <span class="text-muted">{{ (variant.price / 100)|number_format(2) }}€</span>
+                            </div>
+                        </td>
+                    {% else %}
+                        <td>-</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    {% else %}
+        <tr>
+            <td colspan="{{ option2_values|length + 1 }}" class="text-center text-muted">
+                Aucune variante ne correspond aux deux options sélectionnées.
+            </td>
+        </tr>
+    {% endif %}
+    </tbody>
+</table>

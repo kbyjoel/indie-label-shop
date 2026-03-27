@@ -113,10 +113,10 @@ function cache_warmup(): void
 #[AsTask(description: 'Migrates database schema', namespace: 'app:db', aliases: ['migrate'])]
 function migrate(): void
 {
-    // io()->title('Migrating the database schema');
+     io()->title('Migrating the database schema');
 
-    // docker_compose_run('bin/console doctrine:database:create --if-not-exists');
-    // docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing');
+     docker_compose_run('bin/console doctrine:database:create --if-not-exists');
+     docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing');
 }
 
 #[AsTask(description: 'Loads fixtures', namespace: 'app:db', aliases: ['fixture'])]
@@ -125,4 +125,5 @@ function fixtures(): void
     io()->title('Loads fixtures');
 
     docker_compose_run('bin/console doctrine:fixture:load -n');
+    docker_compose_run('bin/console aropixel:admin:create-user -n');
 }

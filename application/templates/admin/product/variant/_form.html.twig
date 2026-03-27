@@ -1,0 +1,13 @@
+{% form_theme form '@AropixelAdmin/Form/layout.html.twig' %}
+{{ form_start(form, {attr: {class: 'ajax-form form-horizontal form-horizontal-50-50'}}) }}
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Modifier la variante : {{ variant.optionValuesLabel }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        {{ form_widget(form) }}
+    </div>
+    <div class="offcanvas-footer p-3 border-top">
+        <button type="submit" class="btn btn-primary w-100">Enregistrer</button>
+    </div>
+{{ form_end(form) }}

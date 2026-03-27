@@ -1,0 +1,61 @@
+<table class="table table-striped">
+    <thead>
+    <tr>
+        {% for option in product.options %}
+            <th>{{ option.name }}</th>
+        {% endfor %}
+        <th>Prix</th>
+        <th>Stock</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% set last_group_values = {} %}
+    {% for variant in product.variants %}
+        {# Détecter si un groupe change (pour les n-1 premières options) #}
+        {% set group_changed = false %}
+        {% set current_group_values = [] %}
+        {% for i in 0..(product.options|length - 2) %}
+            {% set opt = product.options[i] %}
+            {% set opt_val = null %}
+            {% for ov in variant.optionValues %}
+                {% if ov.option.id == opt.id %}{% set opt_val = ov.name %}{% endif %}
+            {% endfor %}
+            {% set current_group_values = current_group_values|merge([opt_val]) %}
+            {% if last_group_values[i] is not defined or last_group_values[i] != opt_val %}
+                {% set group_changed = true %}
+            {% endif %}
+        {% endfor %}
+
+        {% if group_changed %}
+            <tr class="table-secondary">
+                <td colspan="{{ product.options|length + 3 }}">
+                    {% for i in 0..(product.options|length - 2) %}
+                        <strong>{{ product.options[i].name }}:</strong> {{ current_group_values[i] }}{% if not loop.last %} | {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            {% set last_group_values = current_group_values %}
+        {% endif %}
+
+        <tr class="variant-row clickable"
+            data-url="{{ path('admin_product_variant_edit', {id: variant.id}) }}"
+            style="cursor: pointer;">
+            {% for option in product.options %}
+                <td>
+                    {% set value = null %}
+                    {% for optionValue in variant.optionValues %}
+                        {% if optionValue.option.id == option.id %}
+                            {% set value = optionValue.name %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ value }}
+                </td>
+            {% endfor %}
+            <td>{{ (variant.price / 100)|number_format(2) }}€</td>
+            <td>{{ variant.onHand }}</td>
+            <td></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
