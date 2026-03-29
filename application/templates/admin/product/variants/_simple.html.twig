@@ -6,7 +6,6 @@
         {% endfor %}
         <th>Prix</th>
         <th>Stock</th>
-        <th>Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -27,7 +26,6 @@
             {% endfor %}
             <td>{{ (variant.price / 100)|number_format(2) }}€</td>
             <td>{{ variant.onHand }}</td>
-            <td></td>
         </tr>
     {% endfor %}
     </tbody>
