@@ -1,4 +1,5 @@
-<table class="table table-striped">
+{% set product = form.parent.vars.data %}
+<table class="table table-striped" data-form-collection="list">
     <thead>
     <tr>
         {% for option in product.options %}
@@ -6,12 +7,12 @@
         {% endfor %}
         <th>Prix</th>
         <th>Stock</th>
-        <th>Actions</th>
     </tr>
     </thead>
     <tbody>
     {% set last_group_values = {} %}
-    {% for variant in product.variants %}
+    {% for variant_form in form %}
+        {% set variant = variant_form.vars.data %}
         {# Détecter si un groupe change (pour les n-1 premières options) #}
         {% set group_changed = false %}
         {% set current_group_values = [] %}
@@ -29,7 +30,7 @@
 
         {% if group_changed %}
             <tr class="table-secondary">
-                <td colspan="{{ product.options|length + 3 }}">
+                <td colspan="{{ product.options|length + 2 }}">
                     {% for i in 0..(product.options|length - 2) %}
                         <strong>{{ product.options[i].name }}:</strong> {{ current_group_values[i] }}{% if not loop.last %} | {% endif %}
                     {% endfor %}
@@ -38,8 +39,10 @@
             {% set last_group_values = current_group_values %}
         {% endif %}
 
-        <tr class="variant-row clickable"
-            data-url="{{ path('admin_product_variant_edit', {id: variant.id}) }}"
+        <tr class="variant-row collection-item clickable"
+            data-form-collection="item"
+            data-form-collection-index="{{ variant_form.vars.name }}"
+            data-form-collection-edit
             style="cursor: pointer;">
             {% for option in product.options %}
                 <td>
@@ -52,9 +55,23 @@
                     {{ value }}
                 </td>
             {% endfor %}
-            <td>{{ (variant.price / 100)|number_format(2) }}€</td>
-            <td>{{ variant.onHand }}</td>
-            <td></td>
+            <td><span class="modal-collection-display-label" data-display-field-name="{{ variant_form.price.vars.full_name }}">{{ (variant.price / 100)|number_format(2) }}</span>€</td>
+            <td><span class="modal-collection-display-label" data-display-field-name="{{ variant_form.onHand.vars.full_name }}">{{ variant.onHand }}</span></td>
+            <td class="d-none">
+                <div class="collection-form-container">
+                    <div class="collection-form-content">
+                        {{ form_widget(variant_form) }}
+                    </div>
+                    <div class="collection-form-actions mt-4 pt-3 border-top d-flex justify-content-between">
+                        <a class="btn btn-danger text-white delete" href="#" data-form-collection="delete">
+                            <i class="fas fa-trash me-2"></i> {{ 'text.delete'|trans }}
+                        </a>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="offcanvas">
+                            {{ 'text.close'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </td>
         </tr>
     {% endfor %}
     </tbody>

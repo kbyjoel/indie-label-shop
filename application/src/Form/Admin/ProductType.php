@@ -53,6 +53,13 @@ class ProductType extends AbstractType
                 'choice_label' => 'name',
                 'required' => false,
             ])
+            ->add('variants', CollectionType::class, [
+                'entry_type' => ProductVariantType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'list_template' => 'admin/product/variants/collection_list.html.twig',
+            ])
         ;
     }
 

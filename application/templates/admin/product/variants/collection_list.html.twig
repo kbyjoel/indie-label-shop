@@ -1,0 +1,9 @@
+{% set product = form.parent.vars.data %}
+
+{% if product.options|length == 2 %}
+    {% include 'admin/product/variants/_matrix_collection.html.twig' %}
+{% elseif product.options|length > 2 %}
+    {% include 'admin/product/variants/_grouped_collection.html.twig' %}
+{% else %}
+    {% include 'admin/product/variants/_simple_collection.html.twig' %}
+{% endif %}
