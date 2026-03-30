@@ -48,7 +48,7 @@ class ProductType extends AbstractType
             ])
             ->add('options', FilterableEntitiesType::class, [
                 'label' => 'Variantes',
-                'repository' => ProductOption::class,
+                'class' => ProductOption::class,
                 'route' => 'admin_product_option_select2',
                 'choice_label' => 'name',
                 'required' => false,

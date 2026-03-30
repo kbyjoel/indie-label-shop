@@ -53,26 +53,21 @@ class Album extends Product implements Translatable
      */
     #[ORM\ManyToMany(targetEntity: self::class)]
     #[ORM\JoinTable(name: 'indie_album_similar')]
-    private Collection $similarAlbums;
+    private ?Collection $similarAlbums = null;
 
     /**
      * @var Collection<int, Artist>
      */
     #[ORM\ManyToMany(targetEntity: Artist::class)]
     #[ORM\JoinTable(name: 'indie_album_artist')]
-    private Collection $artists;
-
-    /**
-     * @var Collection<int, Release>
-     */
-    protected Collection $releases;
+    private ?Collection $artists = null;
 
     /**
      * @var Collection<int, Tracklist>
      */
     #[ORM\OneToMany(targetEntity: Tracklist::class, mappedBy: 'album', cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['position' => 'ASC'])]
-    private Collection $tracklists;
+    private ?Collection $tracklists = null;
 
     #[ORM\OneToOne(targetEntity: AlbumImage::class, mappedBy: 'album', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?AlbumImage $artwork = null;
@@ -82,7 +77,6 @@ class Album extends Product implements Translatable
         parent::__construct();
         $this->similarAlbums = new ArrayCollection();
         $this->artists = new ArrayCollection();
-        $this->releases = $this->variants;
         $this->tracklists = new ArrayCollection();
         $this->albumTranslations = new ArrayCollection();
     }
@@ -168,12 +162,12 @@ class Album extends Product implements Translatable
      */
     public function getAlbumTranslations(): Collection
     {
-        return $this->albumTranslations;
+        return $this->albumTranslations ?? new ArrayCollection();
     }
 
     public function addAlbumTranslation(AlbumTranslation $t): void
     {
-        if (!$this->albumTranslations->contains($t)) {
+        if ($this->albumTranslations && !$this->albumTranslations->contains($t)) {
             $this->albumTranslations[] = $t;
             $t->setObject($this);
         }
@@ -181,7 +175,7 @@ class Album extends Product implements Translatable
 
     public function removeAlbumTranslation(AlbumTranslation $t): void
     {
-        $this->albumTranslations->removeElement($t);
+        $this->albumTranslations?->removeElement($t);
     }
 
     /**
@@ -189,12 +183,12 @@ class Album extends Product implements Translatable
      */
     public function getSimilarAlbums(): Collection
     {
-        return $this->similarAlbums;
+        return $this->similarAlbums ?? new ArrayCollection();
     }
 
     public function addSimilarAlbum(Album $similarAlbum): static
     {
-        if (!$this->similarAlbums->contains($similarAlbum)) {
+        if ($this->similarAlbums && !$this->similarAlbums->contains($similarAlbum)) {
             $this->similarAlbums->add($similarAlbum);
         }
 
@@ -203,7 +197,7 @@ class Album extends Product implements Translatable
 
     public function removeSimilarAlbum(Album $similarAlbum): static
     {
-        $this->similarAlbums->removeElement($similarAlbum);
+        $this->similarAlbums?->removeElement($similarAlbum);
 
         return $this;
     }
@@ -213,12 +207,12 @@ class Album extends Product implements Translatable
      */
     public function getArtists(): Collection
     {
-        return $this->artists;
+        return $this->artists ?? new ArrayCollection();
     }
 
     public function addArtist(Artist $artist): static
     {
-        if (!$this->artists->contains($artist)) {
+        if ($this->artists && !$this->artists->contains($artist)) {
             $this->artists->add($artist);
         }
 
@@ -227,7 +221,7 @@ class Album extends Product implements Translatable
 
     public function removeArtist(Artist $artist): static
     {
-        $this->artists->removeElement($artist);
+        $this->artists?->removeElement($artist);
 
         return $this;
     }
@@ -237,26 +231,22 @@ class Album extends Product implements Translatable
      */
     public function getReleases(): Collection
     {
-        return $this->releases;
+        return $this->getVariants()->filter(fn($variant) => $variant instanceof Release);
     }
 
     public function addRelease(Release $release): static
     {
-        if (!$this->releases->contains($release)) {
-            $this->releases->add($release);
-            $release->setAlbum($this);
-        }
+        $this->addVariant($release);
+        $release->setAlbum($this);
 
         return $this;
     }
 
     public function removeRelease(Release $release): static
     {
-        if ($this->releases->removeElement($release)) {
-            // set the owning side to null (unless already changed)
-            if ($release->getAlbum() === $this) {
-                $release->setAlbum(null);
-            }
+        $this->removeVariant($release);
+        if ($release->getAlbum() === $this) {
+            $release->setAlbum(null);
         }
 
         return $this;
@@ -267,12 +257,12 @@ class Album extends Product implements Translatable
      */
     public function getTracklists(): Collection
     {
-        return $this->tracklists;
+        return $this->tracklists ?? new ArrayCollection();
     }
 
     public function addTracklist(Tracklist $tracklist): static
     {
-        if (!$this->tracklists->contains($tracklist)) {
+        if ($this->tracklists && !$this->tracklists->contains($tracklist)) {
             $this->tracklists->add($tracklist);
             $tracklist->setAlbum($this);
         }
@@ -282,7 +272,7 @@ class Album extends Product implements Translatable
 
     public function removeTracklist(Tracklist $tracklist): static
     {
-        if ($this->tracklists->removeElement($tracklist)) {
+        if ($this->tracklists?->removeElement($tracklist)) {
             // set the owning side to null (unless already changed)
             if ($tracklist->getAlbum() === $this) {
                 $tracklist->setAlbum(null);

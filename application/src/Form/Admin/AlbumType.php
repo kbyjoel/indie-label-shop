@@ -60,7 +60,7 @@ class AlbumType extends AbstractType
             ])
 //            ->add('artists', Select2Type::class, [
 //                'label' => 'Artistes',
-//                'repository' => Artist::class,
+//                'class' => Artist::class,
 //                'route' => 'admin_artist_ajax_search',
 //                'choice_label' => 'lastName',
 //                'multiple' => true,
@@ -68,7 +68,7 @@ class AlbumType extends AbstractType
 //            ])
             ->add('similarAlbums', FilterableEntitiesType::class, [
                 'label' => 'Albums similaires',
-                'repository' => Album::class,
+                'class' => Album::class,
                 'route' => 'admin_album_select2',
 
             ])
@@ -77,10 +77,10 @@ class AlbumType extends AbstractType
                 'columns' => [
                     'Pos.' => 'position',
                     'Titre' => 'track.name',
-                    'Master' => 'track.masterFile',
+                    'Master' => 'track.masterFile.title',
                 ],
                 'button_add_label' => 'Ajouter un morceau',
-                'modal_title' => 'Détails du morceau',
+                'form_title' => 'Détails du morceau',
             ])
             ->add('releases', CollectionType::class, [
                 'entry_type' => ReleaseType::class,
@@ -89,8 +89,9 @@ class AlbumType extends AbstractType
                     'Titre' => 'name',
                     'Prix' => 'price',
                 ],
+
                 'button_add_label' => 'Ajouter une release',
-                'modal_title' => 'Détails de la release',
+                'form_title' => 'Détails de la release',
             ])
         ;
     }
