@@ -17,7 +17,8 @@ class ProductOptionValueType extends AbstractType
         $builder
             ->add('code', TextType::class, [
                 'label' => 'Code',
-                'required' => true,
+                'required' => false,
+                'help' => 'S\'il est laissé vide, le code sera généré automatiquement.',
             ])
             ->add('value', SyliusTranslatableType::class, [
                 'label' => 'Valeur',
