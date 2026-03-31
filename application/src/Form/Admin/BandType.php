@@ -26,23 +26,23 @@ class BandType extends AbstractType
             ])
             ->add('website', TextType::class, [
                 'label'  => 'Site Web',
-                'required' => true
+                'required' => false
             ])
             ->add('email', TextType::class, [
                 'label'  => 'Email',
-                'required' => true
+                'required' => false
             ])
             ->add('facebook', TextType::class, [
                 'label'  => 'Facebook',
-                'required' => true
+                'required' => false
             ])
             ->add('twitter', TextType::class, [
                 'label'  => 'X',
-                'required' => true
+                'required' => false
             ])
             ->add('instagram', TextType::class, [
                 'label'  => 'Instagram',
-                'required' => true
+                'required' => false
             ])
             ->add('description', TranslatableType::class, [
                 'label'  => 'Description',

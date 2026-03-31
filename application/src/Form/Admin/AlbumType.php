@@ -70,7 +70,7 @@ class AlbumType extends AbstractType
                 'label' => 'Albums similaires',
                 'class' => Album::class,
                 'route' => 'admin_album_select2',
-
+                'choice_label' => 'name',
             ])
             ->add('tracklists', CollectionType::class, [
                 'entry_type' => TracklistType::class,
