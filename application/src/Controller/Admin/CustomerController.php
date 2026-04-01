@@ -31,8 +31,10 @@ class CustomerController extends AbstractController
     }
 
     #[Route("/{id}/view", name: "view", methods: ["GET", "POST"])]
-    public function view(): Response
+    public function view(Customer $customer): Response
     {
-
+        return $this->render('admin/customer/view.html.twig', [
+            'customer' => $customer,
+        ]);
     }
 }

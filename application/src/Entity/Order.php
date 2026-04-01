@@ -20,7 +20,7 @@ class Order extends BaseOrder
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
     protected $number;
 
-    #[ORM\ManyToOne(targetEntity: Customer::class)]
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'orders')]
     #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'id', nullable: true)]
     protected $customer;
 

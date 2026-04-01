@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Order;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Core\Model\Customer as BaseCustomer;
 
@@ -24,4 +27,14 @@ class Customer extends BaseCustomer
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected $lastName;
+
+    /** @var Collection<array-key, Order> */
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Order::class)]
+    protected $orders;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->orders = new ArrayCollection();
+    }
 }
