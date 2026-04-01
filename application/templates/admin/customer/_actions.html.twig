@@ -1,0 +1,5 @@
+{% import '@AropixelAdmin/Macro/actions.html.twig' as list %}
+{{ list.actions(
+    item,
+    path('admin_customer_view', {id: item.id}),
+) }}

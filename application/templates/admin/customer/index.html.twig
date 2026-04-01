@@ -1,0 +1,16 @@
+{% extends '@AropixelAdmin/List/datatable.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+
+{% block meta_title %}Clients{% endblock %}
+
+{% block header_title %}Clients{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        { label: 'text.home', url: url('_admin') },
+        { label: 'Clients' },
+    ]) }}
+{% endblock %}
+
+{% block header_actions %}
+{% endblock %}

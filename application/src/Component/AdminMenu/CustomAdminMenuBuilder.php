@@ -24,6 +24,7 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
         $additionalMenus = [];
         $additionalMenus[] = $this->buildContentMenu();
         $additionalMenus[] = $this->buildMerchMenu();
+        $additionalMenus[] = $this->buildShopMenu();
 
         // Menus reserved for ROLE_SUPER_ADMIN
         if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
@@ -48,6 +49,14 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
         $menu = new Menu('content', 'Merchandising');
         $menu->addItem(new Link('Produits', 'admin_product_index', [], ['icon' => 'fas fa-list-ul']));
         $menu->addItem(new Link('Options', 'admin_product_option_index', [], ['icon' => 'fas fa-list-ul']));
+
+        return $menu;
+    }
+
+    private function buildShopMenu(): Menu
+    {
+        $menu = new Menu('content', 'Shop');
+        $menu->addItem(new Link('Clients', 'admin_customer_index', [], ['icon' => 'fas fa-list-ul']));
 
         return $menu;
     }
