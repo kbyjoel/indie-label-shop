@@ -36,7 +36,12 @@ class ProductOptionType extends AbstractType
             ->add('values', CollectionType::class, [
                 'entry_type' => ProductOptionValueType::class,
                 'columns' => [
-                    'Valeur' => 'value',
+                    'Valeur' => [
+                        'field' => 'value',
+                        'render' => function($field, $item) {
+                            return $item->vars['data']?->getValue();
+                        },
+                    ],
                 ],
 
             ]);

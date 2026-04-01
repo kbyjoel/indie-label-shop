@@ -30,16 +30,15 @@ class ProductOptionController extends AbstractController
     {
         return $dataTableFactory
             ->create(ProductOption::class)
+            ->join('translations', 't') // Left join event.category with alias 'c'
             ->setColumns([
-                ['label' => 'ID', 'field' => 'id'],
-                ['label' => 'Nom', 'field' => 'name'],
+                ['label' => 'Nom', 'field' => 't.name'],
                 ['label' => 'Code', 'field' => 'code'],
                 ['label' => 'Position', 'field' => 'position'],
                 ['label' => '', 'field' => '', 'class' => 'no-sort'],
             ])
             ->searchIn(['id', 'code'])
             ->renderJson(fn(ProductOption $productOption) => [
-                $productOption->getId(),
                 $this->renderView('admin/product_option/_link.html.twig', ['item' => $productOption]),
                 $productOption->getCode(),
                 $productOption->getPosition(),

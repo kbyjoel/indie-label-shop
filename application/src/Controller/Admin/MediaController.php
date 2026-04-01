@@ -29,15 +29,13 @@ class MediaController extends AbstractController
         return $dataTableFactory
             ->create(Media::class)
             ->setColumns([
-                ['label' => 'ID', 'field' => 'id'],
                 ['label' => 'Nom', 'field' => 'name'],
                 ['label' => 'Numérique', 'field' => 'isDigital'],
                 ['label' => '', 'field' => '', 'class' => 'no-sort text-right'],
             ])
             ->searchIn(['id', 'name'])
             ->renderJson(fn(Media $media) => [
-                $media->getId(),
-                $media->getName(),
+                $this->renderView('admin/media/_link.html.twig', ['item' => $media]),
                 $this->renderView('admin/media/_is_digital.html.twig', ['item' => $media]),
                 $this->renderView('admin/media/_actions.html.twig', ['item' => $media]),
             ])
