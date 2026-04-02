@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Addressing\Model\Zone as BaseZone;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: \App\Repository\ZoneRepository::class)]
 #[ORM\Table(name: 'sylius_zone')]
 class Zone extends BaseZone
 {

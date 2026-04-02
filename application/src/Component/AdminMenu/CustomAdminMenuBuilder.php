@@ -57,6 +57,7 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
     {
         $menu = new Menu('content', 'Shop');
         $menu->addItem(new Link('Clients', 'admin_customer_index', [], ['icon' => 'fas fa-list-ul']));
+        $menu->addItem(new Link('Zones', 'admin_zone_index', [], ['icon' => 'fas fa-list-ul']));
 
         return $menu;
     }
