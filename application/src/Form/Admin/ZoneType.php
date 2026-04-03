@@ -3,9 +3,9 @@
 namespace App\Form\Admin;
 
 use App\Entity\Zone;
+use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -33,8 +33,13 @@ class ZoneType extends AbstractType
                 ],
                 'required' => true,
             ])
-            ->add('scope', TextType::class, [
+            ->add('scope', ChoiceType::class, [
                 'label' => 'Portée (Scope)',
+                'choices' => [
+                    'Toutes' => 'all',
+                    'Livraison' => 'shipping',
+                    'Taxes' => 'tax',
+                ],
                 'required' => false,
                 'empty_data' => 'all',
             ])
@@ -44,9 +49,12 @@ class ZoneType extends AbstractType
             ])
             ->add('members', CollectionType::class, [
                 'entry_type' => ZoneMemberType::class,
-                'allow_add' => true,
-                'allow_delete' => true,
-                'by_reference' => false,
+                'entry_options' => [
+                    'zone_type' => $builder->getData()?->getType() ?: 'country',
+                ],
+                'columns' => [
+                    'Code' => 'code',
+                ],
                 'label' => 'Membres',
             ])
         ;

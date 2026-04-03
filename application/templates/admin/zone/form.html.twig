@@ -1,5 +1,6 @@
 {% extends '@AropixelAdmin/Form/base.html.twig' %}
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
 
 {% set is_edit = zone.id is not null %}
 {% set title = is_edit ? 'text.edit'|trans ~ ' : ' ~ zone.name : 'text.add'|trans %}
@@ -15,6 +16,23 @@
     ]) }}
 {% endblock %}
 
-{% block formbody %}
-    {{ form_rest(form) }}
+{% block tabbable %}
+    {{ forms.tabs([
+        { id: 'panel-tab-general', label: 'Général' },
+    ]) }}
+{% endblock %}
+
+{% block mainPanel %}
+    <div class="tab-pane active" id="panel-tab-general">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.name) }}
+                {{ form_row(form.code) }}
+                {{ form_row(form.type) }}
+                {{ form_row(form.scope) }}
+                {{ form_row(form.priority) }}
+                {{ form_widget(form.members) }}
+            </div>
+        </div>
+    </div>
 {% endblock %}
