@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Addressing\Model\Country as BaseCountry;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: \App\Repository\CountryRepository::class)]
 #[ORM\Table(name: 'sylius_country')]
 class Country extends BaseCountry
 {
