@@ -11,3 +11,29 @@
         { label: 'Pays' }
     ]) }}
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('toggle-country')) {
+                const url = e.target.dataset.url;
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        e.target.checked = !e.target.checked;
+                    }
+                })
+                .catch(() => {
+                    e.target.checked = !e.target.checked;
+                });
+            }
+        });
+    </script>
+{% endblock %}

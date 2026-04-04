@@ -23,11 +23,16 @@ use App\Entity\Release;
 use App\Entity\Track;
 use App\Entity\Tracklist;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 
-class AppFixtures extends Fixture
+class AppFixtures extends Fixture implements FixtureGroupInterface
 {
+    public static function getGroups(): array
+    {
+        return ['dev'];
+    }
     private const INDIE_BANDS = [
         'The Psychotic Monks', 'Lysistrata', 'Slift', 'Frustration', 'La Femme',
         'Flavien Berger', 'Bryan\'s Magic Tears', 'Decibelles', 'Johnny Mafia', 'Pogo Car Crash Control',

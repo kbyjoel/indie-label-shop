@@ -10,6 +10,7 @@ use function Castor\variable;
 use function docker\about;
 use function docker\build;
 use function docker\docker_compose_run;
+use function docker\docker_compose_run_output;
 use function docker\up;
 
 // use function docker\workers_start;
@@ -51,6 +52,7 @@ function start(): void
     install();
     up(profiles: ['default']); // We can't start worker now, they are not installed
     migrate();
+    initialize_data();
     // workers_start();
 
     notify('The stack is now up and running.');
@@ -119,11 +121,23 @@ function migrate(): void
      docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing');
 }
 
-#[AsTask(description: 'Loads fixtures', namespace: 'app:db', aliases: ['fixture'])]
+#[AsTask(description: 'Initializes base data if needed', namespace: 'app:db')]
+function initialize_data(): void
+{
+    $count = (int) docker_compose_run_output('bin/console doctrine:query:sql "SELECT COUNT(*) FROM sylius_country" | grep -oE "[0-9]+" | head -1');
+
+    if ($count === 0) {
+        io()->section('Initializing base data (countries and zones)');
+        docker_compose_run('bin/console doctrine:fixtures:load --group=base -n --append');
+        docker_compose_run('bin/console aropixel:admin:create-user -n');
+    }
+}
+
+#[AsTask(description: 'Loads dev fixtures', namespace: 'app:db', aliases: ['fixture'])]
 function fixtures(): void
 {
-    io()->title('Loads fixtures');
+    io()->title('Loads dev fixtures');
 
-    docker_compose_run('bin/console doctrine:fixture:load -n');
-    docker_compose_run('bin/console aropixel:admin:create-user -n');
+    initialize_data();
+    docker_compose_run('bin/console doctrine:fixture:load --group=dev -n --append');
 }

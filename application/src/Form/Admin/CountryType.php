@@ -16,10 +16,6 @@ class CountryType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('code', TextType::class, [
-                'label' => 'Code ISO (ex: FR, US)',
-                'required' => true,
-            ])
             ->add('enabled', CheckboxType::class, [
                 'label' => 'Activé',
                 'required' => false,

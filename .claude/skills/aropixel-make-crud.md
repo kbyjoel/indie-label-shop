@@ -1,171 +1,171 @@
 ---
 name: aropixel-make-crud
 description: >
-  Génère et complète un CRUD d'administration Symfony avec AropixelAdminBundle.
-  Utilise ce skill dès que l'utilisateur demande à créer une section admin, un CRUD admin,
-  une interface de gestion pour une entité, ou à "ajouter l'admin" d'une entité.
-  Ce skill couvre le workflow complet : commande make:crud, complétion du DataTable,
-  template de liste, template de formulaire, ajout dans le menu admin, breadcrumbs et macros. À utiliser aussi quand
-  l'utilisateur dit "génère le controller admin", "crée la page de liste admin", ou demande
-  à personnaliser les colonnes/champs d'un CRUD déjà généré.
+  Generates and completes a Symfony administration CRUD with AropixelAdminBundle.
+  Use this skill whenever the user asks to create an admin section, an admin CRUD,
+  a management interface for an entity, or to "add the admin" for an entity.
+  This skill covers the complete workflow: make:crud command, DataTable completion,
+  list template, form template, adding to the admin menu, breadcrumbs, and macros.
+  Also use when the user says "generate the admin controller," "create the admin list page,"
+  or asks to customize the columns/fields of an already generated CRUD.
 ---
 
-# Skill : Générer un CRUD Admin avec AropixelAdminBundle
+# Skill: Generating an Admin CRUD with AropixelAdminBundle
 
-## Workflow complet
+## Complete workflow
 
-### Étape 1 — Lancer la commande
+### Step 1 — Run the command
 
 ```bash
 php bin/console aropixel:make:crud
 ```
 
-Le terminal demande :
-1. **Entity Class** : ex. `App\Entity\Article`
-2. **FormType Class** : ex. `App\Form\ArticleType`
+The terminal will ask for:
+1. **Entity Class**: e.g., `App\Entity\MyEntity`
+2. **FormType Class**: e.g., `App\Form\MyEntityType`
 
-Les fichiers générés :
-- `src/Controller/Admin/ArticleController.php`
-- `templates/admin/article/index.html.twig`
-- `templates/admin/article/form.html.twig`
+Generated files:
+- `src/Controller/Admin/MyEntityController.php`
+- `templates/admin/my_entity/index.html.twig`
+- `templates/admin/my_entity/form.html.twig`
 
 ---
 
-### Étape 2 — Compléter le DataTable dans le Controller
+### Step 2 — Complete the DataTable in the Controller
 
-Par défaut, seule la colonne `ID` est générée. **Toujours compléter** avec les colonnes pertinentes de l'entité.
+By default, only the `ID` column is generated. **Always complete** with the relevant columns of the entity.
 
-#### Règles de sélection des colonnes
+#### Column selection rules
 
-| Type de propriété Doctrine | Colonne DataTable | Exemple |
+| Doctrine property type | DataTable Column | Example |
 |---|---|---|
-| `string`, `text` | Label simple, `orderBy` sur le champ | `['label' => 'Titre', 'orderBy' => 'title']` |
-| `date`, `datetime` | Format `d/m/Y` dans le renderJson | `['label' => 'Date', 'orderBy' => 'createdAt', 'style' => 'width:150px;']` |
-| `boolean` | Icône ✓/✗ ou label Oui/Non | `['label' => 'Actif', 'orderBy' => 'active', 'style' => 'width:80px;']` |
-| `integer`, `float` | Label simple | `['label' => 'Prix', 'orderBy' => 'price']` |
-| Relation ManyToOne | `join()` + alias dans `orderBy` | Voir section Jointures ci-dessous |
-| Relation ManyToMany / OneToMany | Ne pas mettre en colonne, ignorer | — |
-| `image` (champ fichier) | Macro `media.thumbnail_with_status` | Voir section Image ci-dessous |
+| `string`, `text` | Simple label, `orderBy` on the field | `['label' => 'Title', 'orderBy' => 'title']` |
+| `date`, `datetime` | `d/m/Y` format in renderJson | `['label' => 'Date', 'orderBy' => 'createdAt', 'style' => 'width:150px;']` |
+| `boolean` | ✓/✗ icon or Yes/No label | `['label' => 'Active', 'orderBy' => 'active', 'style' => 'width:80px;']` |
+| `integer`, `float` | Simple label | `['label' => 'Price', 'orderBy' => 'price']` |
+| ManyToOne relation | `join()` + alias in `orderBy` | See Joins section below |
+| ManyToMany / OneToMany relation | Do not put in column, ignore | — |
+| `image` (file field) | `media.thumbnail_with_status` macro | See Image section below |
 
-#### Colonnes à toujours exclure
-- **L'ID** — ne jamais mettre l'ID en colonne du datatable
-- Mots de passe, tokens, champs techniques internes
+#### Columns to always exclude
+- **The ID** — never put the ID as a datatable column
+- Passwords, tokens, internal technical fields
 - Collections (ManyToMany, OneToMany)
-- Champs `updatedAt` (sauf besoin explicite)
+- `updatedAt` fields (unless explicitly needed)
 
-#### Colonne nom/label/titre : toujours cliquable via `_link.html.twig`
+#### Name/label/title column: always clickable via `_link.html.twig`
 
-Le champ principal de l'entité (nom, titre, label, etc.) doit être rendu via un partial `_link.html.twig` qui le rend cliquable vers la page d'édition. Dans `renderJson` :
+The main field of the entity (name, title, label, etc.) should be rendered via a `_link.html.twig` partial that makes it clickable to the edit page. In `renderJson`:
 
 ```php
-$this->renderView('admin/article/_link.html.twig', ['item' => $item]),
+$this->renderView('admin/my_entity/_link.html.twig', ['item' => $item]),
 ```
 
-Créer le fichier `templates/admin/article/_link.html.twig` :
+Create the `templates/admin/my_entity/_link.html.twig` file:
 
 ```twig
-<a href="{{ path('admin_article_edit', {id: item.id}) }}">{{ item.title }}</a>
+<a href="{{ path('admin_myentity_edit', {id: item.id}) }}">{{ item.title }}</a>
 ```
 
-> Adapter `item.title` au getter du champ principal de l'entité (`item.name`, `item.label`, etc.) et `admin_article_edit` au nom de route de l'entité.
+> Adapt `item.title` to the getter of the main field of the entity (`item.name`, `item.label`, etc.) and `admin_myentity_edit` to the route name of the entity.
 
-#### Dernière colonne : toujours les actions
+#### Last column: always the actions
 ```php
 ['label' => '', 'orderBy' => '', 'class' => 'no-sort']
 ```
 
-#### Pattern Controller complet
+#### Complete Controller Pattern
 
 ```php
 #[Route("/", name: "index", methods: ["GET"])]
 public function index(DataTableFactory $dataTableFactory): Response
 {
     return $dataTableFactory
-        ->create(Article::class)
+        ->create(MyEntity::class)
         ->setColumns([
-            ['label' => 'Titre',      'orderBy' => 'title'],           // rendu via _link.html.twig
-            ['label' => 'Catégorie',  'orderBy' => 'c.name'],          // jointure
-            ['label' => 'Date',       'orderBy' => 'publishedAt', 'style' => 'width:150px;'],
-            ['label' => 'Actif',      'orderBy' => 'active',      'style' => 'width:80px;'],
+            ['label' => 'Title',      'orderBy' => 'title'],           // rendered via _link.html.twig
+            ['label' => 'Category',  'orderBy' => 'c.name'],          // join
+            ['label' => 'Date',       'orderBy' => 'createdAt', 'style' => 'width:150px;'],
+            ['label' => 'Active',      'orderBy' => 'active',      'style' => 'width:80px;'],
             ['label' => '',           'orderBy' => '',            'class' => 'no-sort'],
         ])
-        ->join('category', 'c')          // si relation ManyToOne sur category
+        ->join('category', 'c')          // if ManyToOne relation on category
         ->searchIn(['title', 'c.name'])
-        ->setOrderColumn(0)              // tri par défaut sur le titre
+        ->setOrderColumn(0)              // default sort on title
         ->setOrderDirection('asc')
-        ->renderJson(fn(Article $item) => [
-            $this->renderView('admin/article/_link.html.twig', ['item' => $item]),  // champ principal cliquable
+        ->renderJson(fn(MyEntity $item) => [
+            $this->renderView('admin/my_entity/_link.html.twig', ['item' => $item]),  // clickable main field
             $item->getCategory()?->getName(),
-            $item->getPublishedAt()?->format('d/m/Y') ?? '—',
-            $item->isActive() ? 'Oui' : 'Non',
-            $this->renderView('admin/article/_actions.html.twig', ['item' => $item]),
+            $item->getCreatedAt()?->format('d/m/Y') ?? '—',
+            $item->isActive() ? 'Yes' : 'No',
+            $this->renderView('admin/my_entity/_actions.html.twig', ['item' => $item]),
         ])
-        ->render('admin/article/index.html.twig');
+        ->render('admin/my_entity/index.html.twig');
 }
 ```
 
-Fichier `templates/admin/article/_link.html.twig` à créer :
+File `templates/admin/my_entity/_link.html.twig` to create:
 
 ```twig
-<a href="{{ path('admin_article_edit', {id: item.id}) }}">{{ item.title }}</a>
+<a href="{{ path('admin_myentity_edit', {id: item.id}) }}">{{ item.title }}</a>
 ```
 
-#### Jointures (relation ManyToOne)
+#### Joins (ManyToOne relation)
 ```php
-->join('category', 'c')           // propriété sur l'entité, alias
+->join('category', 'c')           // property on the entity, alias
 ->setColumns([
-    ['label' => 'Catégorie', 'orderBy' => 'c.name'],
+    ['label' => 'Category', 'orderBy' => 'c.name'],
 ])
 ->searchIn(['title', 'c.name'])
 ```
 
-#### Colonne image
-Dans `renderJson`, utiliser le renderView avec la macro image :
+#### Image column
+In `renderJson`, use renderView with the image macro:
 ```php
-$this->renderView('admin/article/_thumbnail.html.twig', ['item' => $item]),
+$this->renderView('admin/my_entity/_thumbnail.html.twig', ['item' => $item]),
 ```
 ```twig
 {# _thumbnail.html.twig #}
 {% import '@AropixelAdmin/Macro/image.html.twig' as media %}
-{{ media.thumbnail_with_status(item, 'image', 'status', path('admin_article_edit', {id: item.id})) }}
+{{ media.thumbnail_with_status(item, 'image', 'status', path('admin_myentity_edit', {id: item.id})) }}
 ```
 
 ---
 
-### Étape 3 — Ajouter le lien dans le menu admin
+### Step 3 — Add the link in the admin menu
 
-Après avoir créé le CRUD, **toujours ajouter un lien vers la liste** dans `CustomAdminMenuBuilder` :
+After creating the CRUD, **always add a link to the list** in the project's admin menu builder.
 
-Fichier : `application/src/Component/AdminMenu/CustomAdminMenuBuilder.php`
+Find the class that implements `AdminMenuBuilderInterface` (usually in `src/Component/AdminMenu/` or `src/Menu/`).
 
-Ajouter dans la méthode de section appropriée :
+Add in the appropriate section method:
 
 ```php
-$menu->addItem(new Link('Mon entité', 'admin_monentite_index', [], ['icon' => 'fas fa-list-ul']));
+$menu->addItem(new Link('My Entity', 'admin_myentity_index', [], ['icon' => 'fas fa-list-ul']));
 ```
 
-Choisir la section la plus pertinente (`buildContentMenu`, `buildMerchMenu`, `buildShopMenu`) ou créer une nouvelle section si l'entité appartient à un domaine distinct.
+Choose the most relevant section (`buildMainMenu`, `buildSettingsMenu`, etc.) or create a new section if the entity belongs to a distinct domain.
 
-> Voir la skill `aropixel-admin-menu` pour le détail complet.
+> See the `aropixel-admin-menu` skill for complete details.
 
 ---
 
-### Étape 4 — Compléter le template de formulaire `form.html.twig`
+### Step 4 — Complete the form template `form.html.twig`
 
-Pattern minimal :
+Minimal pattern:
 
 ```twig
 {% extends '@AropixelAdmin/Form/base.html.twig' %}
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
 
-{% block meta_title %}{% if article.id %}Modifier{% else %}Ajouter{% endif %} un article{% endblock %}
-{% block header_title %}{% if article.id %}{{ article.title }}{% else %}Ajouter un article{% endif %}{% endblock %}
+{% block meta_title %}{% if my_entity.id %}Edit{% else %}Add{% endif %} an item{% endblock %}
+{% block header_title %}{% if my_entity.id %}{{ my_entity.title }}{% else %}Add an item{% endif %}{% endblock %}
 
 {% block header_breadcrumb %}
     {{ nav.breadcrumbs([
         { label: 'text.home', url: url('_admin') },
-        { label: 'Articles', url: url('admin_article_index') },
-        { label: (article.id ? 'Modifier' : 'Ajouter') ~ ' un article' }
+        { label: 'Items', url: url('admin_myentity_index') },
+        { label: (my_entity.id ? 'Edit' : 'Add') ~ ' an item' }
     ]) }}
 {% endblock %}
 
@@ -178,11 +178,11 @@ Pattern minimal :
 {% endblock %}
 ```
 
-Pour un formulaire avec **onglets** ou des **collections**, voir la section Form Templates ci-dessous.
+For a form with **tabs** or **collections**, see the Form Templates section below.
 
 ---
 
-## Référence : DataTable Component
+## Reference: DataTable Component
 
 The `DataTable` component of the AdminBundle simplifies the creation of JSON responses compatible with the [DataTables](https://datatables.net/) jQuery plugin. It provides a Fluent Interface to configure columns, filters, and rendering.
 
@@ -191,60 +191,60 @@ The `DataTable` component of the AdminBundle simplifies the creation of JSON res
 The recommended way to use the component is to handle both the HTML page and the JSON data in a single controller action. This avoids duplicating column definitions.
 
 ```php
-use App\Entity\Event;
+use App\Entity\MyEntity;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 
 #[Route("/", name: "index", methods: ["GET"])]
 public function index(DataTableFactory $dataTableFactory): Response
 {
     return $dataTableFactory
-        ->create(Event::class)
+        ->create(MyEntity::class)
         ->setColumns([
-            ['label' => 'Title', 'orderBy' => 'title'],   // rendu via _link.html.twig
-            ['label' => 'Date', 'orderBy' => 'startDate', 'style' => 'width:200px;'],
+            ['label' => 'Title', 'orderBy' => 'title'],   // rendered via _link.html.twig
+            ['label' => 'Date', 'orderBy' => 'createdAt', 'style' => 'width:200px;'],
             ['label' => '', 'orderBy' => '', 'class' => 'no-sort'],
         ])
         ->searchIn(['title'])
-        ->renderJson(fn(Event $event) => [
-            $this->renderView('admin/event/_link.html.twig', ['item' => $event]),  // champ principal cliquable
-            $event->getStartDate()->format('d/m/Y'),
-            $this->renderView('admin/event/_actions.html.twig', ['item' => $event]),
+        ->renderJson(fn(MyEntity $item) => [
+            $this->renderView('admin/my_entity/_link.html.twig', ['item' => $item]),  // clickable main field
+            $item->getCreatedAt()->format('d/m/Y'),
+            $this->renderView('admin/my_entity/_actions.html.twig', ['item' => $item]),
         ])
-        ->render('admin/event/index.html.twig');
+        ->render('admin/my_entity/index.html.twig');
 }
 ```
 
-Fichier `templates/admin/event/_link.html.twig` à créer :
+File `templates/admin/my_entity/_link.html.twig` to create:
 
 ```twig
-<a href="{{ path('admin_event_edit', {id: item.id}) }}">{{ item.title }}</a>
+<a href="{{ path('admin_myentity_edit', {id: item.id}) }}">{{ item.title }}</a>
 ```
 
 ### Fluent Interface Methods
 
-- `setColumns(array $columns)` — définit toutes les colonnes
-- `addColumn(array|DataTableColumn $column)` — ajoute une colonne
-- `addColumnsIf(bool $condition, array $columns)` — ajoute des colonnes sous condition
-- `join(string $property, string $alias)` — LEFT JOIN automatique
-- `searchIn(array $fields)` — active la recherche LIKE
-- `setOrderColumn(?int $index)` — colonne de tri par défaut (index 0)
-- `setOrderDirection(?string $direction)` — `'asc'` ou `'desc'`
-- `filter(callable $filter)` — filtre contextuel via QueryBuilder
-- `useRepositoryMethod(string $methodName)` — méthode repo personnalisée (doit retourner un `QueryBuilder`)
-- `renderJson(callable $transformer)` — transformateur de données
-- `render(string $template, array $parameters = [])` — template HTML
+- `setColumns(array $columns)` — defines all columns
+- `addColumn(array|DataTableColumn $column)` — adds a column
+- `addColumnsIf(bool $condition, array $columns)` — adds columns conditionally
+- `join(string $property, string $alias)` — automatic LEFT JOIN
+- `searchIn(array $fields)` — enables LIKE search
+- `setOrderColumn(?int $index)` — default sort column (index 0)
+- `setOrderDirection(?string $direction)` — `'asc'` or `'desc'`
+- `filter(callable $filter)` — contextual filter via QueryBuilder
+- `useRepositoryMethod(string $methodName)` — custom repo method (must return a `QueryBuilder`)
+- `renderJson(callable $transformer)` — data transformer
+- `render(string $template, array $parameters = [])` — HTML template
 
-### Mode Classic (données pré-chargées)
+### Classic Mode (pre-loaded data)
 
 ```php
 return $dataTableFactory
-    ->create(Event::class, mode: DataTableInterface::MODE_CLASSIC)
-    ->setItems($events)
+    ->create(MyEntity::class, mode: DataTableInterface::MODE_CLASSIC)
+    ->setItems($items)
     ->setColumns([...])
-    ->render('admin/event/list.html.twig');
+    ->render('admin/my_entity/index.html.twig');
 ```
 
-Template en mode classic :
+Classic mode template:
 
 ```twig
 {% extends '@AropixelAdmin/List/datatable.html.twig' %}
@@ -254,7 +254,7 @@ Template en mode classic :
     <tr>
         <td>{{ item.title }}</td>
         <td class="text-right">
-            {{ list.actions(item, path('admin_event_edit', {id: item.id}), path('admin_event_delete', {id: item.id})) }}
+            {{ list.actions(item, path('admin_myentity_edit', {id: item.id}), path('admin_myentity_delete', {id: item.id})) }}
         </td>
     </tr>
 {% endblock %}
@@ -262,30 +262,30 @@ Template en mode classic :
 
 ---
 
-## Référence : Form Templates
+## Reference: Form Templates
 
-### Structure complète avec onglets
+### Complete structure with tabs
 
 ```twig
 {% extends '@AropixelAdmin/Form/base.html.twig' %}
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
 {% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
 
-{% block meta_title %}{% if artist.id %}Modifier{% else %}Ajouter{% endif %} un artiste{% endblock %}
-{% block header_title %}{% if artist.id %}{{ artist.name }}{% else %}Ajouter un artiste{% endif %}{% endblock %}
+{% block meta_title %}{% if my_entity.id %}Edit{% else %}Add{% endif %} an item{% endblock %}
+{% block header_title %}{% if my_entity.id %}{{ my_entity.name }}{% else %}Add an item{% endif %}{% endblock %}
 
 {% block header_breadcrumb %}
     {{ nav.breadcrumbs([
         { label: 'text.home', url: url('_admin') },
-        { label: 'Artistes', url: url('admin_artist_index') },
-        { label: (artist.id ? 'Modifier' : 'Ajouter') ~ ' un artiste' }
+        { label: 'Items', url: url('admin_myentity_index') },
+        { label: (my_entity.id ? 'Edit' : 'Add') ~ ' an item' }
     ]) }}
 {% endblock %}
 
 {% block tabbable %}
     {{ forms.tabs([
-        { id: 'panel-tab-general', label: 'Général' },
-        { id: 'panel-tab-extra', label: 'Détails' },
+        { id: 'panel-tab-general', label: 'General' },
+        { id: 'panel-tab-extra', label: 'Details' },
     ]) }}
 {% endblock %}
 
@@ -308,21 +308,21 @@ Template en mode classic :
 {% endblock %}
 ```
 
-### Collections dans un formulaire
+### Collections in a form
 
 ```twig
 <div class="form-group mt-4">
     <div class="d-flex justify-content-between align-items-center mb-2 w-100">
         <label class="control-label">Items</label>
         <a class="btn btn-primary btn-xs" data-form-collection-add="{{ form.items.vars.id }}">
-            <i class="fa fa-plus"></i> Ajouter
+            <i class="fa fa-plus"></i> Add
         </a>
     </div>
     {{ form_widget(form.items, {'attr': {'class': 'w-100'}}) }}
 </div>
 ```
 
-### Ratios horizontaux disponibles
+### Available horizontal ratios
 
 - `.form-horizontal-20-80`
 - `.form-horizontal-30-70`
@@ -331,7 +331,7 @@ Template en mode classic :
 - `.form-horizontal-50-50`
 
 ```php
-// Dans le FormType
+// In FormType
 $builder->add('name', TextType::class, [
     'row_attr' => ['class' => 'form-horizontal-40-60'],
 ]);
@@ -339,7 +339,7 @@ $builder->add('name', TextType::class, [
 
 ---
 
-## Référence : Macros Twig
+## Reference: Twig Macros
 
 ### Actions (`@AropixelAdmin/Macro/actions.html.twig`)
 
@@ -348,12 +348,12 @@ $builder->add('name', TextType::class, [
 {{ list.actions(item, path('admin_entity_edit', {id: item.id}), path('admin_entity_delete', {id: item.id})) }}
 ```
 
-| Paramètre | Description |
+| Parameter | Description |
 |---|---|
-| `item` | L'entité (pour le token CSRF de suppression) |
-| `edit_path` | URL de modification (optionnel) |
-| `delete_path` | URL de suppression (optionnel) |
-| `delete_confirm_msg` | Message de confirmation personnalisé (optionnel) |
+| `item` | The entity (for the delete CSRF token) |
+| `edit_path` | Edit URL (optional) |
+| `delete_path` | Delete URL (optional) |
+| `delete_confirm_msg` | Custom confirmation message (optional) |
 
 ### Breadcrumb (`@AropixelAdmin/Macro/breadcrumb.html.twig`)
 
@@ -361,8 +361,8 @@ $builder->add('name', TextType::class, [
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
 {{ nav.breadcrumbs([
     { label: 'text.home', url: url('_admin') },
-    { label: 'Entités', url: url('admin_entity_index') },
-    { label: 'Modifier' }
+    { label: 'Entities', url: url('admin_entity_index') },
+    { label: 'Edit' }
 ]) }}
 ```
 
@@ -373,14 +373,14 @@ $builder->add('name', TextType::class, [
 {{ media.thumbnail_with_status(item, 'image', 'status', path('admin_entity_edit', {id: item.id})) }}
 ```
 
-| Paramètre | Défaut | Description |
+| Parameter | Default | Description |
 |---|---|---|
-| `item` | — | L'entité |
-| `image_field` | `'image'` | Nom de la propriété image |
-| `status_field` | `'status'` | Nom de la propriété statut |
-| `edit_path` | — | URL du lien autour de la miniature |
-| `filter` | `'admin_thumbnail'` | Filtre LiipImagine |
-| `height` | `60` | Hauteur en pixels |
+| `item` | — | The entity |
+| `image_field` | `'image'` | Image property name |
+| `status_field` | `'status'` | Status property name |
+| `edit_path` | — | URL of the link around the thumbnail |
+| `filter` | `'admin_thumbnail'` | LiipImagine filter |
+| `height` | `60` | Height in pixels |
 
 ### Tabs (`@AropixelAdmin/Macro/forms.html.twig`)
 
@@ -388,7 +388,7 @@ $builder->add('name', TextType::class, [
 {% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
 {% block tabbable %}
     {{ forms.tabs([
-        { id: 'panel-tab-general', label: 'Général' },
+        { id: 'panel-tab-general', label: 'General' },
         { id: 'panel-tab-extra', label: 'Extra' },
     ]) }}
 {% endblock %}

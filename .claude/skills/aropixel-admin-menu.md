@@ -1,101 +1,95 @@
 ---
 name: aropixel-admin-menu
 description: >
-  Gère le menu de l'administration Aropixel AdminBundle.
-  Utilise ce skill quand l'utilisateur veut ajouter une entrée dans le menu admin,
-  créer une nouvelle section de menu, ou modifier la navigation de l'interface d'administration.
+  Manages the Aropixel AdminBundle administration menu.
+  Use this skill when the user wants to add an entry in the admin menu,
+  create a new menu section, or modify the administration interface navigation.
 ---
 
-# Skill : Menu Admin AropixelAdminBundle
+# Skill: Admin Menu AropixelAdminBundle
 
-## Fichier à modifier
+## File to modify
 
-Le menu admin du projet est défini dans un seul fichier :
+The project's admin menu is defined in a class that implements `AdminMenuBuilderInterface`.
 
-```
-application/src/Component/AdminMenu/CustomAdminMenuBuilder.php
-```
+To find it, you can search for the class that implements this interface in the project (usually located in `src/Component/AdminMenu/` or `src/Menu/`). It builds the menu via private methods per section.
 
-C'est une classe qui implémente `AdminMenuBuilderInterface` et construit le menu via des méthodes privées par section.
+## Current menu structure
 
-## Structure actuelle du menu
+The menu is organized into sections (private methods):
+- `buildMainMenu()` → **Main Section**: General entities
+- `buildSettingsMenu()` → **Settings**: Configuration, Users
+- `buildAdminMenu()` → **Administration** (ROLE_SUPER_ADMIN only): Administrators
 
-Le menu est organisé en sections (méthodes privées) :
-- `buildContentMenu()` → **Catalogue** : Groupes, Albums, Médias
-- `buildMerchMenu()` → **Merchandising** : Produits, Options
-- `buildShopMenu()` → **Shop** : Clients, Zones
-- `buildAdminMenu()` → **Administration** (ROLE_SUPER_ADMIN uniquement) : Administrateurs
+## Adding a link in an existing section
 
-## Ajouter un lien dans une section existante
-
-Ajouter un `new Link(...)` dans la méthode correspondante :
+Add a `new Link(...)` in the corresponding method:
 
 ```php
-$menu->addItem(new Link('Label affiché', 'nom_de_route_index', [], ['icon' => 'fas fa-icon']));
+$menu->addItem(new Link('Label displayed', 'index_route_name', [], ['icon' => 'fas fa-icon']));
 ```
 
-Exemple — ajouter "Pays" dans la section Shop :
+Example — adding "Categories" in the Main section:
 
 ```php
-private function buildShopMenu(): Menu
+private function buildMainMenu(): Menu
 {
-    $menu = new Menu('content', 'Shop');
-    $menu->addItem(new Link('Clients', 'admin_customer_index', [], ['icon' => 'fas fa-list-ul']));
-    $menu->addItem(new Link('Zones', 'admin_zone_index', [], ['icon' => 'fas fa-list-ul']));
-    $menu->addItem(new Link('Pays', 'admin_country_index', [], ['icon' => 'fas fa-flag']));
+    $menu = new Menu('main', 'Main');
+    $menu->addItem(new Link('Items', 'admin_item_index', [], ['icon' => 'fas fa-list-ul']));
+    $menu->addItem(new Link('Categories', 'admin_category_index', [], ['icon' => 'fas fa-tags']));
     return $menu;
 }
 ```
 
-## Créer une nouvelle section de menu
+## Creating a new menu section
 
-1. Ajouter une méthode privée `buildXxxMenu()` :
+1. Add a private method `buildXxxMenu()`:
 
 ```php
 private function buildXxxMenu(): Menu
 {
-    $menu = new Menu('xxx', 'Nom de la section');
-    $menu->addItem(new Link('Mon entité', 'admin_monentite_index', [], ['icon' => 'fas fa-list-ul']));
+    $menu = new Menu('xxx', 'Section Name');
+    $menu->addItem(new Link('My Entity', 'admin_myentity_index', [], ['icon' => 'fas fa-list-ul']));
     return $menu;
 }
 ```
 
-2. L'appeler dans `buildMenu()` :
+2. Call it in `buildMenu()`:
 
 ```php
 public function buildMenu(): array
 {
     $additionalMenus = [];
-    $additionalMenus[] = $this->buildContentMenu();
-    $additionalMenus[] = $this->buildXxxMenu(); // <-- ajouter ici
+    $additionalMenus[] = $this->buildMainMenu();
+    $additionalMenus[] = $this->buildXxxMenu(); // <-- add here
     // ...
     return $additionalMenus;
 }
 ```
 
-## Ajouter un sous-menu (SubMenu)
+## Adding a sub-menu (SubMenu)
 
 ```php
-$subMenu = new SubMenu('Sous-section', ['icon' => 'fas fa-folder'], 'id-sous-menu');
+$subMenu = new SubMenu('Sub-section', ['icon' => 'fas fa-folder'], 'sub-menu-id');
 $subMenu->addItem(new Link('Item 1', 'admin_item1_index', [], ['icon' => 'fas fa-file']));
 $subMenu->addItem(new Link('Item 2', 'admin_item2_index', [], ['icon' => 'fas fa-file']));
 $menu->addItem($subMenu);
 ```
 
-## Modèles disponibles
+## Available models
 
-| Classe | Usage |
+| Class | Usage |
 |--------|-------|
-| `Menu` | Section principale du sidebar — `new Menu(string $id, string $label)` |
-| `Link` | Lien simple vers une route — `new Link(string $label, string $routeName, array $routeParams, array $properties)` |
-| `SubMenu` | Groupe collapsible — `new SubMenu(string $label, array $properties, string $id)` |
+| `Menu` | Main sidebar section — `new Menu(string $id, string $label)` |
+| `Link` | Simple link to a route — `new Link(string $label, string $routeName, array $routeParams, array $properties)` |
+| `SubMenu` | Collapsible group — `new SubMenu(string $label, array $properties, string $id)` |
 
-La propriété `icon` attend une classe FontAwesome : `'fas fa-...'`.
+The `icon` property expects a FontAwesome class: `'fas fa-...'`.
 
-## Imports nécessaires
+## Necessary imports
 
 ```php
 use Aropixel\AdminBundle\Component\Menu\Model\Link;
 use Aropixel\AdminBundle\Component\Menu\Model\Menu;
-use Aropixel\AdminBundle\Component\Menu\Model\SubMenu; // si besoin
+use Aropixel\AdminBundle\Component\Menu\Model\SubMenu; // if needed
 ```

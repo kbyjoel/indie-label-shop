@@ -4,20 +4,18 @@ namespace App\Controller\Admin;
 
 use App\Entity\Zone;
 use App\Form\Admin\ZoneType;
-use App\Repository\ZoneRepository;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route("/zone", name: "admin_zone_")]
 class ZoneController extends AbstractController
 {
     public function __construct(
-        private readonly ZoneRepository $zoneRepository,
         private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
     ) {
@@ -29,17 +27,15 @@ class ZoneController extends AbstractController
         return $dataTableFactory
             ->create(Zone::class)
             ->setColumns([
-                ['label' => 'ID', 'orderBy' => 'id'],
                 ['label' => 'Nom', 'orderBy' => 'name'],
                 ['label' => 'Code', 'orderBy' => 'code'],
                 ['label' => 'Type', 'orderBy' => 'type'],
                 // TODO: Add other columns here
                 ['label' => '', 'orderBy' => '', 'class' => 'no-sort'],
             ])
-            ->searchIn(['id', 'name', 'code']) // TODO: Add other searchable fields here
+            ->searchIn(['name', 'code']) // TODO: Add other searchable fields here
             ->renderJson(fn(Zone $zone) => [
-                $zone->getId(),
-                $zone->getName(),
+                $this->renderView('admin/zone/_link.html.twig', ['item' => $zone]),
                 $zone->getCode(),
                 $zone->getType(),
                 // TODO: Add other fields here

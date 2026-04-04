@@ -1,121 +1,121 @@
 ---
 name: aropixel-datatable
 description: >
-  Modifier, configurer ou déboguer un DataTable dans un projet Symfony utilisant
-  AropixelAdminBundle. Utilise ce skill dès que l'utilisateur demande à ajouter ou
-  supprimer une colonne, changer le tri par défaut, ajouter un filtre, une jointure,
-  une recherche, ou à adapter le comportement d'une liste admin existante.
-  À utiliser aussi pour les cas avancés : colonne conditionnelle, méthode repository
-  personnalisée, mode classic (données pré-chargées), ou tout problème lié au composant
-  DataTableFactory. Couvre le controller PHP et le template Twig associé.
+  Modify, configure, or debug a DataTable in a Symfony project using
+  AropixelAdminBundle. Use this skill whenever the user asks to create an
+  admin list, or to add or remove a column, change the default sorting,
+  add a filter, a join, a search, or to adapt the behavior of an existing admin list.
+  Also use for advanced cases: conditional column, custom repository method,
+  classic mode (pre-loaded data), or any issue related to the
+  DataTableFactory component. Covers the PHP controller and the associated Twig template.
 ---
 
-# Skill : Configurer le DataTable avec AropixelAdminBundle
+# Skill: Configuring the DataTable with AropixelAdminBundle
 
-## Anatomie d'un DataTable
+## Anatomy of a DataTable
 
 ```php
 return $dataTableFactory
-    ->create(MyEntity::class)       // (1) Entité cible
-    ->join('relation', 'alias')     // (2) Jointures (optionnel)
-    ->setColumns([...])             // (3) Colonnes
-    ->searchIn(['field', 'alias.field']) // (4) Recherche plein-texte
-    ->setOrderColumn(0)             // (5) Tri par défaut : index de colonne
-    ->setOrderDirection('desc')     //     direction : 'asc' | 'desc'
-    ->filter(fn($qb) => ...)        // (6) Filtre contextuel (optionnel)
-    ->renderJson(fn($item) => [...]) // (7) Données JSON par ligne
-    ->render('admin/.../index.html.twig'); // (8) Template HTML
+    ->create(MyEntity::class)       // (1) Target entity
+    ->join('relation', 'alias')     // (2) Joins (optional)
+    ->setColumns([...])             // (3) Columns
+    ->searchIn(['field', 'alias.field']) // (4) Full-text search
+    ->setOrderColumn(0)             // (5) Default sort: column index
+    ->setOrderDirection('desc')     //     direction: 'asc' | 'desc'
+    ->filter(fn($qb) => ...)        // (6) Contextual filter (optional)
+    ->renderJson(fn($item) => [...]) // (7) JSON data per row
+    ->render('admin/.../index.html.twig'); // (8) HTML template
 ```
 
 ---
 
-## Colonnes — `setColumns()` / `addColumn()` / `addColumnsIf()`
+## Columns — `setColumns()` / `addColumn()` / `addColumnsIf()`
 
-### Format d'une colonne
+### Column format
 
 ```php
 [
-    'label'   => 'Mon libellé',       // texte de l'en-tête
-    'orderBy' => 'myField',           // champ Doctrine pour le tri ('' = pas de tri)
-    'class'   => 'no-sort',           // classes CSS sur le <th> (ex: désactiver tri)
-    'style'   => 'width:120px;',      // style CSS inline sur le <th>
-    'data'    => ['type' => 'date-euro'], // attributs data-* sur le <th>
+    'label'   => 'My label',          // header text
+    'orderBy' => 'myField',           // Doctrine field for sorting ('' = no sorting)
+    'class'   => 'no-sort',           // CSS classes on the <th> (e.g., disable sorting)
+    'style'   => 'width:120px;',      // inline CSS style on the <th>
+    'data'    => ['type' => 'date-euro'], // data-* attributes on the <th>
 ]
 ```
 
-### Ajouter / remplacer des colonnes
+### Adding / replacing columns
 
 ```php
-// Remplace toutes les colonnes d'un coup
+// Replaces all columns at once
 ->setColumns([
-    ['label' => 'Titre',   'orderBy' => 'title'],
+    ['label' => 'Title',   'orderBy' => 'title'],
     ['label' => 'Date',    'orderBy' => 'createdAt', 'style' => 'width:150px;'],
     ['label' => '',        'orderBy' => '',           'class' => 'no-sort'],
 ])
 
-// Ajoute une colonne à la liste existante
-->addColumn(['label' => 'Statut', 'orderBy' => 'status'])
+// Adds a column to the existing list
+->addColumn(['label' => 'Status', 'orderBy' => 'status'])
 
-// Ajoute plusieurs colonnes sous condition
+// Adds several columns conditionally
 ->addColumnsIf($showCategory, [
-    ['label' => 'Catégorie', 'orderBy' => 'c.name'],
+    ['label' => 'Category', 'orderBy' => 'c.name'],
 ])
 ```
 
-### Colonne actions — toujours en dernier
+### Actions column — always last
 ```php
 ['label' => '', 'orderBy' => '', 'class' => 'no-sort']
 ```
-Et dans `renderJson`, le dernier élément du tableau :
+And in `renderJson`, the last element of the array:
 ```php
 $this->renderView('admin/entity/_actions.html.twig', ['item' => $item])
 ```
 
 ---
 
-## Jointures — `join()`
+## Joins — `join()`
 
-Pour afficher ou trier sur une propriété d'une entité liée (ManyToOne) :
+To display or sort on a property of a linked entity (ManyToOne):
 
 ```php
-->join('category', 'c')         // relation 'category' sur l'entité, alias 'c'
-->join('author', 'a')           // on peut chaîner plusieurs join()
+->join('category', 'c')         // 'category' relation on the entity, alias 'c'
+->join('author', 'a')           // multiple join() can be chained
 ->setColumns([
-    ['label' => 'Catégorie', 'orderBy' => 'c.name'],
-    ['label' => 'Auteur',    'orderBy' => 'a.lastName'],
+    ['label' => 'Category', 'orderBy' => 'c.name'],
+    ['label' => 'Author',    'orderBy' => 'a.lastName'],
 ])
 ->searchIn(['title', 'c.name', 'a.lastName'])
 ```
 
-> La jointure est un `LEFT JOIN` automatique. L'alias s'utilise partout : `orderBy`, `searchIn`, et dans le `filter()`.
+> The join is an automatic `LEFT JOIN`. The alias is used everywhere: `orderBy`, `searchIn`, and in `filter()`.
 
 ---
 
-## Recherche plein-texte — `searchIn()`
+## Full-text search — `searchIn()`
 
-Active les clauses `LIKE` automatiques sur les champs listés :
+Enables automatic `LIKE` clauses on the listed fields:
 
 ```php
 ->searchIn(['title', 'description', 'c.name'])
 ```
 
-- Fonctionne avec les champs de l'entité et les alias de jointure
-- Ne pas inclure les champs `boolean`, `date`, ou les relations complexes
+- Works with entity fields and join aliases
+- Do not include `boolean`, `date` fields, or complex relations
 
 ---
 
-## Tri par défaut — `setOrderColumn()` / `setOrderDirection()`
+## Default sort — `setOrderColumn()` / `setOrderDirection()`
 
 ```php
-->setOrderColumn(1)          // index de la colonne dans setColumns() (commence à 0)
-->setOrderDirection('desc')  // 'asc' ou 'desc'
+->setOrderColumn(1)          // index of the column in setColumns() (starts at 0)
+->setOrderDirection('desc')  // 'asc' or 'desc'
 ```
 
 ---
 
-## Filtre contextuel — `filter()`
+## Contextual filter — `filter()`
 
-Pour restreindre les données sans changer la requête de base :
+To restrict data without changing the base query:
 
 ```php
 ->filter(function(QueryBuilder $qb) {
@@ -123,7 +123,7 @@ Pour restreindre les données sans changer la requête de base :
        ->setParameter('active', true);
 })
 
-// Avec une variable du controller :
+// With a controller variable:
 ->filter(function(QueryBuilder $qb) use ($currentUser) {
     $qb->andWhere('e.owner = :owner')
        ->setParameter('owner', $currentUser);
@@ -132,18 +132,18 @@ Pour restreindre les données sans changer la requête de base :
 
 ---
 
-## Méthode repository personnalisée — `useRepositoryMethod()`
+## Custom repository method — `useRepositoryMethod()`
 
-Quand la logique de requête est trop complexe pour `filter()` :
+When the query logic is too complex for `filter()`:
 
 ```php
 ->useRepositoryMethod('findArchivedWithStats')
 ```
 
-La méthode dans le repository doit retourner un `QueryBuilder` :
+The method in the repository must return a `QueryBuilder`:
 
 ```php
-// src/Repository/ArticleRepository.php
+// src/Repository/MyEntityRepository.php
 public function findArchivedWithStats(): QueryBuilder
 {
     return $this->createQueryBuilder('e')
@@ -155,9 +155,9 @@ public function findArchivedWithStats(): QueryBuilder
 
 ---
 
-## Mode Classic (données pré-chargées)
+## Classic Mode (pre-loaded data)
 
-Pour les listes sans AJAX, avec des données déjà récupérées :
+For lists without AJAX, with data already retrieved:
 
 ```php
 use Aropixel\AdminBundle\Component\DataTable\DataTableInterface;
@@ -168,13 +168,13 @@ return $dataTableFactory
     ->create(MyEntity::class, mode: DataTableInterface::MODE_CLASSIC)
     ->setItems($items)
     ->setColumns([
-        ['label' => 'Titre', 'orderBy' => 'title'],
+        ['label' => 'Title', 'orderBy' => 'title'],
         ['label' => '',      'orderBy' => '', 'class' => 'no-sort'],
     ])
     ->render('admin/entity/index.html.twig');
 ```
 
-Template en mode classic — utiliser le bloc `datatable_row` :
+Classic mode template — use the `datatable_row` block:
 
 ```twig
 {% extends '@AropixelAdmin/List/datatable.html.twig' %}
@@ -192,7 +192,7 @@ Template en mode classic — utiliser le bloc `datatable_row` :
 
 ---
 
-## Référence : Macros Twig
+## Reference: Twig Macros
 
 ### Actions (`@AropixelAdmin/Macro/actions.html.twig`)
 
@@ -201,12 +201,12 @@ Template en mode classic — utiliser le bloc `datatable_row` :
 {{ list.actions(item, path('admin_entity_edit', {id: item.id}), path('admin_entity_delete', {id: item.id})) }}
 ```
 
-| Paramètre | Description |
+| Parameter | Description |
 |---|---|
-| `item` | L'entité (pour le token CSRF de suppression) |
-| `edit_path` | URL de modification (optionnel) |
-| `delete_path` | URL de suppression (optionnel) |
-| `delete_confirm_msg` | Message de confirmation personnalisé (optionnel) |
+| `item` | The entity (for the delete CSRF token) |
+| `edit_path` | Edit URL (optional) |
+| `delete_path` | Delete URL (optional) |
+| `delete_confirm_msg` | Custom confirmation message (optional) |
 
 ### Breadcrumb (`@AropixelAdmin/Macro/breadcrumb.html.twig`)
 
@@ -214,8 +214,8 @@ Template en mode classic — utiliser le bloc `datatable_row` :
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
 {{ nav.breadcrumbs([
     { label: 'text.home', url: url('_admin') },
-    { label: 'Entités', url: url('admin_entity_index') },
-    { label: 'Modifier' }
+    { label: 'Entities', url: url('admin_entity_index') },
+    { label: 'Edit' }
 ]) }}
 ```
 
@@ -226,14 +226,14 @@ Template en mode classic — utiliser le bloc `datatable_row` :
 {{ media.thumbnail_with_status(item, 'image', 'status', path('admin_entity_edit', {id: item.id})) }}
 ```
 
-| Paramètre | Défaut | Description |
+| Parameter | Default | Description |
 |---|---|---|
-| `item` | — | L'entité |
-| `image_field` | `'image'` | Nom de la propriété image |
-| `status_field` | `'status'` | Nom de la propriété statut |
-| `edit_path` | — | URL du lien autour de la miniature |
-| `filter` | `'admin_thumbnail'` | Filtre LiipImagine |
-| `height` | `60` | Hauteur en pixels |
+| `item` | — | The entity |
+| `image_field` | `'image'` | Image property name |
+| `status_field` | `'status'` | Status property name |
+| `edit_path` | — | URL of the link around the thumbnail |
+| `filter` | `'admin_thumbnail'` | LiipImagine filter |
+| `height` | `60` | Height in pixels |
 
 ### Tabs (`@AropixelAdmin/Macro/forms.html.twig`)
 
@@ -241,7 +241,7 @@ Template en mode classic — utiliser le bloc `datatable_row` :
 {% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
 {% block tabbable %}
     {{ forms.tabs([
-        { id: 'panel-tab-general', label: 'Général' },
+        { id: 'panel-tab-general', label: 'General' },
         { id: 'panel-tab-extra', label: 'Extra' },
     ]) }}
 {% endblock %}
