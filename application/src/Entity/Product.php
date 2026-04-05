@@ -31,22 +31,18 @@ class Product extends BaseProduct
     #[ORM\Column(type: 'string', length: 255, unique: true)]
     protected $code;
 
-    /** @var Collection<array-key, ProductTranslationInterface> */
     #[ORM\OneToMany(mappedBy: 'translatable', targetEntity: ProductTranslation::class, cascade: ['all'], fetch: 'EAGER', orphanRemoval: true, indexBy: 'locale')]
     protected $translations;
 
-    /** @var Collection<array-key, Channel> */
     #[ORM\ManyToMany(targetEntity: Channel::class)]
     #[ORM\JoinTable(name: 'sylius_product_channels')]
     #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'channel_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     protected $channels;
 
-    /** @var Collection<array-key, ProductVariant> */
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductVariant::class, cascade: ['all'], orphanRemoval: true)]
     protected $variants;
 
-    /** @var Collection<array-key, ProductOption> */
     #[ORM\ManyToMany(targetEntity: ProductOption::class)]
     #[ORM\JoinTable(name: 'sylius_product_options')]
     #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id', onDelete: 'CASCADE')]

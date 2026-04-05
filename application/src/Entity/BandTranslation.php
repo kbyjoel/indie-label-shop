@@ -11,10 +11,10 @@ use Gedmo\Translatable\Entity\Repository\TranslationRepository;
 #[ORM\Entity(repositoryClass: TranslationRepository::class)]
 class BandTranslation extends AbstractPersonalTranslation
 {
-    public function __construct($locale, $field, $value)
+    public function __construct(?string $locale, ?string $field, mixed $value)
     {
-        $this->setLocale($locale);
-        $this->setField($field);
+        $this->setLocale($locale ?? '');
+        $this->setField($field ?? '');
         $this->setContent($value);
     }
 

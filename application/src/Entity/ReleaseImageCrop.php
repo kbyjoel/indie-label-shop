@@ -12,10 +12,11 @@ class ReleaseImageCrop extends Crop
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: ReleaseImage::class, inversedBy: "crops")]
-    protected ReleaseImage $image;
+    protected ?ReleaseImage $image = null;
 
     public function getId() : ?int
     {
@@ -31,6 +32,7 @@ class ReleaseImageCrop extends Crop
 
     public function getImage() : ReleaseImage
     {
+        assert($this->image !== null);
         return $this->image;
     }
 }

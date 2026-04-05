@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\Band;
 use App\Form\Admin\BandType;
-use App\Repository\BandRepository;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -85,7 +84,8 @@ class BandController extends AbstractController
     #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
     public function delete(Request $request, Band $band): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $band->getId(), $request->request->get('_token'))) {
+        $token = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete' . $band->getId(), is_string($token) ? $token : null)) {
             $this->em->remove($band);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));

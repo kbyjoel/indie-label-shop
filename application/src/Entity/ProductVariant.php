@@ -73,18 +73,28 @@ class ProductVariant extends BaseProductVariant
         return $this;
     }
 
+    public function getTitle(): ?string
+    {
+        return $this->product?->getName();
+    }
+
+    public function setTitle(?string $title): void
+    {
+    }
+
     public function getOptionValuesLabel(): string
     {
         $labels = [];
         foreach ($this->getOptionValues() as $optionValue) {
             $option = $optionValue->getOption();
-            $labels[] = sprintf('%s: %s', $option->getName(), $optionValue->getValue());
+            if ($option !== null) {
+                $labels[] = sprintf('%s: %s', $option->getName(), $optionValue->getValue());
+            }
         }
 
         return implode(', ', $labels);
     }
 
-    /** @var Collection<array-key, ProductOptionValue> */
     #[ORM\ManyToMany(targetEntity: ProductOptionValue::class)]
     #[ORM\JoinTable(name: 'sylius_product_variant_option_value')]
     #[ORM\JoinColumn(name: 'variant_id', referencedColumnName: 'id', onDelete: 'CASCADE')]

@@ -31,7 +31,6 @@ class ZoneController extends AbstractController
                 ['label' => 'Nom', 'orderBy' => 'name'],
                 ['label' => 'Code', 'orderBy' => 'code'],
                 ['label' => 'Type', 'orderBy' => 'type'],
-                // TODO: Add other columns here
                 ['label' => '', 'orderBy' => '', 'class' => 'no-sort'],
             ])
             ->searchIn(['name', 'code']) // TODO: Add other searchable fields here
@@ -92,7 +91,8 @@ class ZoneController extends AbstractController
     #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
     public function delete(Request $request, Zone $zone): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $zone->getId(), $request->request->get('_token'))) {
+        $token = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete' . $zone->getId(), is_string($token) ? $token : null)) {
             $this->em->remove($zone);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));

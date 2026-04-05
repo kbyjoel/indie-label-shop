@@ -42,15 +42,12 @@ class Order extends BaseOrder
     #[ORM\Column(type: 'integer')]
     protected $total = 0;
 
-    /** @var Collection<array-key, OrderItem> */
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: OrderItem::class, cascade: ['all'], orphanRemoval: true)]
     protected $items;
 
-    /** @var Collection<array-key, Shipment> */
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: Shipment::class, cascade: ['all'])]
     protected $shipments;
 
-    /** @var Collection<array-key, Payment> */
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: Payment::class, cascade: ['all'])]
     protected $payments;
 

@@ -20,7 +20,7 @@ class PaymentMethod extends BasePaymentMethod
     protected $code;
 
     #[ORM\Column(type: 'string', length: 255)]
-    protected $name;
+    protected ?string $name = null;
 
     #[ORM\Column(type: 'boolean')]
     protected $enabled = true;
@@ -38,6 +38,7 @@ class PaymentMethod extends BasePaymentMethod
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private ?string $gatewayType = null;
 
+    /** @var array<string, mixed>|null */
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $credentials = null;
 
@@ -53,11 +54,17 @@ class PaymentMethod extends BasePaymentMethod
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getCredentials(): ?array
     {
         return $this->credentials;
     }
 
+    /**
+     * @param array<string, mixed>|null $credentials
+     */
     public function setCredentials(?array $credentials): static
     {
         $this->credentials = $credentials;

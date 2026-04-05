@@ -34,7 +34,7 @@ class Album extends Product implements Translatable
     private ?\DateTimeInterface $releaseDate = null;
 
     #[ORM\Column(length: 20)]
-    private ?string $status = 'offline';
+    private string $status = 'offline';
 
     #[Gedmo\Translatable]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -46,6 +46,7 @@ class Album extends Product implements Translatable
     #[ORM\OneToMany(targetEntity: AlbumTranslation::class, mappedBy: 'object', cascade: ['persist', 'remove'])]
     protected ?Collection $albumTranslations = null;
 
+    /** @phpstan-ignore property.onlyWritten */
     private ?string $translatableLocale = null;
 
     /**
@@ -152,7 +153,7 @@ class Album extends Product implements Translatable
         return $this;
     }
 
-    public function setTranslatableLocale($locale): void
+    public function setTranslatableLocale(string $locale): void
     {
         $this->translatableLocale = $locale;
     }
@@ -231,7 +232,9 @@ class Album extends Product implements Translatable
      */
     public function getReleases(): Collection
     {
-        return $this->getVariants()->filter(fn($variant) => $variant instanceof Release);
+        /** @var Collection<int, Release> $releases */
+        $releases = $this->getVariants()->filter(fn($variant) => $variant instanceof Release);
+        return $releases;
     }
 
     public function addRelease(Release $release): static

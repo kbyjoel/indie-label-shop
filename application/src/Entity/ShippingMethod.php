@@ -20,7 +20,7 @@ class ShippingMethod extends BaseShippingMethod
     protected $code;
 
     #[ORM\Column(type: 'string', length: 255)]
-    protected $name;
+    protected ?string $name = null;
 
     #[ORM\Column(type: 'boolean')]
     protected $enabled = true;

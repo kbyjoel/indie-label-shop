@@ -23,7 +23,6 @@ class Country extends BaseCountry
     #[ORM\Column(type: 'boolean')]
     protected $enabled = true;
 
-    /** @var Collection<array-key, Province> */
     #[ORM\OneToMany(mappedBy: 'country', targetEntity: Province::class, cascade: ['all'], orphanRemoval: true)]
     protected $provinces;
 }

@@ -19,6 +19,7 @@ class AlbumImageCrop extends Crop
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: AlbumImage::class, inversedBy: "crops")]
@@ -38,6 +39,7 @@ class AlbumImageCrop extends Crop
 
     public function getImage() : AttachedImageInterface
     {
+        assert($this->image !== null);
         return $this->image;
     }
 }

@@ -183,7 +183,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
                 $album = new Album();
                 $album->setCurrentLocale('fr');
                 $album->setFallbackLocale('fr');
-                $albumTitle = $faker->words(rand(1, 4), true);
+                $albumTitle = implode(' ', (array) $faker->words(rand(1, 4), true));
                 $album->setName(ucfirst($albumTitle));
                 $album->setCode(strtoupper(str_replace(' ', '_', $albumTitle)) . '_' . $faker->unique()->numberBetween(100, 9999));
                 $album->setBand($band);
@@ -207,7 +207,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
                     $track = new Track();
                     $track->setCurrentLocale('fr');
                     $track->setFallbackLocale('fr');
-                    $trackTitle = ucfirst($faker->words(rand(1, 4), true));
+                    $trackTitle = ucfirst(implode(' ', (array) $faker->words(rand(1, 4), true)));
                     $track->setTitle($trackTitle);
                     $track->setName($trackTitle);
                     $track->setCode($album->getCode() . '_TRK_' . $j);
@@ -239,8 +239,8 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
                     $release->setMedia($media);
                     $release->setTitle($album->getName() . ' - ' . $media->getName());
                     $release->setName($release->getTitle());
-                    $release->setCode($album->getCode() . '_' . strtoupper(str_replace(' ', '_', $media->getName())));
-                    $release->setPrice((string) $faker->randomFloat(2, 10, 35));
+                    $release->setCode($album->getCode() . '_' . strtoupper(str_replace(' ', '_', $media->getName() ?? '')));
+                    $release->setPrice((int) round($faker->randomFloat(2, 10, 35) * 100));
                     $release->setStatus('online');
                     $release->setOnHand(rand(0, 100));
 
@@ -379,9 +379,6 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
 
                 for ($k = 0; $k < $numItems; $k++) {
                     $allAvailableVariants = array_merge($allMerchVariants, $allReleases, $allTracks);
-                    if (empty($allAvailableVariants)) {
-                        break;
-                    }
                     $item = new OrderItem();
                     $order->addItem($item);
 

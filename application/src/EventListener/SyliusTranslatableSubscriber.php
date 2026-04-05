@@ -80,7 +80,8 @@ class SyliusTranslatableSubscriber
         }
 
         try {
-            return (string) $this->parameterBag->get('kernel.default_locale');
+            $locale = $this->parameterBag->get('kernel.default_locale');
+            return is_string($locale) ? $locale : null;
         } catch (ParameterNotFoundException|\InvalidArgumentException) {
             return null;
         }

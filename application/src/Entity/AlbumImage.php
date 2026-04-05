@@ -24,11 +24,13 @@ class AlbumImage extends AttachedImage implements CroppableInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\OneToOne(targetEntity: Album::class, inversedBy: 'artwork')]
     private ?Album $album = null;
 
+    /** @var Collection<int, AlbumImageCrop>|null */
     #[ORM\OneToMany(targetEntity: AlbumImageCrop::class, mappedBy: "artwork", cascade: ["remove", "persist"])]
     protected ?Collection $crops = null;
 
@@ -56,8 +58,8 @@ class AlbumImage extends AttachedImage implements CroppableInterface
 
     public function addCrop(AlbumImageCrop $crop): self
     {
-        if (!$this->crops->contains($crop)) {
-            $this->crops[] = $crop;
+        if (!$this->getCrops()->contains($crop)) {
+            $this->getCrops()->add($crop);
             $crop->setImage($this);
         }
 
@@ -66,8 +68,8 @@ class AlbumImage extends AttachedImage implements CroppableInterface
 
     public function removeCrop(AlbumImageCrop $crop): self
     {
-        if ($this->crops->contains($crop)) {
-            $this->crops->removeElement($crop);
+        if ($this->getCrops()->contains($crop)) {
+            $this->getCrops()->removeElement($crop);
             // set the owning side to null (unless already changed)
             if ($crop->getImage() === $this) {
                 $crop->setImage(null);

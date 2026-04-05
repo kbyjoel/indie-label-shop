@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\PaymentMethod;
 use App\Form\Admin\PaymentMethodType;
-use App\Repository\PaymentMethodRepository;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +16,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class PaymentMethodController extends AbstractController
 {
     public function __construct(
-        private readonly PaymentMethodRepository $paymentMethodRepository,
         private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
     ) {
@@ -94,7 +92,8 @@ class PaymentMethodController extends AbstractController
     #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
     public function delete(Request $request, PaymentMethod $paymentMethod): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $paymentMethod->getId(), $request->request->get('_token'))) {
+        $token = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete' . $paymentMethod->getId(), is_string($token) ? $token : null)) {
             $this->em->remove($paymentMethod);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));
@@ -103,6 +102,10 @@ class PaymentMethodController extends AbstractController
         return $this->redirectToRoute('admin_payment_method_index');
     }
 
+    /**
+     * @param \Symfony\Component\Form\FormInterface<mixed> $form
+     * @return array<string, mixed>|null
+     */
     private function buildCredentials(\Symfony\Component\Form\FormInterface $form): ?array
     {
         return match ($form->get('gatewayType')->getData()) {

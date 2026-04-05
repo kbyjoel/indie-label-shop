@@ -103,8 +103,7 @@ class ImportLegacyDataCommand extends Command
             $band->setInstagram($legacyBand['instagram']);
 
             // Get translations
-            $stmtTrans = $conn->prepare('SELECT lang, fiche FROM groupes_traductions WHERE groupe_id = :id');
-            $translations = $stmtTrans->executeQuery(['id' => $legacyBand['id']])->fetchAllAssociative();
+            $translations = $conn->executeQuery('SELECT lang, fiche FROM groupes_traductions WHERE groupe_id = :id', ['id' => $legacyBand['id']])->fetchAllAssociative();
 
             foreach ($translations as $translation) {
                 $locale = $translation['lang'];
@@ -122,8 +121,7 @@ class ImportLegacyDataCommand extends Command
 
             // Store legacy ID to new object mapping if we need it for albums or members
             // But here we can just handle members immediately
-            $stmtMembers = $conn->prepare('SELECT artiste_id FROM groupes_artistes WHERE groupe_id = :id');
-            $memberIds = $stmtMembers->executeQuery(['id' => $legacyBand['id']])->fetchFirstColumn();
+            $memberIds = $conn->executeQuery('SELECT artiste_id FROM groupes_artistes WHERE groupe_id = :id', ['id' => $legacyBand['id']])->fetchFirstColumn();
 
             foreach ($memberIds as $legacyArtistId) {
                 // We need to find the new artist by some criteria or keep a map
@@ -139,9 +137,9 @@ class ImportLegacyDataCommand extends Command
         $io->writeln('Bands processed.');
     }
 
-    private function getLegacyArtistEmail($conn, $id)
+    private function getLegacyArtistEmail(\Doctrine\DBAL\Connection $conn, int $id): ?string
     {
-        return $conn->prepare('SELECT mail FROM artistes WHERE id = :id')->executeQuery(['id' => $id])->fetchOne();
+        return $conn->executeQuery('SELECT mail FROM artistes WHERE id = :id', ['id' => $id])->fetchOne();
     }
 
     private function importAlbums(SymfonyStyle $io): void
@@ -157,10 +155,10 @@ class ImportLegacyDataCommand extends Command
 
             // On vérifie si l'album existe déjà pour ne pas le recréer
             // (Utile si on relance la commande)
-            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['title' => $legacyAlbum['titre']]);
+            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['name' => $legacyAlbum['titre']]);
             if (!$album) {
                 $album = new Album();
-                $album->setTitle($legacyAlbum['titre']);
+                $album->setName($legacyAlbum['titre']);
                 $album->setCatalogNumber($legacyAlbum['catalogue']);
                 $album->setStatus($legacyAlbum['status']);
 
@@ -170,7 +168,7 @@ class ImportLegacyDataCommand extends Command
 
                 // Link to Band
                 if ($legacyAlbum['groupe_id']) {
-                    $bandName = $conn->prepare('SELECT nom FROM groupes WHERE id = :id')->executeQuery(['id' => $legacyAlbum['groupe_id']])->fetchOne();
+                    $bandName = $conn->executeQuery('SELECT nom FROM groupes WHERE id = :id', ['id' => $legacyAlbum['groupe_id']])->fetchOne();
                     $band = $this->entityManager->getRepository(Band::class)->findOneBy(['name' => $bandName]);
                     if ($band) {
                         $album->setBand($band);
@@ -211,11 +209,11 @@ class ImportLegacyDataCommand extends Command
             $legacyAlbumId = $relation['album_id'];
             $legacySimilarId = $relation['similar_id'];
 
-            $albumTitle = $conn->prepare('SELECT titre FROM albums WHERE id = :id')->executeQuery(['id' => $legacyAlbumId])->fetchOne();
-            $similarTitle = $conn->prepare('SELECT titre FROM albums WHERE id = :id')->executeQuery(['id' => $legacySimilarId])->fetchOne();
+            $albumTitle = $conn->executeQuery('SELECT titre FROM albums WHERE id = :id', ['id' => $legacyAlbumId])->fetchOne();
+            $similarTitle = $conn->executeQuery('SELECT titre FROM albums WHERE id = :id', ['id' => $legacySimilarId])->fetchOne();
 
-            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['title' => $albumTitle]);
-            $similarAlbum = $this->entityManager->getRepository(Album::class)->findOneBy(['title' => $similarTitle]);
+            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['name' => $albumTitle]);
+            $similarAlbum = $this->entityManager->getRepository(Album::class)->findOneBy(['name' => $similarTitle]);
 
             if ($album && $similarAlbum) {
                 $album->addSimilarAlbum($similarAlbum);
@@ -238,10 +236,10 @@ class ImportLegacyDataCommand extends Command
             $legacyAlbumId = $relation['album_id'];
             $legacyArtistId = $relation['artiste_id'];
 
-            $albumTitle = $conn->prepare('SELECT titre FROM albums WHERE id = :id')->executeQuery(['id' => $legacyAlbumId])->fetchOne();
+            $albumTitle = $conn->executeQuery('SELECT titre FROM albums WHERE id = :id', ['id' => $legacyAlbumId])->fetchOne();
             $artistEmail = $this->getLegacyArtistEmail($conn, $legacyArtistId);
 
-            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['title' => $albumTitle]);
+            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['name' => $albumTitle]);
             $artist = $this->entityManager->getRepository(Artist::class)->findOneBy(['email' => $artistEmail]);
 
             if ($album && $artist) {
@@ -289,11 +287,11 @@ class ImportLegacyDataCommand extends Command
             $io->writeln(sprintf('Processing Release: %s', $legacyFormat['titre']));
 
             // Resolve Album
-            $albumTitle = $conn->prepare('SELECT titre FROM albums WHERE id = :id')->executeQuery(['id' => $legacyFormat['album_id']])->fetchOne();
-            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['title' => $albumTitle]);
+            $albumTitle = $conn->executeQuery('SELECT titre FROM albums WHERE id = :id', ['id' => $legacyFormat['album_id']])->fetchOne();
+            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['name' => $albumTitle]);
 
             // Resolve Media
-            $supportName = $conn->prepare('SELECT libelle FROM supports WHERE id = :id')->executeQuery(['id' => $legacyFormat['support_id']])->fetchOne();
+            $supportName = $conn->executeQuery('SELECT libelle FROM supports WHERE id = :id', ['id' => $legacyFormat['support_id']])->fetchOne();
             $media = $this->entityManager->getRepository(Media::class)->findOneBy(['name' => $supportName]);
 
             if ($album && $media) {
@@ -301,7 +299,7 @@ class ImportLegacyDataCommand extends Command
                 $release->setAlbum($album);
                 $release->setMedia($media);
                 $release->setTitle($legacyFormat['titre']);
-                $release->setPrice((string)$legacyFormat['prix']);
+                $release->setPrice((int)$legacyFormat['prix']);
                 $release->setStatus($legacyFormat['status']);
 
                 $this->entityManager->persist($release);
@@ -323,10 +321,10 @@ class ImportLegacyDataCommand extends Command
         foreach ($legacyTracks as $legacyTrack) {
             $io->writeln(sprintf('Processing Track: %s', $legacyTrack['titre1']));
 
-            $track = $this->entityManager->getRepository(Track::class)->findOneBy(['title' => $legacyTrack['titre1']]);
+            $track = $this->entityManager->getRepository(Track::class)->findOneBy(['name' => $legacyTrack['titre1']]);
             if (!$track) {
                 $track = new Track();
-                $track->setTitle($legacyTrack['titre1']);
+                $track->setName($legacyTrack['titre1']);
                 $track->setDuration($legacyTrack['duree']);
                 $track->setIsrc($legacyTrack['isrc']);
                 $track->setLyrics($legacyTrack['paroles']);
@@ -353,11 +351,11 @@ class ImportLegacyDataCommand extends Command
             $legacyAlbumId = $relation['album_id'];
             $legacyTrackId = $relation['titre_id'];
 
-            $albumTitle = $conn->prepare('SELECT titre FROM albums WHERE id = :id')->executeQuery(['id' => $legacyAlbumId])->fetchOne();
-            $trackTitle = $conn->prepare('SELECT titre1 FROM titres WHERE id = :id')->executeQuery(['id' => $legacyTrackId])->fetchOne();
+            $albumTitle = $conn->executeQuery('SELECT titre FROM albums WHERE id = :id', ['id' => $legacyAlbumId])->fetchOne();
+            $trackTitle = $conn->executeQuery('SELECT titre1 FROM titres WHERE id = :id', ['id' => $legacyTrackId])->fetchOne();
 
-            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['title' => $albumTitle]);
-            $track = $this->entityManager->getRepository(Track::class)->findOneBy(['title' => $trackTitle]);
+            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['name' => $albumTitle]);
+            $track = $this->entityManager->getRepository(Track::class)->findOneBy(['name' => $trackTitle]);
 
             if ($album && $track) {
                 $tracklist = $this->entityManager->getRepository(Tracklist::class)->findOneBy([
@@ -386,14 +384,16 @@ class ImportLegacyDataCommand extends Command
             $legacyTrackId = $relation['titre_id'];
 
             // Get new Release and Track
-            $formatData = $conn->prepare('SELECT titre, album_id FROM formats WHERE id = :id')->executeQuery(['id' => $legacyFormatId])->fetchAssociative();
+            $formatData = $conn->executeQuery('SELECT titre, album_id FROM formats WHERE id = :id', ['id' => $legacyFormatId])->fetchAssociative();
             if (!$formatData) continue;
 
-            $albumTitle = $conn->prepare('SELECT titre FROM albums WHERE id = :id')->executeQuery(['id' => $formatData['album_id']])->fetchOne();
-            $trackTitle = $conn->prepare('SELECT titre1 FROM titres WHERE id = :id')->executeQuery(['id' => $legacyTrackId])->fetchOne();
-
             $release = $this->entityManager->getRepository(Release::class)->findOneBy(['title' => $formatData['titre']]);
-            $track = $this->entityManager->getRepository(Track::class)->findOneBy(['title' => $trackTitle]);
+
+            $albumTitle = $conn->executeQuery('SELECT titre FROM albums WHERE id = :id', ['id' => $formatData['album_id']])->fetchOne();
+            $trackTitle = $conn->executeQuery('SELECT titre1 FROM titres WHERE id = :id', ['id' => $legacyTrackId])->fetchOne();
+
+            $album = $this->entityManager->getRepository(Album::class)->findOneBy(['name' => $albumTitle]);
+            $track = $this->entityManager->getRepository(Track::class)->findOneBy(['name' => $trackTitle]);
 
             if ($release && $track) {
                 // Find or create the tracklist entry for this album/track

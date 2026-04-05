@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\Media;
 use App\Form\Admin\MediaType;
-use App\Repository\MediaRepository;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +16,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class MediaController extends AbstractController
 {
     public function __construct(
-        private readonly MediaRepository $mediaRepository,
         private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
     ) {
@@ -84,7 +82,8 @@ class MediaController extends AbstractController
     #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
     public function delete(Request $request, Media $media): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $media->getId(), $request->request->get('_token'))) {
+        $token = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete' . $media->getId(), is_string($token) ? $token : null)) {
             $this->em->remove($media);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));

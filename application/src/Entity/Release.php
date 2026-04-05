@@ -23,7 +23,7 @@ class Release extends ProductVariant
     private ?string $title = null;
 
     #[ORM\Column(length: 20)]
-    private ?string $status = 'offline';
+    private string $status = 'offline';
 
     /**
      * @var Collection<int, Tracklist>
@@ -43,6 +43,7 @@ class Release extends ProductVariant
 
     public function getAlbum(): ?Album
     {
+        assert($this->product === null || $this->product instanceof Album);
         return $this->product;
     }
 

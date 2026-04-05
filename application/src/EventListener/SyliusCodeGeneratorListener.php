@@ -28,11 +28,13 @@ class SyliusCodeGeneratorListener
         $this->slugger = $slugger;
     }
 
+    /** @param LifecycleEventArgs<\Doctrine\ORM\EntityManagerInterface> $args */
     public function prePersist(object $entity, LifecycleEventArgs $args): void
     {
         $this->generateCode($entity);
     }
 
+    /** @param LifecycleEventArgs<\Doctrine\ORM\EntityManagerInterface> $args */
     public function preUpdate(object $entity, LifecycleEventArgs $args): void
     {
         $this->generateCode($entity);
@@ -62,7 +64,7 @@ class SyliusCodeGeneratorListener
                 $name = $entity->getProduct()->getName();
             }
             // For variants, we might want to append option values if available
-            $optionsLabel = method_exists($entity, 'getOptionValuesLabel') ? $entity->getOptionValuesLabel() : '';
+            $optionsLabel = $entity->getOptionValuesLabel();
             if ($optionsLabel) {
                 $name .= '-' . $optionsLabel;
             }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Core\Model\Shipment as BaseShipment;
 
@@ -30,7 +31,7 @@ class Shipment extends BaseShipment
     #[ORM\JoinColumn(name: 'method_id', referencedColumnName: 'id', nullable: false)]
     protected $method;
 
-    /** @var Collection<array-key, OrderItemUnit> */
+    /** @var Collection<array-key, \Sylius\Component\Shipping\Model\ShipmentUnitInterface> */
     #[ORM\OneToMany(mappedBy: 'shipment', targetEntity: OrderItemUnit::class)]
     protected $units;
 }

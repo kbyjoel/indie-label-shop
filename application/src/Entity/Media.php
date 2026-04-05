@@ -16,13 +16,14 @@ class Media
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
     private ?string $name = null;
 
     #[ORM\Column]
-    private ?bool $isDigital = false;
+    private bool $isDigital = false;
 
     public function getId(): ?int
     {
@@ -41,7 +42,7 @@ class Media
         return $this;
     }
 
-    public function isDigital(): ?bool
+    public function isDigital(): bool
     {
         return $this->isDigital;
     }

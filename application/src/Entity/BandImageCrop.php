@@ -12,10 +12,11 @@ class BandImageCrop extends Crop
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: BandImage::class, inversedBy: "crops")]
-    protected BandImage $image;
+    protected ?BandImage $image = null;
 
     public function getId() : ?int
     {
@@ -31,6 +32,7 @@ class BandImageCrop extends Crop
 
     public function getImage() : BandImage
     {
+        assert($this->image !== null);
         return $this->image;
     }
 }

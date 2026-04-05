@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\Album;
 use App\Entity\Product;
-use App\Entity\ProductOption;
 use App\Entity\ProductVariant;
 use App\Form\Admin\ProductType;
 use App\Form\Admin\ProductVariantType;
@@ -32,17 +31,16 @@ class ProductController extends AbstractController
     {
         return $dataTableFactory
             ->create(Product::class)
+            ->join('translations', 't') // Left join event.category with alias 'c'
             ->setColumns([
-                ['label' => 'ID', 'field' => 'id'],
-                ['label' => 'Nom', 'field' => 'name'],
-                ['label' => '', 'field' => '', 'class' => 'no-sort'],
+                ['label' => 'Nom', 'orderBy' => 't.name'],
+                ['label' => '', 'orderBy' => '', 'class' => 'no-sort'],
             ])
             ->filter(function(QueryBuilder $qb) {
                 $qb->andWhere($qb->getRootAliases()[0] . ' NOT INSTANCE OF ' . Album::class);
             })
             ->searchIn(['name'])
             ->renderJson(fn(Product $product) => [
-                $product->getId(),
                 $this->renderView('admin/product/_link.html.twig', ['item' => $product]),
                 $this->renderView('admin/product/_actions.html.twig', ['item' => $product]),
             ])
@@ -74,7 +72,7 @@ class ProductController extends AbstractController
     public function edit(Request $request, Product $product): Response
     {
         // On récupère les IDs des options actuelles avant la soumission du formulaire
-        $originalOptions = $product->getOptions()->map(fn(ProductOption $option) => $option->getId())->toArray();
+        $originalOptions = $product->getOptions()->map(fn(\Sylius\Component\Product\Model\ProductOptionInterface $option) => $option->getId())->toArray();
 
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
@@ -122,7 +120,7 @@ class ProductController extends AbstractController
             }
 
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
-            return $this->redirectToRoute('admin_product_edit', ['id' => $variant->getProduct()->getId()]);
+            return $this->redirectToRoute('admin_product_edit', ['id' => $variant->getProduct()?->getId()]);
         }
 
         $template = $request->isXmlHttpRequest() ? 'admin/product/variant/_form.html.twig' : 'admin/product/variant/edit.html.twig';
@@ -135,7 +133,8 @@ class ProductController extends AbstractController
     #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
     public function delete(Request $request, Product $product): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $product->getId(), $request->request->get('_token'))) {
+        $token = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete' . $product->getId(), is_string($token) ? $token : null)) {
             $this->em->remove($product);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));

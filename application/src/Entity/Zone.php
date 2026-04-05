@@ -29,7 +29,6 @@ class Zone extends BaseZone
     #[ORM\Column(type: 'string', length: 255)]
     protected $scope = 'all';
 
-    /** @var Collection<array-key, ZoneMember> */
     #[ORM\OneToMany(mappedBy: 'belongsTo', targetEntity: ZoneMember::class, cascade: ['all'], orphanRemoval: true)]
     protected $members;
 

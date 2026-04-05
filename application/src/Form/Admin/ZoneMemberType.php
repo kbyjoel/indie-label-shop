@@ -13,8 +13,10 @@ use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/** @extends AbstractType<mixed> */
 class ZoneMemberType extends AbstractType
 {
     private EntityManagerInterface $entityManager;
@@ -51,7 +53,8 @@ class ZoneMemberType extends AbstractType
         });
     }
 
-    private function addCodeField($form, string $zoneType): void
+    /** @param FormInterface<mixed> $form */
+    private function addCodeField(FormInterface $form, string $zoneType): void
     {
         $class = match ($zoneType) {
             'country' => Country::class,

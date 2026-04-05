@@ -28,7 +28,6 @@ class Customer extends BaseCustomer
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected $lastName;
 
-    /** @var Collection<array-key, Order> */
     #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Order::class)]
     protected $orders;
 

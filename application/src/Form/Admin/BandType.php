@@ -13,9 +13,10 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
+/** @extends AbstractType<mixed> */
 class BandType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('status', HiddenType::class)
@@ -55,7 +56,7 @@ class BandType extends AbstractType
                 'label'  => 'Image',
                 'data_class' => BandImage::class,
                 'crop_class' => BandImageCrop::class,
-                'required' => true
+                'required' => false
             ])
         ;
     }

@@ -25,10 +25,11 @@ class Band implements Translatable
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
-    private ?string $status = 'offline';
+    private string $status = 'offline';
 
     #[Gedmo\Slug(fields: ['name'])]
     #[ORM\Column(length: 255)]
@@ -71,6 +72,9 @@ class Band implements Translatable
      */
     #[ORM\OneToMany(targetEntity: BandTranslation::class, mappedBy: 'object', cascade: ['persist', 'remove'])]
     protected ?Collection $translations = null;
+
+    /** @phpstan-ignore property.onlyWritten */
+    private ?string $translatableLocale = null;
 
     public function __construct()
     {
@@ -191,9 +195,9 @@ class Band implements Translatable
         return $this;
     }
 
-    public function setTranslatableLocale($locale)
+    public function setTranslatableLocale(string $locale): void
     {
-        $this->locale = $locale;
+        $this->translatableLocale = $locale;
     }
 
     /**

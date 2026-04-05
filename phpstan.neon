@@ -7,10 +7,22 @@ parameters:
         # - .castor/
     scanFiles:
         - .castor.stub.php
-    # scanDirectories:
-    #     - application/vendor
+    scanDirectories:
+        - application/vendor
     tmpDir: tools/phpstan/var
     inferPrivatePropertyTypeFromConstructor: true
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # Sylius TranslatableTrait uses ArrayCollection/PersistentCollection without generics in PHPDoc — cannot fix vendor code
+        -
+            identifier: missingType.generics
+            path: application/src/Entity/Product.php
+        -
+            identifier: missingType.generics
+            path: application/src/Entity/ProductOption.php
+        -
+            identifier: missingType.generics
+            path: application/src/Entity/ProductOptionValue.php
 
     # symfony:
     #     containerXmlPath: 'application/var/cache/dev/App_KernelDevDebugContainer.xml'

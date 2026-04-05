@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\Album;
 use App\Form\Admin\AlbumType;
-use App\Repository\AlbumRepository;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Aropixel\AdminBundle\Component\Select2\Select2;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,7 +17,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class AlbumController extends AbstractController
 {
     public function __construct(
-        private readonly AlbumRepository $albumRepository,
         private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
     ) {
@@ -89,7 +87,8 @@ class AlbumController extends AbstractController
     #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
     public function delete(Request $request, Album $album): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $album->getId(), $request->request->get('_token'))) {
+        $token = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete' . $album->getId(), is_string($token) ? $token : null)) {
             $this->em->remove($album);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));

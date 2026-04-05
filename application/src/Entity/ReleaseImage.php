@@ -20,12 +20,14 @@ class ReleaseImage extends AttachedImage implements CroppableInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\OneToOne(inversedBy: 'image')]
     private ?Release $release = null;
 
 
+    /** @var Collection<int, ReleaseImageCrop>|null */
     #[ORM\OneToMany(mappedBy: "image", targetEntity: ReleaseImageCrop::class, cascade: ["remove", "persist"])]
     protected ?Collection $crops = null;
 
@@ -50,8 +52,8 @@ class ReleaseImage extends AttachedImage implements CroppableInterface
 
     public function addCrop(ReleaseImageCrop $crop): self
     {
-        if (!$this->crops->contains($crop)) {
-            $this->crops[] = $crop;
+        if (!$this->getCrops()->contains($crop)) {
+            $this->getCrops()->add($crop);
             $crop->setImage($this);
         }
 
@@ -60,8 +62,8 @@ class ReleaseImage extends AttachedImage implements CroppableInterface
 
     public function removeCrop(ReleaseImageCrop $crop): self
     {
-        if ($this->crops->contains($crop)) {
-            $this->crops->removeElement($crop);
+        if ($this->getCrops()->contains($crop)) {
+            $this->getCrops()->removeElement($crop);
             // set the owning side to null (unless already changed)
             if ($crop->getImage() === $this) {
                 $crop->setImage(null);

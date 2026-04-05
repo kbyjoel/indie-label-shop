@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use App\Entity\Channel;
 use App\Entity\ShippingMethod;
 use App\Form\Admin\ShippingMethodType;
-use App\Repository\ShippingMethodRepository;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodRule;
@@ -20,7 +19,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ShippingMethodController extends AbstractController
 {
     public function __construct(
-        private readonly ShippingMethodRepository $shippingMethodRepository,
         private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
     ) {
@@ -103,7 +101,8 @@ class ShippingMethodController extends AbstractController
     #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
     public function delete(Request $request, ShippingMethod $shippingMethod): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $shippingMethod->getId(), $request->request->get('_token'))) {
+        $token = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete' . $shippingMethod->getId(), is_string($token) ? $token : null)) {
             $this->em->remove($shippingMethod);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));
@@ -112,6 +111,7 @@ class ShippingMethodController extends AbstractController
         return $this->redirectToRoute('admin_shipping_method_index');
     }
 
+    /** @param FormInterface<mixed> $form */
     private function applyConfiguration(FormInterface $form, ShippingMethod $shippingMethod): void
     {
         $amount = $form->get('amount')->getData();
@@ -127,6 +127,7 @@ class ShippingMethodController extends AbstractController
         $shippingMethod->setConfiguration($configuration);
     }
 
+    /** @param FormInterface<mixed> $form */
     private function applyWeightRules(FormInterface $form, ShippingMethod $shippingMethod): void
     {
         foreach ($shippingMethod->getRules() as $rule) {

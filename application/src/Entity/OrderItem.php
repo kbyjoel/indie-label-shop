@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Model\OrderItem as BaseOrderItem;
 
 #[ORM\Entity]
@@ -34,7 +34,7 @@ class OrderItem extends BaseOrderItem
     #[ORM\Column(type: 'integer')]
     protected $total = 0;
 
-    /** @var Collection<array-key, OrderItemUnit> */
+    /** @var Collection<array-key, \Sylius\Component\Order\Model\OrderItemUnitInterface> */
     #[ORM\OneToMany(mappedBy: 'orderItem', targetEntity: OrderItemUnit::class, cascade: ['all'], orphanRemoval: true)]
     protected $units;
 

@@ -14,6 +14,7 @@ class Tracklist
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'tracklists')]
@@ -25,7 +26,7 @@ class Tracklist
     private ?Track $track = null;
 
     #[ORM\Column]
-    private ?int $position = 0;
+    private int $position = 0;
 
     /**
      * @var Collection<int, Release>
@@ -76,7 +77,7 @@ class Tracklist
         return $this;
     }
 
-    public function getPosition(): ?int
+    public function getPosition(): int
     {
         return $this->position;
     }

@@ -65,20 +65,24 @@ class EncodeTrackMp3Handler
         }
 
         // Upload des fichiers
-        $previewFilename = pathinfo($filename, PATHINFO_FILENAME) . '.mp3';
-        $waveformFilename = pathinfo($filename, PATHINFO_FILENAME) . '.png';
+        $previewFilename = pathinfo((string) $filename, PATHINFO_FILENAME) . '.mp3';
+        $waveformFilename = pathinfo((string) $filename, PATHINFO_FILENAME) . '.png';
 
         // MP3
         $streamMp3 = fopen($tmpPreviewPath, 'r+');
-        $this->previewsStorage->writeStream($previewFilename, $streamMp3, ['visibility' => 'public']);
-        fclose($streamMp3);
+        if ($streamMp3) {
+            $this->previewsStorage->writeStream($previewFilename, $streamMp3, ['visibility' => 'public']);
+            fclose($streamMp3);
+        }
 
         // Waveform
         if (file_exists($tmpWaveformPath)) {
             $streamWaveform = fopen($tmpWaveformPath, 'r+');
-            $this->previewsStorage->writeStream($waveformFilename, $streamWaveform, ['visibility' => 'public']);
-            fclose($streamWaveform);
-            $track->setWaveformPath($waveformFilename);
+            if ($streamWaveform) {
+                $this->previewsStorage->writeStream($waveformFilename, $streamWaveform, ['visibility' => 'public']);
+                fclose($streamWaveform);
+                $track->setWaveformPath($waveformFilename);
+            }
         }
 
         // Nettoyage

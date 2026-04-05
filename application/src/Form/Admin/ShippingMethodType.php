@@ -15,6 +15,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/** @extends AbstractType<mixed> */
 class ShippingMethodType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -83,7 +84,7 @@ class ShippingMethodType extends AbstractType
                 return;
             }
 
-            $configuration = $method->getConfiguration() ?? [];
+            $configuration = $method->getConfiguration();
             $amount = null;
             foreach ($configuration as $channelConfig) {
                 if (isset($channelConfig['amount'])) {

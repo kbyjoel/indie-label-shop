@@ -16,10 +16,10 @@ use Gedmo\Translatable\Entity\Repository\TranslationRepository;
 #[ORM\Entity(repositoryClass: TranslationRepository::class)]
 class AlbumTranslation extends AbstractPersonalTranslation
 {
-    public function __construct($locale = null, $field = null, $value = null)
+    public function __construct(?string $locale = null, ?string $field = null, mixed $value = null)
     {
-        $this->setLocale($locale);
-        $this->setField($field);
+        $this->setLocale($locale ?? '');
+        $this->setField($field ?? '');
         $this->setContent($value);
     }
 
