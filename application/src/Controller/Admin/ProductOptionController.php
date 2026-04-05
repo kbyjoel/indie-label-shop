@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route("/product-option", name: "admin_product_option_")]
+#[Route("/%admin_path%/product-option", name: "admin_product_option_")]
 class ProductOptionController extends AbstractController
 {
     public function __construct(

@@ -6,12 +6,13 @@ namespace App\Controller\Admin;
 
 use App\Entity\Country;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
+use Aropixel\AdminBundle\Component\Select2\Select2;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/country', name: 'admin_country_')]
+#[Route('/%admin_path%/country', name: 'admin_country_')]
 class CountryController extends AbstractController
 {
     public function __construct(
@@ -51,5 +52,18 @@ class CountryController extends AbstractController
             'enabled' => $country->isEnabled(),
             'label' => $country->isEnabled() ? 'Oui' : 'Non',
         ]);
+    }
+
+
+    #[Route("/select2", name: "select2", methods: ["GET"])]
+    public function select2(Select2 $select2): Response
+    {
+        return $select2
+            ->withEntity(Country::class)
+            ->searchIn(['name', 'code'])
+            ->render(fn(Country $country) => [
+                'id' => $country->getCode(),
+                'text' => $country->getName(),
+            ]);
     }
 }

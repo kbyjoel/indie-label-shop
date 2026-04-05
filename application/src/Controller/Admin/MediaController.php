@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route("/media", name: "admin_media_")]
+#[Route("/%admin_path%/media", name: "admin_media_")]
 class MediaController extends AbstractController
 {
     public function __construct(

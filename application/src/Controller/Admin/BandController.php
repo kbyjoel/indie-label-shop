@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route("/band", name: "admin_band_")]
+#[Route("/%admin_path%/band", name: "admin_band_")]
 class BandController extends AbstractController
 {
     public function __construct(

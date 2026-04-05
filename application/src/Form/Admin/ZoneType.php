@@ -2,8 +2,12 @@
 
 namespace App\Form\Admin;
 
+use App\Entity\Country;
+use App\Entity\Province;
 use App\Entity\Zone;
+use App\Entity\ZoneMember;
 use Aropixel\AdminBundle\Form\Type\CollectionType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -13,6 +17,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ZoneType extends AbstractType
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -53,7 +64,34 @@ class ZoneType extends AbstractType
                     'zone_type' => $builder->getData()?->getType() ?: 'country',
                 ],
                 'columns' => [
-                    'Code' => 'code',
+                    'Code' => [
+                        'field' => 'code',
+                        'render' => function($field, $item) {
+                            /** @var ZoneMember $zoneMember */
+                            $zoneMember = $item->vars['data'];
+                            if (!$zoneMember) {
+                                return 'Nouveau';
+                            }
+
+                            $code = $zoneMember->getCode();
+                            if (!$code) {
+                                return 'Nouveau';
+                            }
+
+                            $parentZone = $zoneMember->getBelongsTo();
+                            $type = $parentZone?->getType() ?: 'country';
+
+                            $entityClass = match ($type) {
+                                'country' => Country::class,
+                                'province' => Province::class,
+                                'zone' => Zone::class,
+                                default => Country::class,
+                            };
+
+                            $entity = $this->entityManager->getRepository($entityClass)->findOneBy(['code' => $code]);
+                            return $entity ? $entity->getName() : $code;
+                        }
+                    ],
                 ],
                 'label' => 'Membres',
             ])

@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route("/album", name: "admin_album_")]
+#[Route("/%admin_path%/album", name: "admin_album_")]
 class AlbumController extends AbstractController
 {
     public function __construct(

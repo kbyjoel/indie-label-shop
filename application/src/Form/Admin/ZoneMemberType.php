@@ -2,12 +2,14 @@
 
 namespace App\Form\Admin;
 
-use App\Entity\ZoneMember;
-use App\Entity\Country;
-use App\Entity\Province;
 use App\Entity\Zone;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\Province;
+use App\Entity\Country;
+use App\Entity\ZoneMember;
+use Aropixel\AdminBundle\Form\Type\FilterableEntityType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -15,6 +17,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ZoneMemberType extends AbstractType
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
@@ -44,28 +53,47 @@ class ZoneMemberType extends AbstractType
 
     private function addCodeField($form, string $zoneType): void
     {
-        if ($zoneType === 'country') {
-            $form->add('code', EntityType::class, [
-                'class' => Country::class,
-                'choice_label' => 'name',
-                'choice_value' => 'code',
-                'label' => 'Pays',
-            ]);
-        } elseif ($zoneType === 'province') {
-            $form->add('code', EntityType::class, [
-                'class' => Province::class,
-                'choice_label' => 'name',
-                'choice_value' => 'code',
-                'label' => 'Province',
-            ]);
-        } elseif ($zoneType === 'zone') {
-            $form->add('code', EntityType::class, [
-                'class' => Zone::class,
-                'choice_label' => 'name',
-                'choice_value' => 'code',
-                'label' => 'Zone',
-            ]);
-        }
+        $class = match ($zoneType) {
+            'country' => Country::class,
+            'province' => Province::class,
+            'zone' => Zone::class,
+            default => Country::class,
+        };
+
+        $route = match ($zoneType) {
+            'country' => 'admin_country_select2',
+            'province' => 'admin_province_select2',
+            'zone' => 'admin_zone_select2',
+            default => 'admin_country_select2',
+        };
+
+        $label = match ($zoneType) {
+            'country' => 'Pays',
+            'province' => 'Province',
+            'zone' => 'Zone',
+            default => 'Pays',
+        };
+
+        $builder = $form->getConfig()->getFormFactory()->createNamedBuilder('code', FilterableEntityType::class, null, [
+            'class' => $class,
+            'route' => $route,
+            'label' => $label,
+            'choice_label' => 'name',
+            'auto_initialize' => false,
+        ]);
+
+        $builder->addModelTransformer(new CallbackTransformer(
+            function ($code) use ($class) {
+                if (!$code) return null;
+                return $this->entityManager->getRepository($class)->findOneBy(['code' => $code]);
+            },
+            function ($entity) {
+                if (!$entity) return null;
+                return $entity->getCode();
+            }
+        ));
+
+        $form->add($builder->getForm());
     }
 
     public function configureOptions(OptionsResolver $resolver): void
