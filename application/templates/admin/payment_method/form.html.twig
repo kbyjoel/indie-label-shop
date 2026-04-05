@@ -1,0 +1,71 @@
+{% extends '@AropixelAdmin/Form/base.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
+
+{% set is_edit = paymentMethod.id is not null %}
+{% set title = is_edit ? 'text.edit'|trans ~ ' : ' ~ paymentMethod.name : 'text.add'|trans %}
+
+{% block meta_title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block asset_manager %}
+    {{ importmap('admin') }}
+{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        { label: 'text.home'|trans, url: url('_admin') },
+        { label: 'Moyens de paiement', url: path('admin_payment_method_index') },
+        { label: (paymentMethod.id ? 'text.edit'|trans : 'text.add'|trans) }
+    ]) }}
+{% endblock %}
+
+{% block tabbable %}
+    {{ forms.tabs([
+        { id: 'panel-tab-general', label: 'Général' },
+        { id: 'panel-tab-config', label: 'Configuration gateway' },
+    ]) }}
+{% endblock %}
+
+{% block mainPanel %}
+    <div class="tab-pane active" id="panel-tab-general">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.name) }}
+                {{ form_row(form.code) }}
+                {{ form_row(form.gatewayType) }}
+                {{ form_row(form.enabled) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="panel-tab-config"
+         data-controller="payment-gateway">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+
+                <div data-payment-gateway-target="stripeFields"
+                     {% if paymentMethod.gatewayType != 'stripe' %}style="display:none"{% endif %}>
+                    <h5 class="mb-3">Stripe</h5>
+                    {{ form_row(form.stripePublishableKey) }}
+                    {{ form_row(form.stripeSecretKey) }}
+                </div>
+
+                <div data-payment-gateway-target="paypalFields"
+                     {% if paymentMethod.gatewayType != 'paypal' %}style="display:none"{% endif %}>
+                    <h5 class="mb-3">PayPal</h5>
+                    {{ form_row(form.paypalClientId) }}
+                    {{ form_row(form.paypalSecret) }}
+                    {{ form_row(form.paypalMode) }}
+                </div>
+
+                {% if paymentMethod.gatewayType is null %}
+                    <p class="text-muted" data-payment-gateway-target="emptyMessage">
+                        Sélectionnez un gateway dans l'onglet "Général" pour afficher les options de configuration.
+                    </p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

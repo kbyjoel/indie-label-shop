@@ -24,4 +24,44 @@ class PaymentMethod extends BasePaymentMethod
 
     #[ORM\Column(type: 'boolean')]
     protected $enabled = true;
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->name = $name;
+    }
+
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $gatewayType = null;
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $credentials = null;
+
+    public function getGatewayType(): ?string
+    {
+        return $this->gatewayType;
+    }
+
+    public function setGatewayType(?string $gatewayType): static
+    {
+        $this->gatewayType = $gatewayType;
+
+        return $this;
+    }
+
+    public function getCredentials(): ?array
+    {
+        return $this->credentials;
+    }
+
+    public function setCredentials(?array $credentials): static
+    {
+        $this->credentials = $credentials;
+
+        return $this;
+    }
 }

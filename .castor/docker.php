@@ -164,10 +164,11 @@ function builder(#[AsRawTokens] array $params = []): int
         $params = ['bash'];
     }
 
-    $c = context()
-        ->toInteractive()
-        ->withEnvironment($_ENV + $_SERVER)
-    ;
+    $c = context()->withEnvironment($_ENV + $_SERVER);
+
+    if (stream_isatty(STDIN)) {
+        $c = $c->toInteractive();
+    }
 
     return (int) docker_compose_run(implode(' ', $params), c: $c)->getExitCode();
 }
