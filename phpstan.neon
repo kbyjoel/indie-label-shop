@@ -1,10 +1,10 @@
 parameters:
     level: 8
     paths:
-        # - application/src
-        - application/public
-        - castor.php
-        - .castor/
+        - application/src
+        # - application/public
+        # - castor.php
+        # - .castor/
     scanFiles:
         - .castor.stub.php
     # scanDirectories:

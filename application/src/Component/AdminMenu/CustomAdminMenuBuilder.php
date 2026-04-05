@@ -60,6 +60,7 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
         $menu->addItem(new Link('Pays', 'admin_country_index', [], ['icon' => 'fas fa-list-ul']));
         $menu->addItem(new Link('Zones', 'admin_zone_index', [], ['icon' => 'fas fa-list-ul']));
         $menu->addItem(new Link('Paiements', 'admin_payment_method_index', [], ['icon' => 'fas fa-credit-card']));
+        $menu->addItem(new Link('Livraison', 'admin_shipping_method_index', [], ['icon' => 'fas fa-truck']));
 
         return $menu;
     }

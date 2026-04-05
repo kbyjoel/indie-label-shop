@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd '/Volumes/Macintosh HD - Données/DEV/sites/indie-label-shop/application' && if git diff --name-only HEAD 2>/dev/null | grep -q '\\.php$'; then castor qa:phpstan 2>&1 | tail -40; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

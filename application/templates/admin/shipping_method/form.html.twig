@@ -1,0 +1,57 @@
+{% extends '@AropixelAdmin/Form/base.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
+
+{% set is_edit = shippingMethod.id is not null %}
+{% set title = is_edit ? 'text.edit'|trans ~ ' : ' ~ shippingMethod.name : 'text.add'|trans %}
+
+{% block meta_title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block asset_manager %}
+    {{ importmap('admin') }}
+{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        { label: 'text.home'|trans, url: url('_admin') },
+        { label: 'Modes de livraison', url: path('admin_shipping_method_index') },
+        { label: (shippingMethod.id ? 'text.edit'|trans : 'text.add'|trans) }
+    ]) }}
+{% endblock %}
+
+{% block tabbable %}
+    {{ forms.tabs([
+        { id: 'panel-tab-general', label: 'Général' },
+        { id: 'panel-tab-config', label: 'Configuration' },
+    ]) }}
+{% endblock %}
+
+{% block mainPanel %}
+    <div class="tab-pane active" id="panel-tab-general">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.name) }}
+                {{ form_row(form.code) }}
+                {{ form_row(form.enabled) }}
+                {{ form_row(form.position) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="panel-tab-config">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.zone) }}
+                {{ form_row(form.calculator) }}
+                {{ form_row(form.amount) }}
+                <hr>
+                {{ form_row(form.minDeliveryTimeDays) }}
+                {{ form_row(form.maxDeliveryTimeDays) }}
+                <hr>
+                {{ form_row(form.minWeight) }}
+                {{ form_row(form.maxWeight) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

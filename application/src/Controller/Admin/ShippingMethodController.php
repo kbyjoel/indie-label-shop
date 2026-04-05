@@ -1,0 +1,178 @@
+<?php
+
+namespace App\Controller\Admin;
+
+use App\Entity\Channel;
+use App\Entity\ShippingMethod;
+use App\Form\Admin\ShippingMethodType;
+use App\Repository\ShippingMethodRepository;
+use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
+use Doctrine\ORM\EntityManagerInterface;
+use Sylius\Component\Shipping\Model\ShippingMethodRule;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+#[Route("/%admin_path%/shipping-method", name: "admin_shipping_method_")]
+class ShippingMethodController extends AbstractController
+{
+    public function __construct(
+        private readonly ShippingMethodRepository $shippingMethodRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly TranslatorInterface $translator,
+    ) {
+    }
+
+    #[Route("/", name: "index", methods: ["GET"])]
+    public function index(DataTableFactory $dataTableFactory): Response
+    {
+        return $dataTableFactory
+            ->create(ShippingMethod::class)
+            ->setColumns([
+                ['label' => 'Nom', 'orderBy' => 'name'],
+                ['label' => 'Zone', 'orderBy' => 'zone', 'style' => 'width:150px;'],
+                ['label' => 'Calculateur', 'orderBy' => 'calculator', 'style' => 'width:130px;'],
+                ['label' => 'Poids', 'orderBy' => '', 'class' => 'no-sort', 'style' => 'width:140px;'],
+                ['label' => 'Activé', 'orderBy' => 'enabled', 'style' => 'width:80px;'],
+                ['label' => '', 'orderBy' => '', 'class' => 'no-sort'],
+            ])
+            ->searchIn(['name', 'code'])
+            ->setOrderColumn(1)
+            ->setOrderDirection('asc')
+            ->renderJson(fn(ShippingMethod $shippingMethod) => [
+                $this->renderView('admin/shipping_method/_link.html.twig', ['item' => $shippingMethod]),
+                $shippingMethod->getZone()?->getName() ?? '—',
+                match ($shippingMethod->getCalculator()) {
+                    'flat_rate'     => 'Tarif fixe',
+                    'per_unit_rate' => 'Par unité',
+                    default         => '—',
+                },
+                $this->formatWeightRange($shippingMethod),
+                $shippingMethod->isEnabled() ? 'Oui' : 'Non',
+                $this->renderView('admin/shipping_method/_actions.html.twig', ['item' => $shippingMethod]),
+            ])
+            ->render('admin/shipping_method/index.html.twig');
+    }
+
+    #[Route("/new", name: "new", methods: ["GET", "POST"])]
+    public function new(Request $request): Response
+    {
+        $shippingMethod = new ShippingMethod();
+        $form = $this->createForm(ShippingMethodType::class, $shippingMethod);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->applyConfiguration($form, $shippingMethod);
+            $this->applyWeightRules($form, $shippingMethod);
+            $this->em->persist($shippingMethod);
+            $this->em->flush();
+
+            $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+            return $this->redirectToRoute('admin_shipping_method_edit', ['id' => $shippingMethod->getId()]);
+        }
+
+        return $this->render('admin/shipping_method/form.html.twig', [
+            'shippingMethod' => $shippingMethod,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route("/{id}/edit", name: "edit", methods: ["GET", "POST"])]
+    public function edit(Request $request, ShippingMethod $shippingMethod): Response
+    {
+        $form = $this->createForm(ShippingMethodType::class, $shippingMethod);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->applyConfiguration($form, $shippingMethod);
+            $this->applyWeightRules($form, $shippingMethod);
+            $this->em->flush();
+            $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+            return $this->redirectToRoute('admin_shipping_method_edit', ['id' => $shippingMethod->getId()]);
+        }
+
+        return $this->render('admin/shipping_method/form.html.twig', [
+            'shippingMethod' => $shippingMethod,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
+    public function delete(Request $request, ShippingMethod $shippingMethod): Response
+    {
+        if ($this->isCsrfTokenValid('delete' . $shippingMethod->getId(), $request->request->get('_token'))) {
+            $this->em->remove($shippingMethod);
+            $this->em->flush();
+            $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));
+        }
+
+        return $this->redirectToRoute('admin_shipping_method_index');
+    }
+
+    private function applyConfiguration(FormInterface $form, ShippingMethod $shippingMethod): void
+    {
+        $amount = $form->get('amount')->getData();
+        if ($amount === null) {
+            return;
+        }
+
+        $channels = $this->em->getRepository(Channel::class)->findAll();
+        $configuration = [];
+        foreach ($channels as $channel) {
+            $configuration[$channel->getCode()] = ['amount' => (int) $amount];
+        }
+        $shippingMethod->setConfiguration($configuration);
+    }
+
+    private function applyWeightRules(FormInterface $form, ShippingMethod $shippingMethod): void
+    {
+        foreach ($shippingMethod->getRules() as $rule) {
+            if (in_array($rule->getType(), [
+                'total_weight_greater_than_or_equal',
+                'total_weight_less_than_or_equal',
+            ], true)) {
+                $shippingMethod->removeRule($rule);
+                $this->em->remove($rule);
+            }
+        }
+
+        $minWeight = $form->get('minWeight')->getData();
+        $maxWeight = $form->get('maxWeight')->getData();
+
+        if ($minWeight !== null) {
+            $rule = new ShippingMethodRule();
+            $rule->setType('total_weight_greater_than_or_equal');
+            $rule->setConfiguration(['weight' => (int) $minWeight]);
+            $shippingMethod->addRule($rule);
+        }
+
+        if ($maxWeight !== null) {
+            $rule = new ShippingMethodRule();
+            $rule->setType('total_weight_less_than_or_equal');
+            $rule->setConfiguration(['weight' => (int) $maxWeight]);
+            $shippingMethod->addRule($rule);
+        }
+    }
+
+    private function formatWeightRange(ShippingMethod $shippingMethod): string
+    {
+        $min = $max = null;
+        foreach ($shippingMethod->getRules() as $rule) {
+            if ($rule->getType() === 'total_weight_greater_than_or_equal') {
+                $min = $rule->getConfiguration()['weight'] ?? null;
+            }
+            if ($rule->getType() === 'total_weight_less_than_or_equal') {
+                $max = $rule->getConfiguration()['weight'] ?? null;
+            }
+        }
+
+        if ($min === null && $max === null) {
+            return '—';
+        }
+
+        return ($min ?? '0') . 'g – ' . ($max !== null ? $max . 'g' : '∞');
+    }
+}

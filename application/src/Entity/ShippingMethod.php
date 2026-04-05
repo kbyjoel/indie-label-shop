@@ -28,4 +28,14 @@ class ShippingMethod extends BaseShippingMethod
     #[ORM\ManyToOne(targetEntity: Zone::class)]
     #[ORM\JoinColumn(name: 'zone_id', referencedColumnName: 'id', nullable: true)]
     protected $zone;
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->name = $name;
+    }
 }
