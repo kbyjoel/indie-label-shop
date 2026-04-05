@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Core\Model\ProductVariant as BaseProductVariant;
 use Sylius\Component\Product\Model\ProductInterface;
+use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'sylius_product_variant')]
@@ -100,4 +101,18 @@ class ProductVariant extends BaseProductVariant
     #[ORM\JoinColumn(name: 'variant_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(name: 'option_value_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     protected $optionValues;
+
+    #[ORM\ManyToOne(targetEntity: TaxCategory::class)]
+    #[ORM\JoinColumn(name: 'tax_category_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    protected $taxCategory;
+
+    public function getTaxCategory(): ?TaxCategoryInterface
+    {
+        return $this->taxCategory;
+    }
+
+    public function setTaxCategory(?TaxCategoryInterface $taxCategory): void
+    {
+        $this->taxCategory = $taxCategory;
+    }
 }

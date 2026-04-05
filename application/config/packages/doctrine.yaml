@@ -43,6 +43,8 @@ doctrine:
             Sylius\Component\Addressing\Model\CountryInterface: App\Entity\Country
             Sylius\Component\Addressing\Model\ProvinceInterface: App\Entity\Province
             Sylius\Component\Addressing\Model\ZoneInterface: App\Entity\Zone
+            Sylius\Component\Taxation\Model\TaxCategoryInterface: App\Entity\TaxCategory
+            Sylius\Component\Core\Model\TaxRateInterface: App\Entity\TaxRate
             Sylius\Component\Addressing\Model\ZoneMemberInterface: App\Entity\ZoneMember
             Sylius\Component\Product\Model\ProductOptionInterface: App\Entity\ProductOption
             Sylius\Component\Product\Model\ProductOptionTranslationInterface: App\Entity\ProductOptionTranslation
