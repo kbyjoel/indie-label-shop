@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Album;
+use App\Entity\TaxCategory;
 use App\Form\Admin\AlbumType;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Aropixel\AdminBundle\Component\Select2\Select2;
@@ -49,6 +50,13 @@ class AlbumController extends AbstractController
     public function new(Request $request): Response
     {
         $album = new Album();
+
+        // Assigne la taxe par défaut pour les albums
+        $defaultTaxCategory = $this->em->getRepository(TaxCategory::class)->findOneBy(['defaultForAlbum' => true]);
+        if ($defaultTaxCategory) {
+            $album->setTaxCategory($defaultTaxCategory);
+        }
+
         $form = $this->createForm(AlbumType::class, $album);
         $form->handleRequest($request);
 

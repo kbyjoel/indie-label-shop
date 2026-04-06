@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Album;
 use App\Entity\Product;
 use App\Entity\ProductVariant;
+use App\Entity\TaxCategory;
 use App\Form\Admin\ProductType;
 use App\Form\Admin\ProductVariantType;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
@@ -51,6 +52,13 @@ class ProductController extends AbstractController
     public function new(Request $request): Response
     {
         $product = new Product();
+
+        // Assigne la taxe par défaut pour le merchandising
+        $defaultTaxCategory = $this->em->getRepository(TaxCategory::class)->findOneBy(['defaultForMerch' => true]);
+        if ($defaultTaxCategory) {
+            $product->setTaxCategory($defaultTaxCategory);
+        }
+
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
 

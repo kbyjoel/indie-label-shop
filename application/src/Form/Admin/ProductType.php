@@ -5,6 +5,7 @@ namespace App\Form\Admin;
 use App\Entity\Band;
 use App\Entity\Product;
 use App\Entity\ProductOption;
+use App\Entity\TaxCategory;
 use App\Entity\ProductTranslation;
 use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
@@ -46,6 +47,13 @@ class ProductType extends AbstractType
                 'choice_label' => 'name',
                 'label' => 'Groupe',
                 'placeholder' => 'Choisir un groupe',
+                'required' => false,
+            ])
+            ->add('taxCategory', EntityType::class, [
+                'class' => TaxCategory::class,
+                'choice_label' => 'name',
+                'label' => 'Catégorie de taxe',
+                'placeholder' => 'Choisir une catégorie',
                 'required' => false,
             ])
             ->add('options', FilterableEntitiesType::class, [

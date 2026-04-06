@@ -6,6 +6,7 @@ use App\Entity\Album;
 use App\Entity\AlbumImage;
 use App\Entity\AlbumTranslation;
 use App\Entity\Band;
+use App\Entity\TaxCategory;
 use App\Entity\Release;
 use Aropixel\AdminBundle\Form\Type\DateTimeType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
@@ -57,6 +58,13 @@ class AlbumType extends AbstractType
                 'choice_label' => 'name',
                 'label' => 'Groupe',
                 'placeholder' => 'Choisir un groupe',
+                'required' => false,
+            ])
+            ->add('taxCategory', EntityType::class, [
+                'class' => TaxCategory::class,
+                'choice_label' => 'name',
+                'label' => 'Catégorie de taxe',
+                'placeholder' => 'Choisir une catégorie',
                 'required' => false,
             ])
 //            ->add('artists', Select2Type::class, [

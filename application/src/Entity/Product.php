@@ -49,6 +49,10 @@ class Product extends BaseProduct
     #[ORM\InverseJoinColumn(name: 'option_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     protected $options;
 
+    #[ORM\ManyToOne(targetEntity: TaxCategory::class)]
+    #[ORM\JoinColumn(name: 'tax_category_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    protected $taxCategory;
+
     #[ORM\ManyToOne(targetEntity: Band::class)]
     #[ORM\JoinColumn(name: 'band_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?Band $band = null;
@@ -73,5 +77,13 @@ class Product extends BaseProduct
         $this->band = $band;
     }
 
-    // Ajout d'autres propriétés au besoin...
+    public function getTaxCategory(): ?\Sylius\Component\Taxation\Model\TaxCategoryInterface
+    {
+        return $this->taxCategory;
+    }
+
+    public function setTaxCategory(?\Sylius\Component\Taxation\Model\TaxCategoryInterface $taxCategory): void
+    {
+        $this->taxCategory = $taxCategory;
+    }
 }
