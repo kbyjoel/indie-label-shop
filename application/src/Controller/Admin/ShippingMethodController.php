@@ -7,7 +7,7 @@ use App\Entity\ShippingMethod;
 use App\Form\Admin\ShippingMethodType;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Sylius\Component\Shipping\Model\ShippingMethodRule;
+use App\Entity\ShippingMethodRule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,8 +29,9 @@ class ShippingMethodController extends AbstractController
     {
         return $dataTableFactory
             ->create(ShippingMethod::class)
+            ->join('translations', 't')
             ->setColumns([
-                ['label' => 'Nom', 'orderBy' => 'name'],
+                ['label' => 'Nom', 'orderBy' => 't.name'],
                 ['label' => 'Zone', 'orderBy' => 'zone', 'style' => 'width:150px;'],
                 ['label' => 'Calculateur', 'orderBy' => 'calculator', 'style' => 'width:130px;'],
                 ['label' => 'Poids', 'orderBy' => '', 'class' => 'no-sort', 'style' => 'width:140px;'],
@@ -114,6 +115,23 @@ class ShippingMethodController extends AbstractController
     /** @param FormInterface<mixed> $form */
     private function applyConfiguration(FormInterface $form, ShippingMethod $shippingMethod): void
     {
+        if ($shippingMethod->getCalculator() === 'weight_range') {
+            $brackets = $form->get('brackets')->getData() ?? [];
+            $normalized = [];
+            foreach ($brackets as $bracket) {
+                if (!isset($bracket['min'], $bracket['amount'])) {
+                    continue;
+                }
+                $normalized[] = [
+                    'min'    => (int) $bracket['min'],
+                    'max'    => isset($bracket['max']) ? (int) $bracket['max'] : null,
+                    'amount' => (int) $bracket['amount'],
+                ];
+            }
+            $shippingMethod->setConfiguration(['brackets' => $normalized]);
+            return;
+        }
+
         $amount = $form->get('amount')->getData();
         if ($amount === null) {
             return;
@@ -130,14 +148,24 @@ class ShippingMethodController extends AbstractController
     /** @param FormInterface<mixed> $form */
     private function applyWeightRules(FormInterface $form, ShippingMethod $shippingMethod): void
     {
+        $weightRuleTypes = [
+            'total_weight_greater_than_or_equal',
+            'total_weight_less_than_or_equal',
+        ];
+
+        $rulesToRemove = [];
         foreach ($shippingMethod->getRules() as $rule) {
-            if (in_array($rule->getType(), [
-                'total_weight_greater_than_or_equal',
-                'total_weight_less_than_or_equal',
-            ], true)) {
-                $shippingMethod->removeRule($rule);
-                $this->em->remove($rule);
+            if (in_array($rule->getType(), $weightRuleTypes, true)) {
+                $rulesToRemove[] = $rule;
             }
+        }
+        foreach ($rulesToRemove as $rule) {
+            $shippingMethod->removeRule($rule);
+        }
+
+        // weight_range stores everything in configuration — no ShippingMethodRule needed
+        if ($shippingMethod->getCalculator() === 'weight_range') {
+            return;
         }
 
         $minWeight = $form->get('minWeight')->getData();
@@ -148,6 +176,7 @@ class ShippingMethodController extends AbstractController
             $rule->setType('total_weight_greater_than_or_equal');
             $rule->setConfiguration(['weight' => (int) $minWeight]);
             $shippingMethod->addRule($rule);
+            $this->em->persist($rule);
         }
 
         if ($maxWeight !== null) {
@@ -155,11 +184,18 @@ class ShippingMethodController extends AbstractController
             $rule->setType('total_weight_less_than_or_equal');
             $rule->setConfiguration(['weight' => (int) $maxWeight]);
             $shippingMethod->addRule($rule);
+            $this->em->persist($rule);
         }
     }
 
     private function formatWeightRange(ShippingMethod $shippingMethod): string
     {
+        if ($shippingMethod->getCalculator() === 'weight_range') {
+            $brackets = $shippingMethod->getConfiguration()['brackets'] ?? [];
+            $count = count($brackets);
+            return $count > 0 ? $count . ' tranche' . ($count > 1 ? 's' : '') : '—';
+        }
+
         $min = $max = null;
         foreach ($shippingMethod->getRules() as $rule) {
             if ($rule->getType() === 'total_weight_greater_than_or_equal') {

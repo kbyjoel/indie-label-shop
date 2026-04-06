@@ -8,7 +8,9 @@ use App\Entity\Artist;
 use App\Entity\Band;
 use App\Entity\BandTranslation;
 use App\Entity\Channel;
+use App\Entity\Currency;
 use App\Entity\Customer;
+use App\Entity\Locale;
 use App\Entity\Media;
 use App\Entity\Order;
 use App\Entity\OrderItem;
@@ -82,11 +84,25 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
     {
         $faker = Factory::create('fr_FR');
 
+        // 5. Create default Locale (French)
+        $locale = new Locale();
+        $locale->setCode("fr");
+        $manager->persist($locale);
+        $this->addReference("locale_fr", $locale);
+
+        // 6. Create default Currency (Euro)
+        $currency = new Currency();
+        $currency->setCode("EUR");
+        $manager->persist($currency);
+        $this->addReference("currency_eur", $currency);
+
         // 1. Create Channel (Sylius needs it)
         $channel = new Channel();
         $channel->setCode('WEB');
         $channel->setName('Web Store');
         $channel->setHostname('localhost');
+        $channel->setDefaultLocale($locale);
+        $channel->setBaseCurrency($currency);
         $manager->persist($channel);
 
         // 1.5 Create Product Options

@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Core\Model\Product as BaseProduct;
-use Sylius\Component\Product\Model\ProductTranslationInterface;
+use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'sylius_product')]
@@ -51,7 +50,7 @@ class Product extends BaseProduct
 
     #[ORM\ManyToOne(targetEntity: TaxCategory::class)]
     #[ORM\JoinColumn(name: 'tax_category_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
-    protected $taxCategory;
+    protected ?TaxCategoryInterface $taxCategory = null;
 
     #[ORM\ManyToOne(targetEntity: Band::class)]
     #[ORM\JoinColumn(name: 'band_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]

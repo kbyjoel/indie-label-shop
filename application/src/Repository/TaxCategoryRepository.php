@@ -10,9 +10,9 @@ use Doctrine\Persistence\ManagerRegistry;
  * @extends ServiceEntityRepository<TaxCategory>
  *
  * @method TaxCategory|null find($id, $lockMode = null, $lockVersion = null)
- * @method TaxCategory|null findOneBy(array $criteria, array $orderBy = null)
+ * @method TaxCategory|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
  * @method TaxCategory[]    findAll()
- * @method TaxCategory[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method TaxCategory[]    findBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null, $limit = null, $offset = null)
  */
 class TaxCategoryRepository extends ServiceEntityRepository
 {

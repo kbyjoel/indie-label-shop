@@ -3,6 +3,8 @@
 namespace App\DataFixtures;
 
 use App\Entity\Country;
+use App\Entity\Currency;
+use App\Entity\Locale;
 use App\Entity\Zone;
 use App\Entity\ZoneMember;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -67,6 +69,7 @@ class BaseFixtures extends Fixture implements FixtureGroupInterface
             $zone->setType($data['type']);
             $zone->setScope('all');
             $manager->persist($zone);
+            $this->addReference('zone_' . $code, $zone);
 
             foreach ($data['members'] as $memberCode) {
                 if (isset($countryEntities[$memberCode])) {

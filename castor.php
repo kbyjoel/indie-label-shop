@@ -124,7 +124,8 @@ function migrate(): void
 #[AsTask(description: 'Initializes base data if needed', namespace: 'app:db')]
 function initialize_data(): void
 {
-    $count = (int) docker_compose_run_output('bin/console doctrine:query:sql "SELECT COUNT(*) FROM sylius_country" | grep -oE "[0-9]+" | head -1');
+    $res = docker_compose_run('bin/console doctrine:query:sql "SELECT COUNT(*) FROM sylius_country" | grep -oE "[0-9]+" | head -1');
+    $count = (int) $res->getOutput();
 
     if ($count === 0) {
         io()->section('Initializing base data (countries and zones)');
@@ -138,6 +139,7 @@ function fixtures(): void
 {
     io()->title('Loads dev fixtures');
 
-    initialize_data();
-    docker_compose_run('bin/console doctrine:fixture:load --group=dev -n --append');
+    docker_compose_run('bin/console doctrine:fixtures:load --group=base -n');
+    docker_compose_run('bin/console aropixel:admin:create-user -n');
+    docker_compose_run('bin/console doctrine:fixtures:load --group=dev -n --append');
 }

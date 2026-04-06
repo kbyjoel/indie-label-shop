@@ -34,6 +34,10 @@ class OrderItem extends BaseOrderItem
     #[ORM\Column(type: 'integer')]
     protected $total = 0;
 
+    /** @var Collection<array-key, \Sylius\Component\Order\Model\AdjustmentInterface> */
+    #[ORM\OneToMany(targetEntity: Adjustment::class, mappedBy: 'orderItem', cascade: ['all'], orphanRemoval: true)]
+    protected $adjustments;
+
     /** @var Collection<array-key, \Sylius\Component\Order\Model\OrderItemUnitInterface> */
     #[ORM\OneToMany(mappedBy: 'orderItem', targetEntity: OrderItemUnit::class, cascade: ['all'], orphanRemoval: true)]
     protected $units;

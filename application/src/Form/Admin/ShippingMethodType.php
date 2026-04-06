@@ -3,11 +3,14 @@
 namespace App\Form\Admin;
 
 use App\Entity\ShippingMethod;
+use App\Entity\ShippingMethodTranslation;
 use App\Entity\Zone;
+use Aropixel\AdminBundle\Form\Type\SyliusTranslatableType;
 use Aropixel\AdminBundle\Form\Type\ToggleSwitchType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -21,9 +24,11 @@ class ShippingMethodType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, [
+            ->add('name', SyliusTranslatableType::class, [
                 'label' => 'Nom',
                 'required' => true,
+                'personal_translation' => ShippingMethodTranslation::class,
+                'property_path' => 'translations',
             ])
             ->add('code', TextType::class, [
                 'label' => 'Code',
@@ -49,8 +54,9 @@ class ShippingMethodType extends AbstractType
                 'required' => false,
                 'placeholder' => '— Aucun —',
                 'choices' => [
-                    'Tarif fixe' => 'flat_rate',
-                    'Par unité' => 'per_unit_rate',
+                    'Tarif fixe'        => 'flat_rate',
+                    'Par unité'         => 'per_unit_rate',
+                    'Tranches de poids' => 'weight_range',
                 ],
             ])
             ->add('amount', IntegerType::class, [
@@ -76,15 +82,29 @@ class ShippingMethodType extends AbstractType
                 'mapped' => false,
                 'required' => false,
             ])
+            ->add('brackets', CollectionType::class, [
+                'label' => 'Tranches de poids',
+                'entry_type' => ShippingMethodBracketType::class,
+                'mapped' => false,
+                'required' => false,
+                'button_add_label' => 'Ajouter une tranche',
+                'list_template' => 'admin/shipping_method/_brackets_collection.html.twig',
+            ])
         ;
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+        $builder->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event): void {
             $method = $event->getData();
             if (!$method instanceof ShippingMethod) {
                 return;
             }
 
             $configuration = $method->getConfiguration();
+
+            if ($method->getCalculator() === 'weight_range') {
+                $event->getForm()->get('brackets')->setData($configuration['brackets'] ?? []);
+                return;
+            }
+
             $amount = null;
             foreach ($configuration as $channelConfig) {
                 if (isset($channelConfig['amount'])) {

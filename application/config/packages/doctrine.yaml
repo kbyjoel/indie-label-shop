@@ -38,8 +38,18 @@ doctrine:
             Sylius\Component\Product\Model\ProductVariantInterface: App\Entity\ProductVariant
             Sylius\Component\Core\Model\ProductVariantInterface: App\Entity\ProductVariant
             Sylius\Component\Core\Model\PromotionInterface: App\Entity\Promotion
+            Sylius\Component\Promotion\Model\PromotionInterface: App\Entity\Promotion
+            Sylius\Component\Promotion\Model\PromotionRuleInterface: App\Entity\PromotionRule
+            Sylius\Component\Promotion\Model\PromotionActionInterface: App\Entity\PromotionAction
+            Sylius\Component\Core\Model\PromotionCouponInterface: App\Entity\PromotionCoupon
+            Sylius\Component\Promotion\Model\PromotionCouponInterface: App\Entity\PromotionCoupon
+            Sylius\Component\Order\Model\AdjustmentInterface: App\Entity\Adjustment
+            Sylius\Component\Core\Model\AdjustmentInterface: App\Entity\Adjustment
             Sylius\Component\Core\Model\ShipmentInterface: App\Entity\Shipment
             Sylius\Component\Core\Model\ShippingMethodInterface: App\Entity\ShippingMethod
+            Sylius\Component\Shipping\Model\ShippingMethodRuleInterface: App\Entity\ShippingMethodRule
+            Sylius\Component\Locale\Model\LocaleInterface: App\Entity\Locale 
+            Sylius\Component\Currency\Model\CurrencyInterface: App\Entity\Currency
             Sylius\Component\Addressing\Model\CountryInterface: App\Entity\Country
             Sylius\Component\Addressing\Model\ProvinceInterface: App\Entity\Province
             Sylius\Component\Addressing\Model\ZoneInterface: App\Entity\Zone
@@ -50,6 +60,7 @@ doctrine:
             Sylius\Component\Product\Model\ProductOptionTranslationInterface: App\Entity\ProductOptionTranslation
             Sylius\Component\Product\Model\ProductOptionValueInterface: App\Entity\ProductOptionValue
             Sylius\Component\Product\Model\ProductOptionValueTranslationInterface: App\Entity\ProductOptionValueTranslation
+            Sylius\Component\Shipping\Model\ShippingMethodTranslationInterface: App\Entity\ShippingMethodTranslation
 
 when@test:
     doctrine:

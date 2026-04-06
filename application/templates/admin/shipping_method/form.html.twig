@@ -44,14 +44,49 @@
             <div class="card-body">
                 {{ form_row(form.zone) }}
                 {{ form_row(form.calculator) }}
-                {{ form_row(form.amount) }}
                 <hr>
+
+                {# Tarif fixe / par unité #}
+                <div data-show-for="flat_rate per_unit_rate">
+                    {{ form_row(form.amount) }}
+                    <hr>
+                    {{ form_row(form.minWeight) }}
+                    {{ form_row(form.maxWeight) }}
+                    <hr>
+                </div>
+
+                {# Tranches de poids #}
+                <div data-show-for="weight_range">
+                    {{ form_row(form.brackets) }}
+                    <hr>
+                </div>
+
                 {{ form_row(form.minDeliveryTimeDays) }}
                 {{ form_row(form.maxDeliveryTimeDays) }}
-                <hr>
-                {{ form_row(form.minWeight) }}
-                {{ form_row(form.maxWeight) }}
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        (function () {
+            function toggleSections() {
+                const calcSelect = document.querySelector('[id$="_calculator"]');
+                if (!calcSelect) return;
+                const val = calcSelect.value;
+                document.querySelectorAll('[data-show-for]').forEach(function (el) {
+                    const allowed = el.dataset.showFor.split(' ');
+                    el.style.display = allowed.includes(val) ? '' : 'none';
+                });
+            }
+
+            // Select2 trigger le change via jQuery — on utilise jQuery pour écouter
+            $(document).on('change', '[id$="_calculator"]', toggleSections);
+
+            // Init au chargement (après que Select2 soit prêt)
+            $(document).ready(toggleSections);
+        })();
+    </script>
 {% endblock %}

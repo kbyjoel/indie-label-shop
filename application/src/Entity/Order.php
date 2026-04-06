@@ -51,6 +51,19 @@ class Order extends BaseOrder
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: Payment::class, cascade: ['all'])]
     protected $payments;
 
+    #[ORM\ManyToOne(targetEntity: PromotionCoupon::class)]
+    #[ORM\JoinColumn(name: 'promotion_coupon_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    protected $promotionCoupon;
+
+    /** @var Collection<array-key, \Sylius\Component\Order\Model\AdjustmentInterface> */
+    #[ORM\OneToMany(targetEntity: Adjustment::class, mappedBy: 'order', cascade: ['all'], orphanRemoval: true)]
+    protected $adjustments;
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     public function setTotal(int $total): void
     {
         $this->total = $total;

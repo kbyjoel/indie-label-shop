@@ -1,0 +1,24 @@
+<table class="table table-sm" data-form-collection="list">
+    <thead>
+        <tr>
+            <th>Poids min (g)</th>
+            <th>Poids max (g)</th>
+            <th>Tarif (centimes)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bracket_form in form %}
+            <tr data-form-collection="item" data-form-collection-index="{{ bracket_form.vars.name }}">
+                <td>{{ form_widget(bracket_form.min) }}</td>
+                <td>{{ form_widget(bracket_form.max) }}</td>
+                <td>{{ form_widget(bracket_form.amount) }}</td>
+                <td>
+                    <a href="#" class="btn btn-sm btn-danger text-white" data-form-collection="delete">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

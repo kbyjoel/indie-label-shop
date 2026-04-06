@@ -11,33 +11,35 @@ description: >
 ## Basic command
 
 ```bash
-castor builder <command>
+castor docker:builder -- <command>
 ```
 
-All PHP/Symfony/Doctrine/Composer commands must be prefixed with `castor builder`.
+All PHP/Symfony/Doctrine/Composer commands must go through `castor docker:builder --`.
+The alias `castor builder` does NOT exist — always use `castor docker:builder --`.
 
 ## Common examples
 
 ```bash
 # Doctrine migrations
-castor builder php bin/console doctrine:migrations:diff
-castor builder php bin/console doctrine:migrations:migrate --no-interaction
+castor docker:builder -- php bin/console doctrine:migrations:diff
+castor docker:builder -- php bin/console doctrine:migrations:migrate --no-interaction
 
 # Symfony cache
-castor builder php bin/console cache:clear
+castor docker:builder -- php bin/console cache:clear
 
 # Generate an Aropixel CRUD
-castor builder php bin/console aropixel:make:crud
+castor docker:builder -- php bin/console aropixel:make:crud
 
 # Composer
-castor builder composer require vendor/package
+castor docker:builder -- composer require vendor/package
 
 # PHPStan / CS Fixer (or use the dedicated castor aliases)
-castor builder vendor/bin/php-cs-fixer fix
-castor builder vendor/bin/phpstan analyse
+castor docker:builder -- vendor/bin/php-cs-fixer fix
+castor docker:builder -- vendor/bin/phpstan analyse
 ```
 
 ## Notes
 
-- Do not use `castor ssh` (it does not exist). Always use `castor builder <command>`.
-- `castor builder` uses TTY when available (interactive terminal), and automatically falls back to non-interactive mode otherwise (e.g. when running from Claude Code). This behaviour is handled in `.castor/docker.php`.
+- Always use `castor docker:builder -- <command>`, with the `--` separator before the command.
+- Do not use `castor ssh` (it does not exist).
+- Castor handles TTY detection automatically (interactive vs non-interactive).

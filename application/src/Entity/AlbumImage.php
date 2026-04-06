@@ -31,7 +31,7 @@ class AlbumImage extends AttachedImage implements CroppableInterface
     private ?Album $album = null;
 
     /** @var Collection<int, AlbumImageCrop>|null */
-    #[ORM\OneToMany(targetEntity: AlbumImageCrop::class, mappedBy: "artwork", cascade: ["remove", "persist"])]
+    #[ORM\OneToMany(targetEntity: AlbumImageCrop::class, mappedBy: "image", cascade: ["remove", "persist"])]
     protected ?Collection $crops = null;
 
     public function __construct()
