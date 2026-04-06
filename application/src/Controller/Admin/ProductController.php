@@ -35,7 +35,7 @@ class ProductController extends AbstractController
             ->join('translations', 't') // Left join event.category with alias 'c'
             ->setColumns([
                 ['label' => 'Nom', 'orderBy' => 't.name'],
-                ['label' => '', 'orderBy' => '', 'class' => 'no-sort'],
+                ['label' => '', 'orderBy' => '', 'class' => 'text-end no-sort'],
             ])
             ->filter(function(QueryBuilder $qb) {
                 $qb->andWhere($qb->getRootAliases()[0] . ' NOT INSTANCE OF ' . Album::class);

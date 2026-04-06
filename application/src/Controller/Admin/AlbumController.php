@@ -33,7 +33,7 @@ class AlbumController extends AbstractController
                 ['label' => 'Titre', 'field' => 'name'],
                 ['label' => 'Numéro catalogue', 'field' => 'catalogNumber'],
                 ['label' => 'Date de sortie', 'field' => 'releaseDate'],
-                ['label' => '', 'field' => '', 'class' => 'no-sort'],
+                ['label' => '', 'field' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['id', 'title', 'catalogNumber'])
             ->renderJson(fn(Album $album) => [

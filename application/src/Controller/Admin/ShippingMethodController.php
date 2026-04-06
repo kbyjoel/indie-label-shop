@@ -36,7 +36,7 @@ class ShippingMethodController extends AbstractController
                 ['label' => 'Calculateur', 'orderBy' => 'calculator', 'style' => 'width:130px;'],
                 ['label' => 'Poids', 'orderBy' => '', 'class' => 'no-sort', 'style' => 'width:140px;'],
                 ['label' => 'Activé', 'orderBy' => 'enabled', 'style' => 'width:80px;'],
-                ['label' => '', 'orderBy' => '', 'class' => 'no-sort'],
+                ['label' => '', 'orderBy' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['name', 'code'])
             ->setOrderColumn(1)

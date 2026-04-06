@@ -64,7 +64,7 @@ return $dataTableFactory
 
 ### Actions column — always last
 ```php
-['label' => '', 'orderBy' => '', 'class' => 'no-sort']
+['label' => '', 'orderBy' => '', 'class' => 'text-end no-sort']
 ```
 And in `renderJson`, the last element of the array:
 ```php

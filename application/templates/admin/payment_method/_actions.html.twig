@@ -1,4 +1,4 @@
 {% import '@AropixelAdmin/Macro/actions.html.twig' as list %}
 <td class="text-right">
-    {{ list.actions(item, path('{{ route_name }}_edit', {id: item.id}), path('admin_payment_method_delete', {id: item.id})) }}
+    {{ list.actions(item, path('admin_payment_method_edit', {id: item.id}), path('admin_payment_method_delete', {id: item.id})) }}
 </td>

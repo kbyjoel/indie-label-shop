@@ -27,12 +27,12 @@ class ProductOptionController extends AbstractController
     {
         return $dataTableFactory
             ->create(ProductOption::class)
-            ->join('translations', 't') // Left join event.category with alias 'c'
+            ->join('translations', 't')
             ->setColumns([
                 ['label' => 'Nom', 'field' => 't.name'],
                 ['label' => 'Code', 'field' => 'code'],
                 ['label' => 'Position', 'field' => 'position'],
-                ['label' => '', 'field' => '', 'class' => 'no-sort'],
+                ['label' => '', 'field' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['id', 'code'])
             ->renderJson(fn(ProductOption $productOption) => [

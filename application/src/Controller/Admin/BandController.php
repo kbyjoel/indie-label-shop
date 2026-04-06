@@ -30,7 +30,7 @@ class BandController extends AbstractController
                 ['label' => '', 'class' => 'no-sort', 'style' => 'width: 60px;'],
                 ['label' => 'Nom', 'field' => 'name'],
                 ['label' => 'Site Web', 'field' => 'website'],
-                ['label' => '', 'field' => '', 'class' => 'no-sort'],
+                ['label' => '', 'field' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['name'])
             ->renderJson(fn(Band $band) => [

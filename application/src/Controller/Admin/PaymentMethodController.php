@@ -30,7 +30,7 @@ class PaymentMethodController extends AbstractController
                 ['label' => 'Nom', 'orderBy' => 'name'],
                 ['label' => 'Gateway', 'orderBy' => 'gatewayType', 'style' => 'width:150px;'],
                 ['label' => 'Activé', 'orderBy' => 'enabled', 'style' => 'width:80px;'],
-                ['label' => '', 'orderBy' => '', 'class' => 'no-sort'],
+                ['label' => '', 'orderBy' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['name', 'code'])
             ->setOrderColumn(1)

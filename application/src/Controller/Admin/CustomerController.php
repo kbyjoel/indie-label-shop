@@ -19,7 +19,7 @@ class CustomerController extends AbstractController
             ->setColumns([
                 ['label' => 'Nom', 'field' => 'lastName'],
                 ['label' => 'Email', 'field' => 'email'],
-                ['label' => '', 'field' => '', 'class' => 'no-sort text-right'],
+                ['label' => '', 'field' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['firstName', 'lastName', 'email'])
             ->renderJson(fn(Customer $customer) => [

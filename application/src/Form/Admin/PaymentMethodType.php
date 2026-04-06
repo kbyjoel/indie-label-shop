@@ -79,7 +79,7 @@ class PaymentMethodType extends AbstractType
         ;
 
         // Préremplir les champs mapped: false depuis gatewayConfig existant
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+        $builder->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event): void {
             $paymentMethod = $event->getData();
             if (!$paymentMethod instanceof PaymentMethod) {
                 return;

@@ -31,7 +31,7 @@ class ZoneController extends AbstractController
                 ['label' => 'Nom', 'orderBy' => 'name'],
                 ['label' => 'Code', 'orderBy' => 'code'],
                 ['label' => 'Type', 'orderBy' => 'type'],
-                ['label' => '', 'orderBy' => '', 'class' => 'no-sort'],
+                ['label' => '', 'orderBy' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['name', 'code']) // TODO: Add other searchable fields here
             ->renderJson(fn(Zone $zone) => [

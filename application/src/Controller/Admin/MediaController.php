@@ -29,7 +29,7 @@ class MediaController extends AbstractController
             ->setColumns([
                 ['label' => 'Nom', 'field' => 'name'],
                 ['label' => 'Numérique', 'field' => 'isDigital'],
-                ['label' => '', 'field' => '', 'class' => 'no-sort text-right'],
+                ['label' => '', 'field' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['id', 'name'])
             ->renderJson(fn(Media $media) => [
