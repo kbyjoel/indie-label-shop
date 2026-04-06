@@ -42,6 +42,21 @@ class ShippingMethod extends BaseShippingMethod
     #[ORM\InverseJoinColumn(name: 'channel_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     protected $channels;
 
+    #[ORM\Column(type: 'json')]
+    protected $configuration = [];
+
+    #[ORM\Column(type: 'string', length: 255)]
+    protected $calculator;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    protected $position;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    protected $minDeliveryTimeDays;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    protected $maxDeliveryTimeDays;
+
     /** @var \Doctrine\Common\Collections\Collection<string, ShippingMethodTranslation> */
     #[ORM\OneToMany(mappedBy: 'translatable', targetEntity: ShippingMethodTranslation::class, cascade: ['all'], fetch: 'EAGER', orphanRemoval: true, indexBy: 'locale')]
     protected $translations; // @phpstan-ignore-line property.phpDocType
@@ -65,4 +80,10 @@ class ShippingMethod extends BaseShippingMethod
     {
         return new ShippingMethodTranslation();
     }
+
+    public function getConfiguration(): array
+    {
+        return $this->configuration ?? [];
+    }
+
 }

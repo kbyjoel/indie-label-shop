@@ -4,6 +4,7 @@ namespace App\Form\Admin;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -23,9 +24,10 @@ class ShippingMethodBracketType extends AbstractType
                 'required' => false,
                 'attr' => ['min' => 0, 'placeholder' => 'Illimité'],
             ])
-            ->add('amount', IntegerType::class, [
-                'label' => 'Tarif (centimes)',
+            ->add('amount', MoneyType::class, [
+                'label' => 'Tarif',
                 'required' => true,
+                'divisor' => 100,
                 'attr' => ['min' => 0],
             ])
         ;
