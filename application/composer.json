@@ -7,7 +7,7 @@
         "php": ">=8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "aropixel/admin-bundle": "v3.0.0-alpha1",
+        "aropixel/admin-bundle": "dev-main",
         "doctrine/doctrine-bundle": "^3.2",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6",

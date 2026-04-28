@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ac629d48dcdfc4ef8d99f805bca3486c",
+    "content-hash": "0f4be5e0c414d75d5e7367426290ade4",
     "packages": [
         {
             "name": "aropixel/admin-bundle",
-            "version": "v3.0.0-alpha1",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aropixel/admin-bundle.git",
-                "reference": "e74397d3d5c043d373499a1ddbcb6d3a9c1b73ee"
+                "reference": "9ca96edf25791db6d17d3cd85c4baa83c9f0c05d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aropixel/admin-bundle/zipball/e74397d3d5c043d373499a1ddbcb6d3a9c1b73ee",
-                "reference": "e74397d3d5c043d373499a1ddbcb6d3a9c1b73ee",
+                "url": "https://api.github.com/repos/aropixel/admin-bundle/zipball/9ca96edf25791db6d17d3cd85c4baa83c9f0c05d",
+                "reference": "9ca96edf25791db6d17d3cd85c4baa83c9f0c05d",
                 "shasum": ""
             },
             "require": {
@@ -34,7 +34,7 @@
                 "symfony/orm-pack": "2.4.1|2.5.0",
                 "symfony/security-bundle": "^7.0 || ^8.0",
                 "symfony/serializer": "^7.0 || ^8.0",
-                "symfony/stimulus-bundle": "^2.32",
+                "symfony/stimulus-bundle": "^2.32 || ^3.0",
                 "symfony/string": "^7.0 || ^8.0",
                 "symfony/translation": "^7.0 || ^8.0",
                 "symfony/validator": "^7.0 || ^8.0",
@@ -42,6 +42,10 @@
                 "twig/intl-extra": "^2.12|^3.0",
                 "twig/twig": "^2.12|^3.0"
             },
+            "require-dev": {
+                "doctrine/doctrine-fixtures-bundle": "^4.0"
+            },
+            "default-branch": true,
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
@@ -64,9 +68,9 @@
             ],
             "support": {
                 "issues": "https://github.com/aropixel/admin-bundle/issues",
-                "source": "https://github.com/aropixel/admin-bundle/tree/v3.0.0-alpha1"
+                "source": "https://github.com/aropixel/admin-bundle/tree/main"
             },
-            "time": "2026-04-09T11:11:00+00:00"
+            "time": "2026-04-27T20:33:27+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -14248,7 +14252,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "aropixel/admin-bundle": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

@@ -29,4 +29,8 @@ return [
     '@hotwired/turbo' => [
         'version' => '7.3.0',
     ],
+    '@aropixel/admin-bundle' => [
+        'path' => './vendor/aropixel/admin-bundle/assets/admin.js',
+        'entrypoint' => true,
+    ],
 ];
