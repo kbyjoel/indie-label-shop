@@ -2,14 +2,10 @@
 
 namespace App\Entity;
 
-use App\Entity\ReleaseImage;
-
 use App\Repository\ReleaseRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity(repositoryClass: ReleaseRepository::class)]
 #[ORM\Table(name: 'indie_release')]
@@ -31,9 +27,8 @@ class Release extends ProductVariant
     #[ORM\ManyToMany(targetEntity: Tracklist::class, mappedBy: 'releases')]
     private Collection $tracklists;
 
-    #[ORM\OneToOne(targetEntity: ReleaseImage::class, mappedBy: "release", cascade: ["persist", "remove"], orphanRemoval: true)]
+    #[ORM\OneToOne(targetEntity: ReleaseImage::class, mappedBy: 'release', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?ReleaseImage $image = null;
-
 
     public function __construct()
     {
@@ -43,7 +38,8 @@ class Release extends ProductVariant
 
     public function getAlbum(): ?Album
     {
-        assert($this->product === null || $this->product instanceof Album);
+        \assert(null === $this->product || $this->product instanceof Album);
+
         return $this->product;
     }
 
@@ -125,7 +121,6 @@ class Release extends ProductVariant
         return $this;
     }
 
-
     public function getImage(): ?ReleaseImage
     {
         return $this->image;
@@ -133,13 +128,13 @@ class Release extends ProductVariant
 
     public function setImage(?ReleaseImage $image): self
     {
-        if ($image === null || $image->getImage() === null) {
+        if (null === $image || null === $image->getImage()) {
             $this->image = null;
         } else {
             $this->image = $image;
             $this->image->setRelease($this);
         }
+
         return $this;
     }
-
 }

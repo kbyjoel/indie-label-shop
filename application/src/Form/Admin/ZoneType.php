@@ -67,7 +67,7 @@ class ZoneType extends AbstractType
                 'columns' => [
                     'Code' => [
                         'field' => 'code',
-                        'render' => function($field, $item) {
+                        'render' => function ($field, $item) {
                             /** @var ZoneMember $zoneMember */
                             $zoneMember = $item->vars['data'];
                             if (!$zoneMember) {
@@ -90,8 +90,9 @@ class ZoneType extends AbstractType
                             };
 
                             $entity = $this->entityManager->getRepository($entityClass)->findOneBy(['code' => $code]);
+
                             return $entity ? $entity->getName() : $code;
-                        }
+                        },
                     ],
                 ],
                 'label' => 'Membres',

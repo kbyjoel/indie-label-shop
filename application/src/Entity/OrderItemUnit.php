@@ -28,5 +28,4 @@ class OrderItemUnit extends BaseOrderItemUnit
     /** @var Collection<array-key, \Sylius\Component\Order\Model\AdjustmentInterface> */
     #[ORM\OneToMany(targetEntity: Adjustment::class, mappedBy: 'orderItemUnit', cascade: ['all'], orphanRemoval: true)]
     protected $adjustments;
-
 }

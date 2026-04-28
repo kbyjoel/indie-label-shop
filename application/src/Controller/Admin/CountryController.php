@@ -30,16 +30,16 @@ class CountryController extends AbstractController
                 ['label' => 'Activé', 'orderBy' => 'enabled'],
             ])
             ->searchIn(['id', 'code'])
-            ->renderJson(fn(Country $country) => [
+            ->renderJson(fn (Country $country) => [
                 $country->getName(),
-                sprintf('<div class="form-check form-switch"><input class="form-check-input toggle-country" type="checkbox" data-url="%s" %s></div>',
+                \sprintf('<div class="form-check form-switch"><input class="form-check-input toggle-country" type="checkbox" data-url="%s" %s></div>',
                     $this->generateUrl('admin_country_toggle', ['id' => $country->getId()]),
                     $country->isEnabled() ? 'checked' : ''
                 ),
             ])
-            ->render('admin/country/index.html.twig');
+            ->render('admin/country/index.html.twig')
+        ;
     }
-
 
     #[Route('/{id}/toggle', name: 'toggle', methods: ['POST'])]
     public function toggle(Country $country): Response
@@ -54,16 +54,16 @@ class CountryController extends AbstractController
         ]);
     }
 
-
-    #[Route("/select2", name: "select2", methods: ["GET"])]
+    #[Route('/select2', name: 'select2', methods: ['GET'])]
     public function select2(Select2 $select2): Response
     {
         return $select2
             ->withEntity(Country::class)
             ->searchIn(['name', 'code'])
-            ->render(fn(Country $country) => [
+            ->render(fn (Country $country) => [
                 'id' => $country->getCode(),
                 'text' => $country->getName(),
-            ]);
+            ])
+        ;
     }
 }

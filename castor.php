@@ -10,7 +10,6 @@ use function Castor\variable;
 use function docker\about;
 use function docker\build;
 use function docker\docker_compose_run;
-use function docker\docker_compose_run_output;
 use function docker\up;
 
 // use function docker\workers_start;
@@ -115,10 +114,10 @@ function cache_warmup(): void
 #[AsTask(description: 'Migrates database schema', namespace: 'app:db', aliases: ['migrate'])]
 function migrate(): void
 {
-     io()->title('Migrating the database schema');
+    io()->title('Migrating the database schema');
 
-     docker_compose_run('bin/console doctrine:database:create --if-not-exists');
-     docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing');
+    docker_compose_run('bin/console doctrine:database:create --if-not-exists');
+    docker_compose_run('bin/console doctrine:migration:migrate -n --allow-no-migration --all-or-nothing');
 }
 
 #[AsTask(description: 'Initializes base data if needed', namespace: 'app:db')]
@@ -127,7 +126,7 @@ function initialize_data(): void
     $res = docker_compose_run('bin/console doctrine:query:sql "SELECT COUNT(*) FROM sylius_country" | grep -oE "[0-9]+" | head -1');
     $count = (int) $res->getOutput();
 
-    if ($count === 0) {
+    if (0 === $count) {
         io()->section('Initializing base data (countries and zones)');
         docker_compose_run('bin/console doctrine:fixtures:load --group=base -n --append');
         docker_compose_run('bin/console aropixel:admin:create-user -n');

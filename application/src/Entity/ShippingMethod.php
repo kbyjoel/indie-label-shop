@@ -57,7 +57,7 @@ class ShippingMethod extends BaseShippingMethod
     #[ORM\Column(type: 'integer', nullable: true)]
     protected $maxDeliveryTimeDays;
 
-    /** @var \Doctrine\Common\Collections\Collection<string, ShippingMethodTranslation> */
+    /** @var Collection<string, ShippingMethodTranslation> */
     #[ORM\OneToMany(mappedBy: 'translatable', targetEntity: ShippingMethodTranslation::class, cascade: ['all'], fetch: 'EAGER', orphanRemoval: true, indexBy: 'locale')]
     protected $translations; // @phpstan-ignore-line property.phpDocType
 
@@ -76,14 +76,13 @@ class ShippingMethod extends BaseShippingMethod
         $this->rules->removeElement($rule);
     }
 
-    protected function createTranslation(): ShippingMethodTranslationInterface
-    {
-        return new ShippingMethodTranslation();
-    }
-
     public function getConfiguration(): array
     {
         return $this->configuration ?? [];
     }
 
+    protected function createTranslation(): ShippingMethodTranslationInterface
+    {
+        return new ShippingMethodTranslation();
+    }
 }

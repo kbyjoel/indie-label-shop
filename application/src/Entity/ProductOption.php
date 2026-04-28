@@ -4,23 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Product\Model\ProductOption as BaseProductOption;
 use Sylius\Component\Product\Model\ProductOptionTranslationInterface;
-use Sylius\Resource\Model\TranslationInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'sylius_product_option')]
 class ProductOption extends BaseProductOption
 {
-    public function __construct()
-    {
-        parent::__construct();
-        $this->setCurrentLocale('fr');
-        $this->setFallbackLocale('fr');
-    }
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -43,6 +34,13 @@ class ProductOption extends BaseProductOption
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
     protected $updatedAt;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setCurrentLocale('fr');
+        $this->setFallbackLocale('fr');
+    }
 
     public function getName(): ?string
     {

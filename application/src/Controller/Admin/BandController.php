@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route("/%admin_path%/band", name: "admin_band_")]
+#[Route('/%admin_path%/band', name: 'admin_band_')]
 class BandController extends AbstractController
 {
     public function __construct(
@@ -21,7 +21,7 @@ class BandController extends AbstractController
     ) {
     }
 
-    #[Route("/", name: "index", methods: ["GET"])]
+    #[Route('/', name: 'index', methods: ['GET'])]
     public function index(DataTableFactory $dataTableFactory): Response
     {
         return $dataTableFactory
@@ -33,16 +33,17 @@ class BandController extends AbstractController
                 ['label' => '', 'field' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['name'])
-            ->renderJson(fn(Band $band) => [
+            ->renderJson(fn (Band $band) => [
                 $this->renderView('admin/band/_image.html.twig', ['item' => $band]),
                 $this->renderView('admin/band/_link.html.twig', ['item' => $band]),
                 $band->getWebsite(),
                 $this->renderView('admin/band/_actions.html.twig', ['item' => $band]),
             ])
-            ->render('admin/band/index.html.twig');
+            ->render('admin/band/index.html.twig')
+        ;
     }
 
-    #[Route("/new", name: "new", methods: ["GET", "POST"])]
+    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $band = new Band();
@@ -54,6 +55,7 @@ class BandController extends AbstractController
             $this->em->flush();
 
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+
             return $this->redirectToRoute('admin_band_edit', ['id' => $band->getId()]);
         }
 
@@ -63,7 +65,7 @@ class BandController extends AbstractController
         ]);
     }
 
-    #[Route("/{id}/edit", name: "edit", methods: ["GET", "POST"])]
+    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Band $band): Response
     {
         $form = $this->createForm(BandType::class, $band);
@@ -72,6 +74,7 @@ class BandController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+
             return $this->redirectToRoute('admin_band_edit', ['id' => $band->getId()]);
         }
 
@@ -81,11 +84,11 @@ class BandController extends AbstractController
         ]);
     }
 
-    #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
+    #[Route('/{id}', name: 'delete', methods: ['POST', 'DELETE'])]
     public function delete(Request $request, Band $band): Response
     {
         $token = $request->request->get('_token');
-        if ($this->isCsrfTokenValid('delete' . $band->getId(), is_string($token) ? $token : null)) {
+        if ($this->isCsrfTokenValid('delete' . $band->getId(), \is_string($token) ? $token : null)) {
             $this->em->remove($band);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));

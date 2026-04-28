@@ -1,0 +1,31 @@
+{% block promotion_rule_widget %}
+    {% set count_row = form_row(form.count) %}
+    <div data-controller="promotion-rule">
+        {{ form_row(form.type, {attr: {'data-promotion-rule-target': 'typeSelect'}}) }}
+
+        <div data-promotion-rule-target="configBlock" data-config-type="cart_quantity">
+            {{ count_row|raw }}
+        </div>
+
+        <div data-promotion-rule-target="configBlock" data-config-type="nth_order">
+            {{ count_row|raw }}
+        </div>
+
+        <div data-promotion-rule-target="configBlock" data-config-type="item_total">
+            {{ form_row(form.amount) }}
+        </div>
+
+        <div data-promotion-rule-target="configBlock" data-config-type="contains_product">
+            {{ form_row(form.products) }}
+        </div>
+
+        <div data-promotion-rule-target="configBlock" data-config-type="customer_group">
+            {{ form_row(form.customerGroupCode) }}
+        </div>
+
+        <div data-promotion-rule-target="configBlock" data-config-type="total_of_items_from_taxon">
+            {{ form_row(form.taxonCode) }}
+            {{ form_row(form.taxonAmount) }}
+        </div>
+    </div>
+{% endblock %}

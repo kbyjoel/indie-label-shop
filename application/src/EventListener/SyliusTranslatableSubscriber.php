@@ -2,11 +2,11 @@
 
 namespace App\EventListener;
 
-use Sylius\Resource\Model\TranslatableInterface as SyliusTranslatableInterface;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
+use Sylius\Resource\Model\TranslatableInterface as SyliusTranslatableInterface;
 use Symfony\Component\DependencyInjection\Exception\ParameterNotFoundException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,7 +81,8 @@ class SyliusTranslatableSubscriber
 
         try {
             $locale = $this->parameterBag->get('kernel.default_locale');
-            return is_string($locale) ? $locale : null;
+
+            return \is_string($locale) ? $locale : null;
         } catch (ParameterNotFoundException|\InvalidArgumentException) {
             return null;
         }

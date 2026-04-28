@@ -5,12 +5,12 @@ namespace App\Form\Admin;
 use App\Entity\ShippingMethod;
 use App\Entity\ShippingMethodTranslation;
 use App\Entity\Zone;
+use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Aropixel\AdminBundle\Form\Type\SyliusTranslatableType;
 use Aropixel\AdminBundle\Form\Type\ToggleSwitchType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -55,8 +55,8 @@ class ShippingMethodType extends AbstractType
                 'required' => false,
                 'placeholder' => '— Aucun —',
                 'choices' => [
-                    'Tarif fixe'        => 'flat_rate',
-                    'Par unité'         => 'per_unit_rate',
+                    'Tarif fixe' => 'flat_rate',
+                    'Par unité' => 'per_unit_rate',
                     'Tranches de poids' => 'weight_range',
                 ],
             ])
@@ -96,7 +96,7 @@ class ShippingMethodType extends AbstractType
                     'Poids max' => 'max',
                     'Tarif' => 'amount',
                 ],
-//                'list_template' => 'admin/shipping_method/_brackets_collection.html.twig',
+                //                'list_template' => 'admin/shipping_method/_brackets_collection.html.twig',
             ])
         ;
 
@@ -108,15 +108,16 @@ class ShippingMethodType extends AbstractType
 
             $configuration = $method->getConfiguration();
 
-            if ($method->getCalculator() === 'weight_range') {
+            if ('weight_range' === $method->getCalculator()) {
                 $event->getForm()->get('brackets')->setData($configuration['brackets'] ?? []);
             }
 
             $amount = null;
-            if ($method->getCalculator() === 'flat_rate' || $method->getCalculator() === 'per_unit_rate') {
+            if ('flat_rate' === $method->getCalculator() || 'per_unit_rate' === $method->getCalculator()) {
                 foreach ($configuration as $channelConfig) {
-                    if (is_array($channelConfig) && isset($channelConfig['amount'])) {
+                    if (\is_array($channelConfig) && isset($channelConfig['amount'])) {
                         $amount = $channelConfig['amount'];
+
                         break;
                     }
                 }
@@ -125,10 +126,10 @@ class ShippingMethodType extends AbstractType
 
             $minWeight = $maxWeight = null;
             foreach ($method->getRules() as $rule) {
-                if ($rule->getType() === 'total_weight_greater_than_or_equal') {
+                if ('total_weight_greater_than_or_equal' === $rule->getType()) {
                     $minWeight = $rule->getConfiguration()['weight'] ?? null;
                 }
-                if ($rule->getType() === 'total_weight_less_than_or_equal') {
+                if ('total_weight_less_than_or_equal' === $rule->getType()) {
                     $maxWeight = $rule->getConfiguration()['weight'] ?? null;
                 }
             }
@@ -138,7 +139,7 @@ class ShippingMethodType extends AbstractType
 
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
             $data = $event->getData();
-            if (!isset($data['calculator']) || $data['calculator'] !== 'weight_range') {
+            if (!isset($data['calculator']) || 'weight_range' !== $data['calculator']) {
                 return;
             }
 

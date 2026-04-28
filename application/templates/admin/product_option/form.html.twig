@@ -11,16 +11,16 @@
 
 {% block header_breadcrumb %}
     {{ nav.breadcrumbs([
-        { label: 'text.home'|trans, url: url('_admin') },
-        { label: 'Options de produit', url: url('admin_product_option_index')  },
-        { label: is_edit ? 'Modification' : 'Ajout'  },
+        {label: 'text.home'|trans, url: url('_admin')},
+        {label: 'Options de produit', url: url('admin_product_option_index')},
+        {label: is_edit ? 'Modification' : 'Ajout'},
     ]) }}
 {% endblock %}
 
 {% block tabbable %}
     {{ forms.tabs([
-        { id: 'panel-tab-general', label: 'Général' },
-        { id: 'panel-tab-values', label: 'Valeurs' },
+        {id: 'panel-tab-general', label: 'Général'},
+        {id: 'panel-tab-values', label: 'Valeurs'},
     ]) }}
 {% endblock %}
 

@@ -30,26 +30,26 @@ class ShippingFixtures extends Fixture implements FixtureGroupInterface, Depende
                 'name' => 'Colissimo (France)',
                 'zone' => 'FR',
                 'calculator' => 'flat_rate',
-                'configuration' => ['amount' => 500]
+                'configuration' => ['amount' => 500],
             ],
             'colissimo_eu' => [
                 'name' => 'Colissimo (Europe)',
                 'zone' => 'EU',
                 'calculator' => 'flat_rate',
-                'configuration' => ['amount' => 1200]
+                'configuration' => ['amount' => 1200],
             ],
             'world' => [
                 'name' => 'International Shipping',
                 'zone' => 'WORLD',
                 'calculator' => 'flat_rate',
-                'configuration' => ['amount' => 2500]
+                'configuration' => ['amount' => 2500],
             ],
             'digital' => [
                 'name' => 'Digital Delivery',
                 'zone' => 'WORLD',
                 'calculator' => 'flat_rate',
-                'configuration' => ['amount' => 0]
-            ]
+                'configuration' => ['amount' => 0],
+            ],
         ];
 
         foreach ($shippingMethods as $code => $data) {

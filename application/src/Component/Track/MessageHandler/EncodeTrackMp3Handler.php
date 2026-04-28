@@ -65,8 +65,8 @@ class EncodeTrackMp3Handler
         }
 
         // Upload des fichiers
-        $previewFilename = pathinfo((string) $filename, PATHINFO_FILENAME) . '.mp3';
-        $waveformFilename = pathinfo((string) $filename, PATHINFO_FILENAME) . '.png';
+        $previewFilename = pathinfo((string) $filename, \PATHINFO_FILENAME) . '.mp3';
+        $waveformFilename = pathinfo((string) $filename, \PATHINFO_FILENAME) . '.png';
 
         // MP3
         $streamMp3 = fopen($tmpPreviewPath, 'r+');

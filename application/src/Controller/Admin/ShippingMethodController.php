@@ -4,10 +4,10 @@ namespace App\Controller\Admin;
 
 use App\Entity\Channel;
 use App\Entity\ShippingMethod;
+use App\Entity\ShippingMethodRule;
 use App\Form\Admin\ShippingMethodType;
 use Aropixel\AdminBundle\Component\DataTable\DataTableFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\ShippingMethodRule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route("/%admin_path%/shipping-method", name: "admin_shipping_method_")]
+#[Route('/%admin_path%/shipping-method', name: 'admin_shipping_method_')]
 class ShippingMethodController extends AbstractController
 {
     public function __construct(
@@ -24,7 +24,7 @@ class ShippingMethodController extends AbstractController
     ) {
     }
 
-    #[Route("/", name: "index", methods: ["GET"])]
+    #[Route('/', name: 'index', methods: ['GET'])]
     public function index(DataTableFactory $dataTableFactory): Response
     {
         return $dataTableFactory
@@ -41,22 +41,23 @@ class ShippingMethodController extends AbstractController
             ->searchIn(['name', 'code'])
             ->setOrderColumn(1)
             ->setOrderDirection('asc')
-            ->renderJson(fn(ShippingMethod $shippingMethod) => [
+            ->renderJson(fn (ShippingMethod $shippingMethod) => [
                 $this->renderView('admin/shipping_method/_link.html.twig', ['item' => $shippingMethod]),
                 $shippingMethod->getZone()?->getName() ?? '—',
                 match ($shippingMethod->getCalculator()) {
-                    'flat_rate'     => 'Tarif fixe',
+                    'flat_rate' => 'Tarif fixe',
                     'per_unit_rate' => 'Par unité',
-                    default         => '—',
+                    default => '—',
                 },
                 $this->formatWeightRange($shippingMethod),
                 $shippingMethod->isEnabled() ? 'Oui' : 'Non',
                 $this->renderView('admin/shipping_method/_actions.html.twig', ['item' => $shippingMethod]),
             ])
-            ->render('admin/shipping_method/index.html.twig');
+            ->render('admin/shipping_method/index.html.twig')
+        ;
     }
 
-    #[Route("/new", name: "new", methods: ["GET", "POST"])]
+    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $shippingMethod = new ShippingMethod();
@@ -70,6 +71,7 @@ class ShippingMethodController extends AbstractController
             $this->em->flush();
 
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+
             return $this->redirectToRoute('admin_shipping_method_edit', ['id' => $shippingMethod->getId()]);
         }
 
@@ -79,7 +81,7 @@ class ShippingMethodController extends AbstractController
         ]);
     }
 
-    #[Route("/{id}/edit", name: "edit", methods: ["GET", "POST"])]
+    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, ShippingMethod $shippingMethod): Response
     {
         $form = $this->createForm(ShippingMethodType::class, $shippingMethod);
@@ -90,6 +92,7 @@ class ShippingMethodController extends AbstractController
             $this->applyWeightRules($form, $shippingMethod);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+
             return $this->redirectToRoute('admin_shipping_method_edit', ['id' => $shippingMethod->getId()]);
         }
 
@@ -99,11 +102,11 @@ class ShippingMethodController extends AbstractController
         ]);
     }
 
-    #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
+    #[Route('/{id}', name: 'delete', methods: ['POST', 'DELETE'])]
     public function delete(Request $request, ShippingMethod $shippingMethod): Response
     {
         $token = $request->request->get('_token');
-        if ($this->isCsrfTokenValid('delete' . $shippingMethod->getId(), is_string($token) ? $token : null)) {
+        if ($this->isCsrfTokenValid('delete' . $shippingMethod->getId(), \is_string($token) ? $token : null)) {
             $this->em->remove($shippingMethod);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));
@@ -115,7 +118,7 @@ class ShippingMethodController extends AbstractController
     /** @param FormInterface<mixed> $form */
     private function applyConfiguration(FormInterface $form, ShippingMethod $shippingMethod): void
     {
-        if ($shippingMethod->getCalculator() === 'weight_range') {
+        if ('weight_range' === $shippingMethod->getCalculator()) {
             $brackets = $form->get('brackets')->getData() ?? [];
             $normalized = [];
             foreach ($brackets as $bracket) {
@@ -123,17 +126,18 @@ class ShippingMethodController extends AbstractController
                     continue;
                 }
                 $normalized[] = [
-                    'min'    => (int) $bracket['min'],
-                    'max'    => isset($bracket['max']) ? (int) $bracket['max'] : null,
+                    'min' => (int) $bracket['min'],
+                    'max' => isset($bracket['max']) ? (int) $bracket['max'] : null,
                     'amount' => (int) $bracket['amount'],
                 ];
             }
             $shippingMethod->setConfiguration(['brackets' => $normalized]);
+
             return;
         }
 
         $amount = $form->get('amount')->getData();
-        if ($amount === null) {
+        if (null === $amount) {
             return;
         }
 
@@ -155,7 +159,7 @@ class ShippingMethodController extends AbstractController
 
         $rulesToRemove = [];
         foreach ($shippingMethod->getRules() as $rule) {
-            if (in_array($rule->getType(), $weightRuleTypes, true)) {
+            if (\in_array($rule->getType(), $weightRuleTypes, true)) {
                 $rulesToRemove[] = $rule;
             }
         }
@@ -164,14 +168,14 @@ class ShippingMethodController extends AbstractController
         }
 
         // weight_range stores everything in configuration — no ShippingMethodRule needed
-        if ($shippingMethod->getCalculator() === 'weight_range') {
+        if ('weight_range' === $shippingMethod->getCalculator()) {
             return;
         }
 
         $minWeight = $form->get('minWeight')->getData();
         $maxWeight = $form->get('maxWeight')->getData();
 
-        if ($minWeight !== null) {
+        if (null !== $minWeight) {
             $rule = new ShippingMethodRule();
             $rule->setType('total_weight_greater_than_or_equal');
             $rule->setConfiguration(['weight' => (int) $minWeight]);
@@ -179,7 +183,7 @@ class ShippingMethodController extends AbstractController
             $this->em->persist($rule);
         }
 
-        if ($maxWeight !== null) {
+        if (null !== $maxWeight) {
             $rule = new ShippingMethodRule();
             $rule->setType('total_weight_less_than_or_equal');
             $rule->setConfiguration(['weight' => (int) $maxWeight]);
@@ -190,26 +194,27 @@ class ShippingMethodController extends AbstractController
 
     private function formatWeightRange(ShippingMethod $shippingMethod): string
     {
-        if ($shippingMethod->getCalculator() === 'weight_range') {
+        if ('weight_range' === $shippingMethod->getCalculator()) {
             $brackets = $shippingMethod->getConfiguration()['brackets'] ?? [];
-            $count = count($brackets);
+            $count = \count($brackets);
+
             return $count > 0 ? $count . ' tranche' . ($count > 1 ? 's' : '') : '—';
         }
 
         $min = $max = null;
         foreach ($shippingMethod->getRules() as $rule) {
-            if ($rule->getType() === 'total_weight_greater_than_or_equal') {
+            if ('total_weight_greater_than_or_equal' === $rule->getType()) {
                 $min = $rule->getConfiguration()['weight'] ?? null;
             }
-            if ($rule->getType() === 'total_weight_less_than_or_equal') {
+            if ('total_weight_less_than_or_equal' === $rule->getType()) {
                 $max = $rule->getConfiguration()['weight'] ?? null;
             }
         }
 
-        if ($min === null && $max === null) {
+        if (null === $min && null === $max) {
             return '—';
         }
 
-        return ($min ?? '0') . 'g – ' . ($max !== null ? $max . 'g' : '∞');
+        return ($min ?? '0') . 'g – ' . (null !== $max ? $max . 'g' : '∞');
     }
 }

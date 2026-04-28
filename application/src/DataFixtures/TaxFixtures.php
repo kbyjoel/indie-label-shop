@@ -35,7 +35,7 @@ class TaxFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 'rates' => [
                     'FR' => 0.20,
                     'EU' => 0.20,
-                ]
+                ],
             ],
             'reduced' => [
                 'name' => 'Taux Réduit (5.5%)',
@@ -44,7 +44,7 @@ class TaxFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 'merch' => false,
                 'rates' => [
                     'FR' => 0.055,
-                ]
+                ],
             ],
             'digital' => [
                 'name' => 'Taux Numérique (20%)',
@@ -54,8 +54,8 @@ class TaxFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 'rates' => [
                     'FR' => 0.20,
                     'EU' => 0.20,
-                ]
-            ]
+                ],
+            ],
         ];
 
         foreach ($taxCategories as $code => $data) {
@@ -72,7 +72,7 @@ class TaxFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 $rate = new TaxRate();
                 $rate->setCode($code . '_' . $zoneCode);
                 $rate->setName($data['name'] . ' - ' . $zoneCode);
-                $rate->setAmount((float)$amount);
+                $rate->setAmount((float) $amount);
                 $rate->setIncludedInPrice(true);
                 $rate->setCalculator('default');
                 $rate->setCategory($category);

@@ -10,16 +10,16 @@
 
 {% block header_breadcrumb %}
     {{ nav.breadcrumbs([
-        { label: 'text.home'|trans, url: url('_admin') },
-        { label: 'Product'|trans, url: path('admin_product_index') },
-        { label: (product.id ? 'text.edit'|trans : 'text.add'|trans) }
+        {label: 'text.home'|trans, url: url('_admin')},
+        {label: 'Product'|trans, url: path('admin_product_index')},
+        {label: (product.id ? 'text.edit'|trans : 'text.add'|trans)},
     ]) }}
 {% endblock %}
 
 {% block tabbable %}
     {{ forms.tabs([
-        { id: 'panel-tab-general', label: 'Général' },
-        { id: 'panel-tab-variants', label: 'Déclinaisons' },
+        {id: 'panel-tab-general', label: 'Général'},
+        {id: 'panel-tab-variants', label: 'Déclinaisons'},
     ]) }}
 {% endblock %}
 

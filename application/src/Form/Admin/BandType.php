@@ -22,43 +22,42 @@ class BandType extends AbstractType
             ->add('status', HiddenType::class)
             ->add('slug', HiddenType::class)
             ->add('name', TextType::class, [
-                'label'  => 'Nom',
-                'required' => true
+                'label' => 'Nom',
+                'required' => true,
             ])
             ->add('website', TextType::class, [
-                'label'  => 'Site Web',
-                'required' => false
+                'label' => 'Site Web',
+                'required' => false,
             ])
             ->add('email', TextType::class, [
-                'label'  => 'Email',
-                'required' => false
+                'label' => 'Email',
+                'required' => false,
             ])
             ->add('facebook', TextType::class, [
-                'label'  => 'Facebook',
-                'required' => false
+                'label' => 'Facebook',
+                'required' => false,
             ])
             ->add('twitter', TextType::class, [
-                'label'  => 'X',
-                'required' => false
+                'label' => 'X',
+                'required' => false,
             ])
             ->add('instagram', TextType::class, [
-                'label'  => 'Instagram',
-                'required' => false
+                'label' => 'Instagram',
+                'required' => false,
             ])
             ->add('description', TranslatableType::class, [
-                'label'  => 'Description',
+                'label' => 'Description',
                 'required' => false,
                 'personal_translation' => BandTranslation::class,
-                'property_path'        => 'translations',
+                'property_path' => 'translations',
                 'widget' => EditorType::class,
             ])
             ->add('image', ImageType::class, [
-                'label'  => 'Image',
+                'label' => 'Image',
                 'data_class' => BandImage::class,
                 'crop_class' => BandImageCrop::class,
-                'required' => false
+                'required' => false,
             ])
         ;
     }
-
 }

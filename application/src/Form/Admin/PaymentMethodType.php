@@ -88,10 +88,10 @@ class PaymentMethodType extends AbstractType
             $credentials = $paymentMethod->getCredentials() ?? [];
             $form = $event->getForm();
 
-            if ($paymentMethod->getGatewayType() === 'stripe') {
+            if ('stripe' === $paymentMethod->getGatewayType()) {
                 $form->get('stripePublishableKey')->setData($credentials['publishable_key'] ?? null);
                 $form->get('stripeSecretKey')->setData($credentials['secret_key'] ?? null);
-            } elseif ($paymentMethod->getGatewayType() === 'paypal') {
+            } elseif ('paypal' === $paymentMethod->getGatewayType()) {
                 $form->get('paypalClientId')->setData($credentials['client_id'] ?? null);
                 $form->get('paypalSecret')->setData($credentials['secret'] ?? null);
                 $form->get('paypalMode')->setData($credentials['mode'] ?? 'sandbox');

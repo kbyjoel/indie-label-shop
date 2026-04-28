@@ -166,7 +166,7 @@ function builder(#[AsRawTokens] array $params = []): int
 
     $c = context()->withEnvironment($_ENV + $_SERVER);
 
-    if (stream_isatty(STDIN)) {
+    if (stream_isatty(\STDIN)) {
         $c = $c->toInteractive();
     }
 

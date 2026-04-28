@@ -5,10 +5,10 @@ namespace App\Command;
 use App\Entity\Album;
 use App\Entity\Artist;
 use App\Entity\Band;
+use App\Entity\Media;
 use App\Entity\Release;
 use App\Entity\Track;
 use App\Entity\Tracklist;
-use App\Entity\Media;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -64,7 +64,7 @@ class ImportLegacyDataCommand extends Command
         $legacyArtists = $stmt->executeQuery()->fetchAllAssociative();
 
         foreach ($legacyArtists as $legacyArtist) {
-            $io->writeln(sprintf('Processing Artist: %s %s', $legacyArtist['prenom'], $legacyArtist['nom']));
+            $io->writeln(\sprintf('Processing Artist: %s %s', $legacyArtist['prenom'], $legacyArtist['nom']));
 
             $artist = new Artist();
             $artist->setFirstName($legacyArtist['prenom']);
@@ -91,7 +91,7 @@ class ImportLegacyDataCommand extends Command
         $legacyBands = $stmt->executeQuery()->fetchAllAssociative();
 
         foreach ($legacyBands as $legacyBand) {
-            $io->writeln(sprintf('Processing Band: %s', $legacyBand['nom']));
+            $io->writeln(\sprintf('Processing Band: %s', $legacyBand['nom']));
 
             $band = new Band();
             $band->setName($legacyBand['nom']);
@@ -107,8 +107,12 @@ class ImportLegacyDataCommand extends Command
 
             foreach ($translations as $translation) {
                 $locale = $translation['lang'];
-                if ($locale === 'fr') $locale = 'fr_FR';
-                if ($locale === 'en' || $locale === 'uk') $locale = 'en_GB';
+                if ('fr' === $locale) {
+                    $locale = 'fr_FR';
+                }
+                if ('en' === $locale || 'uk' === $locale) {
+                    $locale = 'en_GB';
+                }
 
                 $band->setTranslatableLocale($locale);
                 $band->setDescription($translation['fiche']);
@@ -151,7 +155,7 @@ class ImportLegacyDataCommand extends Command
         $legacyAlbums = $stmt->executeQuery()->fetchAllAssociative();
 
         foreach ($legacyAlbums as $legacyAlbum) {
-            $io->writeln(sprintf('Processing Album: %s', $legacyAlbum['titre']));
+            $io->writeln(\sprintf('Processing Album: %s', $legacyAlbum['titre']));
 
             // On vérifie si l'album existe déjà pour ne pas le recréer
             // (Utile si on relance la commande)
@@ -260,13 +264,13 @@ class ImportLegacyDataCommand extends Command
         $legacySupports = $stmt->executeQuery()->fetchAllAssociative();
 
         foreach ($legacySupports as $legacySupport) {
-            $io->writeln(sprintf('Processing Media: %s', $legacySupport['libelle']));
+            $io->writeln(\sprintf('Processing Media: %s', $legacySupport['libelle']));
 
             $media = $this->entityManager->getRepository(Media::class)->findOneBy(['name' => $legacySupport['libelle']]);
             if (!$media) {
                 $media = new Media();
                 $media->setName($legacySupport['libelle']);
-                $media->setIsDigital($legacySupport['digital_id'] !== null);
+                $media->setIsDigital(null !== $legacySupport['digital_id']);
                 $this->entityManager->persist($media);
             }
         }
@@ -284,7 +288,7 @@ class ImportLegacyDataCommand extends Command
         $legacyFormats = $stmt->executeQuery()->fetchAllAssociative();
 
         foreach ($legacyFormats as $legacyFormat) {
-            $io->writeln(sprintf('Processing Release: %s', $legacyFormat['titre']));
+            $io->writeln(\sprintf('Processing Release: %s', $legacyFormat['titre']));
 
             // Resolve Album
             $albumTitle = $conn->executeQuery('SELECT titre FROM albums WHERE id = :id', ['id' => $legacyFormat['album_id']])->fetchOne();
@@ -299,7 +303,7 @@ class ImportLegacyDataCommand extends Command
                 $release->setAlbum($album);
                 $release->setMedia($media);
                 $release->setTitle($legacyFormat['titre']);
-                $release->setPrice((int)$legacyFormat['prix']);
+                $release->setPrice((int) $legacyFormat['prix']);
                 $release->setStatus($legacyFormat['status']);
 
                 $this->entityManager->persist($release);
@@ -319,7 +323,7 @@ class ImportLegacyDataCommand extends Command
         $legacyTracks = $stmt->executeQuery()->fetchAllAssociative();
 
         foreach ($legacyTracks as $legacyTrack) {
-            $io->writeln(sprintf('Processing Track: %s', $legacyTrack['titre1']));
+            $io->writeln(\sprintf('Processing Track: %s', $legacyTrack['titre1']));
 
             $track = $this->entityManager->getRepository(Track::class)->findOneBy(['name' => $legacyTrack['titre1']]);
             if (!$track) {
@@ -360,14 +364,14 @@ class ImportLegacyDataCommand extends Command
             if ($album && $track) {
                 $tracklist = $this->entityManager->getRepository(Tracklist::class)->findOneBy([
                     'album' => $album,
-                    'track' => $track
+                    'track' => $track,
                 ]);
 
                 if (!$tracklist) {
                     $tracklist = new Tracklist();
                     $tracklist->setAlbum($album);
                     $tracklist->setTrack($track);
-                    $tracklist->setPosition((int)$relation['position']);
+                    $tracklist->setPosition((int) $relation['position']);
                     $this->entityManager->persist($tracklist);
                 }
             }
@@ -385,7 +389,9 @@ class ImportLegacyDataCommand extends Command
 
             // Get new Release and Track
             $formatData = $conn->executeQuery('SELECT titre, album_id FROM formats WHERE id = :id', ['id' => $legacyFormatId])->fetchAssociative();
-            if (!$formatData) continue;
+            if (!$formatData) {
+                continue;
+            }
 
             $release = $this->entityManager->getRepository(Release::class)->findOneBy(['title' => $formatData['titre']]);
 
@@ -400,14 +406,14 @@ class ImportLegacyDataCommand extends Command
                 $album = $release->getAlbum();
                 $tracklist = $this->entityManager->getRepository(Tracklist::class)->findOneBy([
                     'album' => $album,
-                    'track' => $track
+                    'track' => $track,
                 ]);
 
                 if (!$tracklist) {
                     $tracklist = new Tracklist();
                     $tracklist->setAlbum($album);
                     $tracklist->setTrack($track);
-                    $tracklist->setPosition((int)$relation['position']);
+                    $tracklist->setPosition((int) $relation['position']);
                     $this->entityManager->persist($tracklist);
                 }
 

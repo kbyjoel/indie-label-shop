@@ -38,7 +38,7 @@ class PromotionCoupon extends BasePromotionCoupon
     protected $createdAt;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    protected $updatedAt = null;
+    protected $updatedAt;
 
     #[ORM\ManyToOne(targetEntity: Promotion::class, inversedBy: 'coupons')]
     #[ORM\JoinColumn(name: 'promotion_id', referencedColumnName: 'id', nullable: false)]

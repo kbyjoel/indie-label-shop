@@ -1,0 +1,35 @@
+{% block promotion_action_widget %}
+    {% set percentage_row = form_row(form.percentage) %}
+    {% set amount_row = form_row(form.amount) %}
+    <div data-controller="promotion-action">
+        {{ form_row(form.type, {attr: {'data-promotion-action-target': 'typeSelect'}}) }}
+
+        <div data-promotion-action-target="configBlock" data-config-type="order_percentage_discount">
+            {{ percentage_row|raw }}
+        </div>
+
+        <div data-promotion-action-target="configBlock" data-config-type="item_percentage_discount">
+            {{ percentage_row|raw }}
+        </div>
+
+        <div data-promotion-action-target="configBlock" data-config-type="shipping_percentage_discount">
+            {{ percentage_row|raw }}
+        </div>
+
+        <div data-promotion-action-target="configBlock" data-config-type="unit_percentage_discount">
+            {{ percentage_row|raw }}
+        </div>
+
+        <div data-promotion-action-target="configBlock" data-config-type="order_fixed_discount">
+            {{ amount_row|raw }}
+        </div>
+
+        <div data-promotion-action-target="configBlock" data-config-type="item_fixed_discount">
+            {{ amount_row|raw }}
+        </div>
+
+        <div data-promotion-action-target="configBlock" data-config-type="unit_fixed_discount">
+            {{ amount_row|raw }}
+        </div>
+    </div>
+{% endblock %}

@@ -22,35 +22,24 @@ use App\Entity\ProductOptionValueTranslation;
 use App\Entity\ProductTranslation;
 use App\Entity\ProductVariant;
 use App\Entity\Release;
+use App\Entity\TaxCategory;
 use App\Entity\Track;
 use App\Entity\Tracklist;
-use App\Entity\TaxCategory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
-use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
 class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface
 {
-    public function getDependencies(): array
-    {
-        return [
-            TaxFixtures::class,
-        ];
-    }
-
-    public static function getGroups(): array
-    {
-        return ['dev'];
-    }
     private const INDIE_BANDS = [
         'The Psychotic Monks', 'Lysistrata', 'Slift', 'Frustration', 'La Femme',
         'Flavien Berger', 'Bryan\'s Magic Tears', 'Decibelles', 'Johnny Mafia', 'Pogo Car Crash Control',
         'Petit Fantôme', 'Odezenne', 'Grand Blanc', 'Bagarrre', 'Agar Agar',
         'MNNQNS', 'Structures', 'Working Men\'s Club', 'Dry Cleaning', 'Squid',
         'Black Country, New Road', 'Porridge Radio', 'Crack Cloud', 'Bodega', 'The Murder Capital',
-        'Fontaines D.C.', 'Shame', 'IDLES', 'Viagra Boys', 'Preoccupations'
+        'Fontaines D.C.', 'Shame', 'IDLES', 'Viagra Boys', 'Preoccupations',
     ];
 
     private const MEDIA_NAMES = ['Vinyl 12"', 'CD', 'Cassette', 'Digital', 'Vinyl 7"'];
@@ -75,7 +64,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 'A3' => 'A3',
                 'A2' => 'A2',
                 '50x70' => '50x70',
-            ]
+            ],
         ],
         'color' => [
             'name' => 'Couleur',
@@ -85,9 +74,21 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 'BLUE' => 'Bleu',
                 'BLACK' => 'Noir',
                 'WHITE' => 'Blanc',
-            ]
-        ]
+            ],
+        ],
     ];
+
+    public function getDependencies(): array
+    {
+        return [
+            TaxFixtures::class,
+        ];
+    }
+
+    public static function getGroups(): array
+    {
+        return ['dev'];
+    }
 
     public function load(ObjectManager $manager): void
     {
@@ -102,15 +103,15 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
 
         // 5. Create default Locale (French)
         $locale = new Locale();
-        $locale->setCode("fr");
+        $locale->setCode('fr');
         $manager->persist($locale);
-        $this->addReference("locale_fr", $locale);
+        $this->addReference('locale_fr', $locale);
 
         // 6. Create default Currency (Euro)
         $currency = new Currency();
-        $currency->setCode("EUR");
+        $currency->setCode('EUR');
         $manager->persist($currency);
-        $this->addReference("currency_eur", $currency);
+        $this->addReference('currency_eur', $currency);
 
         // 1. Create Channel (Sylius needs it)
         $channel = new Channel();
@@ -160,14 +161,14 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
         foreach (self::MEDIA_NAMES as $name) {
             $media = new Media();
             $media->setName($name);
-            $media->setIsDigital($name === 'Digital');
+            $media->setIsDigital('Digital' === $name);
             $manager->persist($media);
             $medias[] = $media;
         }
 
         // 3. Create Artists
         $artists = [];
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 20; ++$i) {
             $artist = new Artist();
             $artist->setFirstName($faker->firstName);
             $artist->setLastName($faker->lastName);
@@ -191,7 +192,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
             $band->setWebsite($faker->url);
 
             // Add some random members
-            $randomArtistsIndices = (array) array_rand($artists, rand(1, min(4, count($artists))));
+            $randomArtistsIndices = (array) array_rand($artists, rand(1, min(4, \count($artists))));
             foreach ($randomArtistsIndices as $index) {
                 $band->addMember($artists[$index]);
             }
@@ -211,7 +212,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
         $allTracks = [];
         foreach ($bands as $band) {
             $numAlbums = rand(1, 2);
-            for ($i = 0; $i < $numAlbums; $i++) {
+            for ($i = 0; $i < $numAlbums; ++$i) {
                 $album = new Album();
                 $album->setCurrentLocale('fr');
                 $album->setFallbackLocale('fr');
@@ -226,7 +227,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 $album->setCatalogNumber('CAT-' . $faker->unique()->numberBetween(1000, 99999));
 
                 // Add some artists to the album
-                $albumArtistsIndices = (array) array_rand($artists, rand(1, min(3, count($artists))));
+                $albumArtistsIndices = (array) array_rand($artists, rand(1, min(3, \count($artists))));
                 foreach ($albumArtistsIndices as $index) {
                     $album->addArtist($artists[$index]);
                 }
@@ -236,7 +237,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 // Tracks for the album
                 $numTracks = rand(8, 12);
                 $tracks = [];
-                for ($j = 1; $j <= $numTracks; $j++) {
+                for ($j = 1; $j <= $numTracks; ++$j) {
                     $track = new Track();
                     $track->setCurrentLocale('fr');
                     $track->setFallbackLocale('fr');
@@ -245,7 +246,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                     $track->setName($trackTitle);
                     $track->setCode($album->getCode() . '_TRK_' . $j);
                     $track->setPosition($j);
-                    $track->setDuration(rand(2, 5) . ':' . sprintf('%02d', rand(0, 59)));
+                    $track->setDuration(rand(2, 5) . ':' . \sprintf('%02d', rand(0, 59)));
                     $track->setTaxCategory($taxTrack);
                     $track->setProduct($album);
                     $manager->persist($track);
@@ -264,7 +265,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 $shuffledMedias = $medias;
                 shuffle($shuffledMedias);
 
-                for ($k = 0; $k < $numReleases; $k++) {
+                for ($k = 0; $k < $numReleases; ++$k) {
                     $release = new Release();
                     $release->setCurrentLocale('fr');
                     $release->setFallbackLocale('fr');
@@ -296,7 +297,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
             $merchTypes = array_keys(self::MERCH_TYPES);
             shuffle($merchTypes);
 
-            for ($i = 0; $i < $numMerch; $i++) {
+            for ($i = 0; $i < $numMerch; ++$i) {
                 $type = $merchTypes[$i];
                 $config = self::MERCH_TYPES[$type];
 
@@ -344,9 +345,13 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                     foreach ($variantsValues as $values) {
                         foreach ($option->getValues() as $value) {
                             // Filter sizes for T-shirts/Hoodies vs Posters
-                            if ($option->getCode() === 'size') {
-                                if (in_array($type, ['T-shirt', 'Hoodie']) && !in_array($value->getCode(), ['S', 'M', 'L', 'XL', 'XXL'])) continue;
-                                if ($type === 'Poster' && !in_array($value->getCode(), ['A3', 'A2', '50x70'])) continue;
+                            if ('size' === $option->getCode()) {
+                                if (\in_array($type, ['T-shirt', 'Hoodie']) && !\in_array($value->getCode(), ['S', 'M', 'L', 'XL', 'XXL'])) {
+                                    continue;
+                                }
+                                if ('Poster' === $type && !\in_array($value->getCode(), ['A3', 'A2', '50x70'])) {
+                                    continue;
+                                }
                             }
                             $newVariantsValues[] = array_merge($values, [$value]);
                         }
@@ -360,8 +365,8 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                     $variant->setFallbackLocale('fr');
                     $variant->setProduct($product);
 
-                    $valCodes = array_map(fn($v) => $v->getCode(), $values);
-                    $valNames = array_map(fn($v) => $v->getValue(), $values);
+                    $valCodes = array_map(fn ($v) => $v->getCode(), $values);
+                    $valNames = array_map(fn ($v) => $v->getValue(), $values);
 
                     $variant->setCode($productCode . '_' . implode('_', $valCodes));
                     $variant->setName(implode(' ', $valNames));
@@ -378,7 +383,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
         }
 
         // 7. Create Customers & Orders
-        for ($i = 0; $i < 15; $i++) {
+        for ($i = 0; $i < 15; ++$i) {
             $customer = new Customer();
             $customer->setFirstName($faker->firstName);
             $customer->setLastName($faker->lastName);
@@ -387,7 +392,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
 
             // Create 1-3 orders per customer
             $numOrders = rand(1, 3);
-            for ($j = 0; $j < $numOrders; $j++) {
+            for ($j = 0; $j < $numOrders; ++$j) {
                 $order = new Order();
                 $order->setCustomer($customer);
                 $order->setChannel($channel);
@@ -412,7 +417,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 $numItems = rand(1, 4);
                 $totalOrder = 0;
 
-                for ($k = 0; $k < $numItems; $k++) {
+                for ($k = 0; $k < $numItems; ++$k) {
                     $allAvailableVariants = array_merge($allMerchVariants, $allReleases, $allTracks);
                     $item = new OrderItem();
                     $order->addItem($item);

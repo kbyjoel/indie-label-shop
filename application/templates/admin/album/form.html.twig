@@ -5,7 +5,6 @@
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
 {% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
 
-
 {% set is_edit = album.id is not null %}
 {% set title = is_edit ? 'Modifier l\'album : ' ~ album.name : 'Ajouter un album' %}
 
@@ -15,19 +14,19 @@
 
 {% block header_breadcrumb %}
     {{ nav.breadcrumbs([
-        { label: 'text.home', url: url('_admin') },
-        { label: 'Albums', url: url('admin_album_index')  },
-        { label: is_edit ? 'Modification' : 'Ajout'  },
+        {label: 'text.home', url: url('_admin')},
+        {label: 'Albums', url: url('admin_album_index')},
+        {label: is_edit ? 'Modification' : 'Ajout'},
     ]) }}
 {% endblock %}
 
 {% block tabbable %}
     {{ forms.tabs([
-        { id: 'panel-tab-general', label: 'Général' },
-        { id: 'panel-tab-description', label: 'Description' },
-        { id: 'panel-tab-tracks', label: 'Tracks' },
-        { id: 'panel-tab-releases', label: 'Releases' },
-        { id: 'panel-tab-relations', label: 'Relations' },
+        {id: 'panel-tab-general', label: 'Général'},
+        {id: 'panel-tab-description', label: 'Description'},
+        {id: 'panel-tab-tracks', label: 'Tracks'},
+        {id: 'panel-tab-releases', label: 'Releases'},
+        {id: 'panel-tab-relations', label: 'Relations'},
     ]) }}
 {% endblock %}
 

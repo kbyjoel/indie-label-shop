@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Aropixel
  * Date: 08/03/2026
- * Time: 21:30
+ * Time: 21:30.
  */
 
 namespace App\Entity;
@@ -16,30 +17,30 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'indie_album_image_crop')]
 class AlbumImageCrop extends Crop
 {
+    #[ORM\ManyToOne(targetEntity: AlbumImage::class, inversedBy: 'crops')]
+    protected ?AlbumImage $image = null;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     /** @phpstan-ignore property.unusedType */
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: AlbumImage::class, inversedBy: "crops")]
-    protected ?AlbumImage $image = null;
-
-    public function getId() : ?int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setImage(?AlbumImage $image = null) : self
+    public function setImage(?AlbumImage $image = null): self
     {
         $this->image = $image;
 
         return $this;
     }
 
-    public function getImage() : AttachedImageInterface
+    public function getImage(): AttachedImageInterface
     {
-        assert($this->image !== null);
+        \assert(null !== $this->image);
+
         return $this->image;
     }
 }

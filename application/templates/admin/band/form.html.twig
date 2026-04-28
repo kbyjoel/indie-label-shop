@@ -12,16 +12,16 @@
 
 {% block header_breadcrumb %}
     {{ nav.breadcrumbs([
-        { label: 'text.home', url: url('_admin') },
-        { label: 'Groupes', url: url('admin_band_index')  },
-        { label: is_edit ? 'Modification' : 'Ajout'  },
+        {label: 'text.home', url: url('_admin')},
+        {label: 'Groupes', url: url('admin_band_index')},
+        {label: is_edit ? 'Modification' : 'Ajout'},
     ]) }}
 {% endblock %}
 
 {% block tabbable %}
     {{ forms.tabs([
-        { id: 'panel-tab-artist', label: 'Groupe' },
-        { id: 'panel-tab-socials', label: 'Réseaux sociaux' },
+        {id: 'panel-tab-artist', label: 'Groupe'},
+        {id: 'panel-tab-socials', label: 'Réseaux sociaux'},
     ]) }}
 {% endblock %}
 {% block mainPanel %}

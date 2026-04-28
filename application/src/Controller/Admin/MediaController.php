@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route("/%admin_path%/media", name: "admin_media_")]
+#[Route('/%admin_path%/media', name: 'admin_media_')]
 class MediaController extends AbstractController
 {
     public function __construct(
@@ -21,7 +21,7 @@ class MediaController extends AbstractController
     ) {
     }
 
-    #[Route("/", name: "index", methods: ["GET", "POST"])]
+    #[Route('/', name: 'index', methods: ['GET', 'POST'])]
     public function index(DataTableFactory $dataTableFactory): Response
     {
         return $dataTableFactory
@@ -32,15 +32,16 @@ class MediaController extends AbstractController
                 ['label' => '', 'field' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['id', 'name'])
-            ->renderJson(fn(Media $media) => [
+            ->renderJson(fn (Media $media) => [
                 $this->renderView('admin/media/_link.html.twig', ['item' => $media]),
                 $this->renderView('admin/media/_is_digital.html.twig', ['item' => $media]),
                 $this->renderView('admin/media/_actions.html.twig', ['item' => $media]),
             ])
-            ->render('admin/media/index.html.twig');
+            ->render('admin/media/index.html.twig')
+        ;
     }
 
-    #[Route("/new", name: "new", methods: ["GET", "POST"])]
+    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $media = new Media();
@@ -52,6 +53,7 @@ class MediaController extends AbstractController
             $this->em->flush();
 
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+
             return $this->redirectToRoute('admin_media_edit', ['id' => $media->getId()]);
         }
 
@@ -61,7 +63,7 @@ class MediaController extends AbstractController
         ]);
     }
 
-    #[Route("/{id}/edit", name: "edit", methods: ["GET", "POST"])]
+    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Media $media): Response
     {
         $form = $this->createForm(MediaType::class, $media);
@@ -70,6 +72,7 @@ class MediaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+
             return $this->redirectToRoute('admin_media_edit', ['id' => $media->getId()]);
         }
 
@@ -79,11 +82,11 @@ class MediaController extends AbstractController
         ]);
     }
 
-    #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
+    #[Route('/{id}', name: 'delete', methods: ['POST', 'DELETE'])]
     public function delete(Request $request, Media $media): Response
     {
         $token = $request->request->get('_token');
-        if ($this->isCsrfTokenValid('delete' . $media->getId(), is_string($token) ? $token : null)) {
+        if ($this->isCsrfTokenValid('delete' . $media->getId(), \is_string($token) ? $token : null)) {
             $this->em->remove($media);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));

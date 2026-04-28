@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route("/%admin_path%/product-option", name: "admin_product_option_")]
+#[Route('/%admin_path%/product-option', name: 'admin_product_option_')]
 class ProductOptionController extends AbstractController
 {
     public function __construct(
@@ -22,7 +22,7 @@ class ProductOptionController extends AbstractController
     ) {
     }
 
-    #[Route("/", name: "index", methods: ["GET"])]
+    #[Route('/', name: 'index', methods: ['GET'])]
     public function index(DataTableFactory $dataTableFactory): Response
     {
         return $dataTableFactory
@@ -35,16 +35,17 @@ class ProductOptionController extends AbstractController
                 ['label' => '', 'field' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['id', 'code'])
-            ->renderJson(fn(ProductOption $productOption) => [
+            ->renderJson(fn (ProductOption $productOption) => [
                 $this->renderView('admin/product_option/_link.html.twig', ['item' => $productOption]),
                 $productOption->getCode(),
                 $productOption->getPosition(),
                 $this->renderView('admin/product_option/_actions.html.twig', ['item' => $productOption]),
             ])
-            ->render('admin/product_option/index.html.twig');
+            ->render('admin/product_option/index.html.twig')
+        ;
     }
 
-    #[Route("/new", name: "new", methods: ["GET", "POST"])]
+    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $productOption = new ProductOption();
@@ -56,6 +57,7 @@ class ProductOptionController extends AbstractController
             $this->em->flush();
 
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+
             return $this->redirectToRoute('admin_product_option_edit', ['id' => $productOption->getId()]);
         }
 
@@ -65,7 +67,7 @@ class ProductOptionController extends AbstractController
         ]);
     }
 
-    #[Route("/{id}/edit", name: "edit", methods: ["GET", "POST"])]
+    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, ProductOption $productOption): Response
     {
         $form = $this->createForm(ProductOptionType::class, $productOption);
@@ -74,6 +76,7 @@ class ProductOptionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+
             return $this->redirectToRoute('admin_product_option_edit', ['id' => $productOption->getId()]);
         }
 
@@ -83,11 +86,11 @@ class ProductOptionController extends AbstractController
         ]);
     }
 
-    #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
+    #[Route('/{id}', name: 'delete', methods: ['POST', 'DELETE'])]
     public function delete(Request $request, ProductOption $productOption): Response
     {
         $token = $request->request->get('_token');
-        if ($this->isCsrfTokenValid('delete' . $productOption->getId(), is_string($token) ? $token : null)) {
+        if ($this->isCsrfTokenValid('delete' . $productOption->getId(), \is_string($token) ? $token : null)) {
             $this->em->remove($productOption);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));
@@ -96,15 +99,16 @@ class ProductOptionController extends AbstractController
         return $this->redirectToRoute('admin_product_option_index');
     }
 
-    #[Route("/select2", name: "select2", methods: ["GET"])]
+    #[Route('/select2', name: 'select2', methods: ['GET'])]
     public function select2(Select2 $select2): Response
     {
         return $select2
             ->withEntity(ProductOption::class)
             ->searchIn(['name'])
-            ->render(fn(ProductOption $po) => [
+            ->render(fn (ProductOption $po) => [
                 $po->getId(),
                 $po->getName(),
-            ]);
+            ])
+        ;
     }
 }

@@ -3,8 +3,6 @@
 namespace App\DataFixtures;
 
 use App\Entity\Country;
-use App\Entity\Currency;
-use App\Entity\Locale;
 use App\Entity\Zone;
 use App\Entity\ZoneMember;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -37,7 +35,7 @@ class BaseFixtures extends Fixture implements FixtureGroupInterface
                 'name' => 'Reste du monde',
                 'type' => 'country',
                 'members' => [], // Empty by default or all others
-            ]
+            ],
         ];
 
         // 2. Collect all member codes from zones to enable them

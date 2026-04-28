@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[Route("/%admin_path%/zone", name: "admin_zone_")]
+#[Route('/%admin_path%/zone', name: 'admin_zone_')]
 class ZoneController extends AbstractController
 {
     public function __construct(
@@ -22,7 +22,7 @@ class ZoneController extends AbstractController
     ) {
     }
 
-    #[Route("/", name: "index", methods: ["GET"])]
+    #[Route('/', name: 'index', methods: ['GET'])]
     public function index(DataTableFactory $dataTableFactory): Response
     {
         return $dataTableFactory
@@ -34,7 +34,7 @@ class ZoneController extends AbstractController
                 ['label' => '', 'orderBy' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['name', 'code']) // TODO: Add other searchable fields here
-            ->renderJson(fn(Zone $zone) => [
+            ->renderJson(fn (Zone $zone) => [
                 $this->renderView('admin/zone/_link.html.twig', ['item' => $zone]),
                 $zone->getCode(),
                 match ($zone->getType()) {
@@ -46,10 +46,11 @@ class ZoneController extends AbstractController
                 // TODO: Add other fields here
                 $this->renderView('admin/zone/_actions.html.twig', ['item' => $zone]),
             ])
-            ->render('admin/zone/index.html.twig');
+            ->render('admin/zone/index.html.twig')
+        ;
     }
 
-    #[Route("/new", name: "new", methods: ["GET", "POST"])]
+    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $zone = new Zone();
@@ -61,6 +62,7 @@ class ZoneController extends AbstractController
             $this->em->flush();
 
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+
             return $this->redirectToRoute('admin_zone_edit', ['id' => $zone->getId()]);
         }
 
@@ -70,7 +72,7 @@ class ZoneController extends AbstractController
         ]);
     }
 
-    #[Route("/{id}/edit", name: "edit", methods: ["GET", "POST"])]
+    #[Route('/{id}/edit', name: 'edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Zone $zone): Response
     {
         $form = $this->createForm(ZoneType::class, $zone);
@@ -79,6 +81,7 @@ class ZoneController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.saved'));
+
             return $this->redirectToRoute('admin_zone_edit', ['id' => $zone->getId()]);
         }
 
@@ -88,11 +91,11 @@ class ZoneController extends AbstractController
         ]);
     }
 
-    #[Route("/{id}", name: "delete", methods: ["POST", "DELETE"])]
+    #[Route('/{id}', name: 'delete', methods: ['POST', 'DELETE'])]
     public function delete(Request $request, Zone $zone): Response
     {
         $token = $request->request->get('_token');
-        if ($this->isCsrfTokenValid('delete' . $zone->getId(), is_string($token) ? $token : null)) {
+        if ($this->isCsrfTokenValid('delete' . $zone->getId(), \is_string($token) ? $token : null)) {
             $this->em->remove($zone);
             $this->em->flush();
             $this->addFlash('notice', $this->translator->trans('generic.flash.deleted'));
@@ -101,16 +104,16 @@ class ZoneController extends AbstractController
         return $this->redirectToRoute('admin_zone_index');
     }
 
-
-    #[Route("/select2", name: "select2", methods: ["GET"])]
+    #[Route('/select2', name: 'select2', methods: ['GET'])]
     public function select2(Select2 $select2): Response
     {
         return $select2
             ->withEntity(Zone::class)
             ->searchIn(['name', 'code'])
-            ->render(fn(Zone $zone) => [
+            ->render(fn (Zone $zone) => [
                 'id' => $zone->getCode(),
                 'text' => $zone->getName(),
-            ]);
+            ])
+        ;
     }
 }

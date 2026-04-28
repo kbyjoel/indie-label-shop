@@ -12,13 +12,6 @@ use Sylius\Component\Product\Model\ProductOptionValueTranslationInterface;
 #[ORM\Table(name: 'sylius_product_option_value')]
 class ProductOptionValue extends BaseProductOptionValue
 {
-    public function __construct()
-    {
-        parent::__construct();
-        $this->setCurrentLocale('fr');
-        $this->setFallbackLocale('fr');
-    }
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -33,6 +26,13 @@ class ProductOptionValue extends BaseProductOptionValue
 
     #[ORM\OneToMany(mappedBy: 'translatable', targetEntity: ProductOptionValueTranslation::class, cascade: ['all'], fetch: 'EAGER', orphanRemoval: true, indexBy: 'locale')]
     protected $translations;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setCurrentLocale('fr');
+        $this->setFallbackLocale('fr');
+    }
 
     public function getName(): ?string
     {

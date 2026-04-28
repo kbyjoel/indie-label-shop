@@ -10,8 +10,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Translatable\Translatable;
-use Sylius\Component\Core\Model\Product as BaseProduct;
-use Sylius\Component\Product\Model\ProductTranslationInterface;
 
 #[ORM\Entity(repositoryClass: AlbumRepository::class)]
 #[ORM\Table(name: 'indie_album')]
@@ -19,6 +17,12 @@ use Sylius\Component\Product\Model\ProductTranslationInterface;
 class Album extends Product implements Translatable
 {
     use PublishableTrait;
+
+    /**
+     * @var Collection<int, AlbumTranslation>
+     */
+    #[ORM\OneToMany(targetEntity: AlbumTranslation::class, mappedBy: 'object', cascade: ['persist', 'remove'])]
+    protected ?Collection $albumTranslations = null;
 
     #[Gedmo\Slug(fields: ['title'])]
     #[ORM\Column(length: 255)]
@@ -39,12 +43,6 @@ class Album extends Product implements Translatable
     #[Gedmo\Translatable]
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
-
-    /**
-     * @var Collection<int, AlbumTranslation>
-     */
-    #[ORM\OneToMany(targetEntity: AlbumTranslation::class, mappedBy: 'object', cascade: ['persist', 'remove'])]
-    protected ?Collection $albumTranslations = null;
 
     /** @phpstan-ignore property.onlyWritten */
     private ?string $translatableLocale = null;
@@ -187,7 +185,7 @@ class Album extends Product implements Translatable
         return $this->similarAlbums ?? new ArrayCollection();
     }
 
-    public function addSimilarAlbum(Album $similarAlbum): static
+    public function addSimilarAlbum(self $similarAlbum): static
     {
         if ($this->similarAlbums && !$this->similarAlbums->contains($similarAlbum)) {
             $this->similarAlbums->add($similarAlbum);
@@ -196,7 +194,7 @@ class Album extends Product implements Translatable
         return $this;
     }
 
-    public function removeSimilarAlbum(Album $similarAlbum): static
+    public function removeSimilarAlbum(self $similarAlbum): static
     {
         $this->similarAlbums?->removeElement($similarAlbum);
 
@@ -233,8 +231,7 @@ class Album extends Product implements Translatable
     public function getReleases(): Collection
     {
         /** @var Collection<int, Release> $releases */
-        $releases = $this->getVariants()->filter(fn($variant) => $variant instanceof Release);
-        return $releases;
+        return $this->getVariants()->filter(fn ($variant) => $variant instanceof Release);
     }
 
     public function addRelease(Release $release): static
@@ -292,12 +289,13 @@ class Album extends Product implements Translatable
 
     public function setArtwork(?AlbumImage $artwork): self
     {
-        if ($artwork === null || $artwork->getImage() === null) {
+        if (null === $artwork || null === $artwork->getImage()) {
             $this->artwork = null;
         } else {
             $this->artwork = $artwork;
             $this->artwork->setAlbum($this);
         }
+
         return $this;
     }
 }

@@ -11,9 +11,9 @@
 
 {% block header_breadcrumb %}
     {{ nav.breadcrumbs([
-        { label: 'text.home'|trans, url: url('_admin') },
-        { label: 'Médias', url: url('admin_media_index') },
-        { label: is_edit ? 'Modification' : 'Ajout' }
+        {label: 'text.home'|trans, url: url('_admin')},
+        {label: 'Médias', url: url('admin_media_index')},
+        {label: is_edit ? 'Modification' : 'Ajout'},
     ]) }}
 {% endblock %}
 

@@ -1,0 +1,77 @@
+{% extends '@AropixelAdmin/Form/base.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
+
+{% form_theme form.rules 'form/promotion_rule_widget.html.twig' %}
+{% form_theme form.actions 'form/promotion_action_widget.html.twig' %}
+
+{% set is_edit = promotion.id is not null %}
+{% set title = is_edit ? 'text.edit'|trans ~ ' : ' ~ promotion.name : 'text.add'|trans %}
+
+{% block meta_title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block asset_manager %}
+    {{ importmap('admin') }}
+{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        {label: 'text.home'|trans, url: url('_admin')},
+        {label: 'Promotions', url: path('admin_promotion_index')},
+        {label: (promotion.id ? 'text.edit'|trans : 'text.add'|trans)},
+    ]) }}
+{% endblock %}
+
+{% block tabbable %}
+    {{ forms.tabs([
+        {id: 'panel-tab-general', label: 'Général'},
+        {id: 'panel-tab-rules', label: 'Règles'},
+        {id: 'panel-tab-actions', label: 'Actions'},
+        {id: 'panel-tab-coupons', label: 'Coupons'},
+    ]) }}
+{% endblock %}
+
+{% block mainPanel %}
+    <div class="tab-pane active" id="panel-tab-general">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.name) }}
+                {{ form_row(form.code) }}
+                {{ form_row(form.description) }}
+                <hr>
+                {{ form_row(form.usageLimit) }}
+                {{ form_row(form.startsAt) }}
+                {{ form_row(form.endsAt) }}
+                <hr>
+                {{ form_row(form.exclusive) }}
+                {{ form_row(form.couponBased) }}
+                {{ form_row(form.appliesToDiscounted) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="panel-tab-rules">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_widget(form.rules) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="panel-tab-actions">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_widget(form.actions) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane" id="panel-tab-coupons">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_widget(form.coupons) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

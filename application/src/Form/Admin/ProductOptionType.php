@@ -39,13 +39,12 @@ class ProductOptionType extends AbstractType
                 'columns' => [
                     'Valeur' => [
                         'field' => 'value',
-                        'render' => function($field, $item) {
+                        'render' => function ($field, $item) {
                             return $item->vars['data']?->getValue();
                         },
                     ],
                 ],
-
-            ]);
+            ])
         ;
     }
 

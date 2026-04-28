@@ -2,12 +2,8 @@
 
 namespace App\Form\Admin;
 
-use App\Entity\TaxCategory;
-use App\Entity\ProductOptionValue;
 use App\Entity\ProductVariant;
-use Aropixel\AdminBundle\Form\Type\FilterableEntitiesType;
-use Aropixel\AdminBundle\Form\Type\FilterableEntityType;
-use Aropixel\AdminBundle\Form\Type\Select2Type;
+use App\Entity\TaxCategory;
 use Aropixel\AdminBundle\Form\Type\ToggleSwitchType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;

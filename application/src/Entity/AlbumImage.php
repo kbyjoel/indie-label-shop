@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Aropixel
  * Date: 08/03/2026
- * Time: 21:30
+ * Time: 21:30.
  */
 
 namespace App\Entity;
@@ -21,6 +22,10 @@ class AlbumImage extends AttachedImage implements CroppableInterface
 {
     use CroppableTrait;
 
+    /** @var Collection<int, AlbumImageCrop>|null */
+    #[ORM\OneToMany(targetEntity: AlbumImageCrop::class, mappedBy: 'image', cascade: ['remove', 'persist'])]
+    protected ?Collection $crops = null;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -29,10 +34,6 @@ class AlbumImage extends AttachedImage implements CroppableInterface
 
     #[ORM\OneToOne(targetEntity: Album::class, inversedBy: 'artwork')]
     private ?Album $album = null;
-
-    /** @var Collection<int, AlbumImageCrop>|null */
-    #[ORM\OneToMany(targetEntity: AlbumImageCrop::class, mappedBy: "image", cascade: ["remove", "persist"])]
-    protected ?Collection $crops = null;
 
     public function __construct()
     {

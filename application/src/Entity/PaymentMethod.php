@@ -25,6 +25,13 @@ class PaymentMethod extends BasePaymentMethod
     #[ORM\Column(type: 'boolean')]
     protected $enabled = true;
 
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $gatewayType = null;
+
+    /** @var array<string, mixed>|null */
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $credentials = null;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -34,13 +41,6 @@ class PaymentMethod extends BasePaymentMethod
     {
         $this->name = $name;
     }
-
-    #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    private ?string $gatewayType = null;
-
-    /** @var array<string, mixed>|null */
-    #[ORM\Column(type: 'json', nullable: true)]
-    private ?array $credentials = null;
 
     public function getGatewayType(): ?string
     {

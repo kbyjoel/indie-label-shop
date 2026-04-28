@@ -14,16 +14,16 @@
 
 {% block header_breadcrumb %}
     {{ nav.breadcrumbs([
-        { label: 'text.home'|trans, url: url('_admin') },
-        { label: 'Moyens de paiement', url: path('admin_payment_method_index') },
-        { label: (paymentMethod.id ? 'text.edit'|trans : 'text.add'|trans) }
+        {label: 'text.home'|trans, url: url('_admin')},
+        {label: 'Moyens de paiement', url: path('admin_payment_method_index')},
+        {label: (paymentMethod.id ? 'text.edit'|trans : 'text.add'|trans)},
     ]) }}
 {% endblock %}
 
 {% block tabbable %}
     {{ forms.tabs([
-        { id: 'panel-tab-general', label: 'Général' },
-        { id: 'panel-tab-config', label: 'Configuration gateway' },
+        {id: 'panel-tab-general', label: 'Général'},
+        {id: 'panel-tab-config', label: 'Configuration gateway'},
     ]) }}
 {% endblock %}
 

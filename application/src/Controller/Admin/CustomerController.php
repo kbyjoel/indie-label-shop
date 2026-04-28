@@ -8,10 +8,10 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route("/%admin_path%/customer", name: "admin_customer_")]
+#[Route('/%admin_path%/customer', name: 'admin_customer_')]
 class CustomerController extends AbstractController
 {
-    #[Route("/", name: "index", methods: ["GET", "POST"])]
+    #[Route('/', name: 'index', methods: ['GET', 'POST'])]
     public function index(DataTableFactory $dataTableFactory): Response
     {
         return $dataTableFactory
@@ -22,15 +22,16 @@ class CustomerController extends AbstractController
                 ['label' => '', 'field' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['firstName', 'lastName', 'email'])
-            ->renderJson(fn(Customer $customer) => [
+            ->renderJson(fn (Customer $customer) => [
                 $this->renderView('admin/customer/_link.html.twig', ['item' => $customer]),
                 $customer->getEmail(),
                 $this->renderView('admin/customer/_actions.html.twig', ['item' => $customer]),
             ])
-            ->render('admin/customer/index.html.twig');
+            ->render('admin/customer/index.html.twig')
+        ;
     }
 
-    #[Route("/{id}/view", name: "view", methods: ["GET", "POST"])]
+    #[Route('/{id}/view', name: 'view', methods: ['GET', 'POST'])]
     public function view(Customer $customer): Response
     {
         return $this->render('admin/customer/view.html.twig', [

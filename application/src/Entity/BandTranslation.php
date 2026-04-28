@@ -11,14 +11,14 @@ use Gedmo\Translatable\Entity\Repository\TranslationRepository;
 #[ORM\Entity(repositoryClass: TranslationRepository::class)]
 class BandTranslation extends AbstractPersonalTranslation
 {
+    #[ORM\ManyToOne(targetEntity: Band::class, inversedBy: 'translations')]
+    #[ORM\JoinColumn(name: 'object_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    protected $object;
+
     public function __construct(?string $locale, ?string $field, mixed $value)
     {
         $this->setLocale($locale ?? '');
         $this->setField($field ?? '');
         $this->setContent($value);
     }
-
-    #[ORM\ManyToOne(targetEntity: Band::class, inversedBy: 'translations')]
-    #[ORM\JoinColumn(name: 'object_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    protected $object;
 }

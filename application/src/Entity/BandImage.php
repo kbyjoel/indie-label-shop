@@ -2,12 +2,9 @@
 
 namespace App\Entity;
 
-use App\Entity\Band;
 use Aropixel\AdminBundle\Entity\AttachedImage;
-
 use Aropixel\AdminBundle\Entity\CroppableInterface;
 use Aropixel\AdminBundle\Entity\CroppableTrait;
-
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -16,6 +13,10 @@ use Doctrine\ORM\Mapping as ORM;
 class BandImage extends AttachedImage implements CroppableInterface
 {
     use CroppableTrait;
+
+    /** @var Collection<int, BandImageCrop>|null */
+    #[ORM\OneToMany(targetEntity: BandImageCrop::class, mappedBy: 'image', cascade: ['remove', 'persist'])]
+    protected ?Collection $crops = null;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -26,12 +27,6 @@ class BandImage extends AttachedImage implements CroppableInterface
     #[ORM\OneToOne(targetEntity: Band::class, inversedBy: 'image')]
     #[ORM\JoinColumn(name: 'band_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
     private ?Band $band = null;
-
-
-    /** @var Collection<int, BandImageCrop>|null */
-    #[ORM\OneToMany(targetEntity: BandImageCrop::class, mappedBy: "image", cascade: ["remove", "persist"])]
-    protected ?Collection $crops = null;
-
 
     public function getId(): ?int
     {
@@ -49,7 +44,6 @@ class BandImage extends AttachedImage implements CroppableInterface
 
         return $this;
     }
-
 
     public function addCrop(BandImageCrop $crop): self
     {
@@ -73,5 +67,4 @@ class BandImage extends AttachedImage implements CroppableInterface
 
         return $this;
     }
-
 }

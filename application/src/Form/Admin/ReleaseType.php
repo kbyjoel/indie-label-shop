@@ -3,16 +3,15 @@
 namespace App\Form\Admin;
 
 use App\Entity\Media;
-use App\Entity\TaxCategory;
 use App\Entity\Release;
 use App\Entity\ReleaseImage;
+use App\Entity\TaxCategory;
 use Aropixel\AdminBundle\Entity\Publishable;
 use Aropixel\AdminBundle\Form\Type\Image\Single\ImageType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;

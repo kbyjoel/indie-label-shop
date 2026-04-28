@@ -2,9 +2,9 @@
 
 namespace App\Form\Admin;
 
-use App\Entity\Zone;
-use App\Entity\Province;
 use App\Entity\Country;
+use App\Entity\Province;
+use App\Entity\Zone;
 use App\Entity\ZoneMember;
 use Aropixel\AdminBundle\Form\Type\FilterableEntityType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -53,6 +53,14 @@ class ZoneMemberType extends AbstractType
         });
     }
 
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => ZoneMember::class,
+            'zone_type' => 'country',
+        ]);
+    }
+
     /** @param FormInterface<mixed> $form */
     private function addCodeField(FormInterface $form, string $zoneType): void
     {
@@ -87,23 +95,21 @@ class ZoneMemberType extends AbstractType
 
         $builder->addModelTransformer(new CallbackTransformer(
             function ($code) use ($class) {
-                if (!$code) return null;
+                if (!$code) {
+                    return null;
+                }
+
                 return $this->entityManager->getRepository($class)->findOneBy(['code' => $code]);
             },
             function ($entity) {
-                if (!$entity) return null;
+                if (!$entity) {
+                    return null;
+                }
+
                 return $entity->getCode();
             }
         ));
 
         $form->add($builder->getForm());
-    }
-
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setDefaults([
-            'data_class' => ZoneMember::class,
-            'zone_type' => 'country',
-        ]);
     }
 }

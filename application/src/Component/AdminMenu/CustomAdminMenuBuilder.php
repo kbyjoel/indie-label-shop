@@ -5,7 +5,6 @@ namespace App\Component\AdminMenu;
 use Aropixel\AdminBundle\Component\Menu\Builder\AdminMenuBuilderInterface;
 use Aropixel\AdminBundle\Component\Menu\Model\Link;
 use Aropixel\AdminBundle\Component\Menu\Model\Menu;
-use Aropixel\AdminBundle\Component\Menu\Model\SubMenu;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
@@ -24,6 +23,7 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
         $additionalMenus = [];
         $additionalMenus[] = $this->buildContentMenu();
         $additionalMenus[] = $this->buildMerchMenu();
+        $additionalMenus[] = $this->buildPromoMenu();
         $additionalMenus[] = $this->buildShopMenu();
 
         // Menus reserved for ROLE_SUPER_ADMIN
@@ -53,6 +53,14 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
         return $menu;
     }
 
+    private function buildPromoMenu(): Menu
+    {
+        $menu = new Menu('promo', 'Promotions');
+        $menu->addItem(new Link('Promotions', 'admin_promotion_index', [], ['icon' => 'fas fa-percentage']));
+
+        return $menu;
+    }
+
     private function buildShopMenu(): Menu
     {
         $menu = new Menu('content', 'Shop');
@@ -69,6 +77,7 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
     {
         $menu = new Menu('admin', 'Administration');
         $menu->addItem(new Link('Administrateurs', 'aropixel_admin_user_index', [], ['icon' => 'fas fa-users-cog']));
+
         return $menu;
     }
 }

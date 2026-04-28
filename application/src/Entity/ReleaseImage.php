@@ -2,12 +2,9 @@
 
 namespace App\Entity;
 
-use App\Entity\Release;
 use Aropixel\AdminBundle\Entity\AttachedImage;
-
 use Aropixel\AdminBundle\Entity\CroppableInterface;
 use Aropixel\AdminBundle\Entity\CroppableTrait;
-
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -17,6 +14,10 @@ class ReleaseImage extends AttachedImage implements CroppableInterface
 {
     use CroppableTrait;
 
+    /** @var Collection<int, ReleaseImageCrop>|null */
+    #[ORM\OneToMany(mappedBy: 'image', targetEntity: ReleaseImageCrop::class, cascade: ['remove', 'persist'])]
+    protected ?Collection $crops = null;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -25,12 +26,6 @@ class ReleaseImage extends AttachedImage implements CroppableInterface
 
     #[ORM\OneToOne(inversedBy: 'image')]
     private ?Release $release = null;
-
-
-    /** @var Collection<int, ReleaseImageCrop>|null */
-    #[ORM\OneToMany(mappedBy: "image", targetEntity: ReleaseImageCrop::class, cascade: ["remove", "persist"])]
-    protected ?Collection $crops = null;
-
 
     public function getId(): ?int
     {
@@ -48,7 +43,6 @@ class ReleaseImage extends AttachedImage implements CroppableInterface
 
         return $this;
     }
-
 
     public function addCrop(ReleaseImageCrop $crop): self
     {
@@ -72,5 +66,4 @@ class ReleaseImage extends AttachedImage implements CroppableInterface
 
         return $this;
     }
-
 }

@@ -1,8 +1,9 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: Junie
- * Date: 08/03/2026
+ * Date: 08/03/2026.
  */
 
 namespace App\Entity;
@@ -16,14 +17,14 @@ use Gedmo\Translatable\Entity\Repository\TranslationRepository;
 #[ORM\Entity(repositoryClass: TranslationRepository::class)]
 class AlbumTranslation extends AbstractPersonalTranslation
 {
+    #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'albumTranslations')]
+    #[ORM\JoinColumn(name: 'object_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    protected $object;
+
     public function __construct(?string $locale = null, ?string $field = null, mixed $value = null)
     {
         $this->setLocale($locale ?? '');
         $this->setField($field ?? '');
         $this->setContent($value);
     }
-
-    #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'albumTranslations')]
-    #[ORM\JoinColumn(name: 'object_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    protected $object;
 }

@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Entity\Zone;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Core\Model\TaxRate as BaseTaxRate;
-use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'sylius_tax_rate')]

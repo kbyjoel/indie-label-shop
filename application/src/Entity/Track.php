@@ -6,21 +6,12 @@ use App\Repository\TrackRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
-use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity(repositoryClass: TrackRepository::class)]
 #[ORM\Table(name: 'indie_track')]
 #[ORM\HasLifecycleCallbacks]
 class Track extends ProductVariant
 {
-    #[ORM\PrePersist]
-    public function generateCode(): void
-    {
-        if (!$this->getCode()) {
-            $this->setCode(Uuid::v4()->toBase58());
-        }
-    }
-
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
@@ -41,6 +32,14 @@ class Track extends ProductVariant
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $waveformPath = null;
+
+    #[ORM\PrePersist]
+    public function generateCode(): void
+    {
+        if (!$this->getCode()) {
+            $this->setCode(Uuid::v4()->toBase58());
+        }
+    }
 
     public function getId(): ?int
     {
@@ -106,7 +105,7 @@ class Track extends ProductVariant
     public function setMasterFile(?TrackMasterFile $masterFile): self
     {
         // set the owning side of the relation if necessary
-        if ($masterFile !== null && $masterFile->getTrack() !== $this) {
+        if (null !== $masterFile && $masterFile->getTrack() !== $this) {
             $masterFile->setTrack($this);
         }
 

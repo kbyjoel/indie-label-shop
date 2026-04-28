@@ -15,13 +15,6 @@ use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 #[ORM\DiscriminatorMap(['merch' => Product::class, 'album' => Album::class])]
 class Product extends BaseProduct
 {
-    public function __construct()
-    {
-        parent::__construct();
-        $this->setCurrentLocale('fr');
-        $this->setFallbackLocale('fr');
-    }
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -56,6 +49,13 @@ class Product extends BaseProduct
     #[ORM\JoinColumn(name: 'band_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?Band $band = null;
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setCurrentLocale('fr');
+        $this->setFallbackLocale('fr');
+    }
+
     public function getName(): ?string
     {
         return $this->getTranslation()->getName();
@@ -76,12 +76,12 @@ class Product extends BaseProduct
         $this->band = $band;
     }
 
-    public function getTaxCategory(): ?\Sylius\Component\Taxation\Model\TaxCategoryInterface
+    public function getTaxCategory(): ?TaxCategoryInterface
     {
         return $this->taxCategory;
     }
 
-    public function setTaxCategory(?\Sylius\Component\Taxation\Model\TaxCategoryInterface $taxCategory): void
+    public function setTaxCategory(?TaxCategoryInterface $taxCategory): void
     {
         $this->taxCategory = $taxCategory;
     }

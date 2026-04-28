@@ -18,9 +18,15 @@ use Gedmo\Translatable\Translatable;
 #[Gedmo\TranslationEntity(class: BandTranslation::class)]
 class Band implements Translatable
 {
+    use PublishableTrait;
     use TimestampableEntity;
     use TranslatableTrait;
-    use PublishableTrait;
+
+    /**
+     * @var Collection<int, BandTranslation>
+     */
+    #[ORM\OneToMany(targetEntity: BandTranslation::class, mappedBy: 'object', cascade: ['persist', 'remove'])]
+    protected ?Collection $translations = null;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -66,12 +72,6 @@ class Band implements Translatable
 
     #[ORM\OneToOne(targetEntity: BandImage::class, mappedBy: 'band', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?BandImage $image = null;
-
-    /**
-     * @var Collection<int, BandTranslation>
-     */
-    #[ORM\OneToMany(targetEntity: BandTranslation::class, mappedBy: 'object', cascade: ['persist', 'remove'])]
-    protected ?Collection $translations = null;
 
     /** @phpstan-ignore property.onlyWritten */
     private ?string $translatableLocale = null;
@@ -231,13 +231,13 @@ class Band implements Translatable
 
     public function setImage(?BandImage $image): self
     {
-        if ($image === null || $image->getImage() === null) {
+        if (null === $image || null === $image->getImage()) {
             $this->image = null;
         } else {
             $this->image = $image;
             $this->image->setBand($this);
         }
+
         return $this;
     }
-
 }
