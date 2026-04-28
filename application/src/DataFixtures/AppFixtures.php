@@ -24,13 +24,22 @@ use App\Entity\ProductVariant;
 use App\Entity\Release;
 use App\Entity\Track;
 use App\Entity\Tracklist;
+use App\Entity\TaxCategory;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
-class AppFixtures extends Fixture implements FixtureGroupInterface
+class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface
 {
+    public function getDependencies(): array
+    {
+        return [
+            TaxFixtures::class,
+        ];
+    }
+
     public static function getGroups(): array
     {
         return ['dev'];
@@ -83,6 +92,13 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create('fr_FR');
+
+        /** @var TaxCategory $taxAlbum */
+        $taxAlbum = $this->getReference('tax_category_standard', TaxCategory::class);
+        /** @var TaxCategory $taxTrack */
+        $taxTrack = $this->getReference('tax_category_digital', TaxCategory::class);
+        /** @var TaxCategory $taxMerch */
+        $taxMerch = $this->getReference('tax_category_standard', TaxCategory::class);
 
         // 5. Create default Locale (French)
         $locale = new Locale();
@@ -203,6 +219,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
                 $album->setName(ucfirst($albumTitle));
                 $album->setCode(strtoupper(str_replace(' ', '_', $albumTitle)) . '_' . $faker->unique()->numberBetween(100, 9999));
                 $album->setBand($band);
+                $album->setTaxCategory($taxAlbum);
                 $album->addChannel($channel);
                 $album->setStatus('online');
                 $album->setReleaseDate($faker->dateTimeBetween('-10 years', 'now'));
@@ -229,6 +246,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
                     $track->setCode($album->getCode() . '_TRK_' . $j);
                     $track->setPosition($j);
                     $track->setDuration(rand(2, 5) . ':' . sprintf('%02d', rand(0, 59)));
+                    $track->setTaxCategory($taxTrack);
                     $track->setProduct($album);
                     $manager->persist($track);
                     $allTracks[] = $track;
@@ -290,6 +308,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface
 
                 $product->setCode($productCode);
                 $product->setBand($band);
+                $product->setTaxCategory($taxMerch);
                 $product->addChannel($channel);
                 $product->setEnabled(true);
 
