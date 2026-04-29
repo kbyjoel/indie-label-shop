@@ -1,0 +1,47 @@
+{% extends '@AropixelAdmin/Form/base.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
+
+{% set is_edit = taxRate.id is not null %}
+{% set title = is_edit ? 'text.edit'|trans ~ ' : ' ~ taxRate.name : 'text.add'|trans %}
+
+{% block meta_title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        {label: 'text.home'|trans, url: url('_admin')},
+        {label: 'Taux de taxes', url: path('admin_tax_rate_index')},
+        {label: (taxRate.id ? 'text.edit'|trans : 'text.add'|trans)},
+    ]) }}
+{% endblock %}
+
+{% block tabbable %}
+    {{ forms.tabs([
+        {id: 'panel-tab-general', label: 'Général'},
+        {id: 'panel-tab-config', label: 'Configuration'},
+    ]) }}
+{% endblock %}
+
+{% block mainPanel %}
+    <div class="tab-pane active" id="panel-tab-general">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.name) }}
+                {{ form_row(form.code) }}
+                {{ form_row(form.amount) }}
+                {{ form_row(form.includedInPrice) }}
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane" id="panel-tab-config">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.category) }}
+                {{ form_row(form.zone) }}
+                {{ form_row(form.startDate) }}
+                {{ form_row(form.endDate) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

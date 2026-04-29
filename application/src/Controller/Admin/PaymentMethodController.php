@@ -33,7 +33,7 @@ class PaymentMethodController extends AbstractController
                 ['label' => '', 'orderBy' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['name', 'code'])
-            ->setOrderColumn(1)
+            ->setOrderColumn(0)
             ->setOrderDirection('asc')
             ->renderJson(fn (PaymentMethod $paymentMethod) => [
                 $this->renderView('admin/payment_method/_link.html.twig', ['item' => $paymentMethod]),

@@ -1,0 +1,38 @@
+{% extends '@AropixelAdmin/Form/base.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
+
+{% set is_edit = taxCategory.id is not null %}
+{% set title = is_edit ? 'text.edit'|trans ~ ' : ' ~ taxCategory.name : 'text.add'|trans %}
+
+{% block meta_title %}{{ title }}{% endblock %}
+{% block header_title %}{{ title }}{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        {label: 'text.home'|trans, url: url('_admin')},
+        {label: 'Catégories de taxes', url: path('admin_tax_category_index')},
+        {label: (taxCategory.id ? 'text.edit'|trans : 'text.add'|trans)},
+    ]) }}
+{% endblock %}
+
+{% block tabbable %}
+    {{ forms.tabs([
+        {id: 'panel-tab-general', label: 'Général'},
+    ]) }}
+{% endblock %}
+
+{% block mainPanel %}
+    <div class="tab-pane active" id="panel-tab-general">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.name) }}
+                {{ form_row(form.code) }}
+                {{ form_row(form.description) }}
+                {{ form_row(form.defaultForAlbum) }}
+                {{ form_row(form.defaultForTrack) }}
+                {{ form_row(form.defaultForMerch) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

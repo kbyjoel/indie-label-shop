@@ -39,7 +39,7 @@ class ShippingMethodController extends AbstractController
                 ['label' => '', 'orderBy' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['name', 'code'])
-            ->setOrderColumn(1)
+            ->setOrderColumn(0)
             ->setOrderDirection('asc')
             ->renderJson(fn (ShippingMethod $shippingMethod) => [
                 $this->renderView('admin/shipping_method/_link.html.twig', ['item' => $shippingMethod]),

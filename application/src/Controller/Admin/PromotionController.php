@@ -39,7 +39,7 @@ class PromotionController extends AbstractController
                 ['label' => '', 'orderBy' => '', 'class' => 'text-end no-sort'],
             ])
             ->searchIn(['name', 'code'])
-            ->setOrderColumn(1)
+            ->setOrderColumn(0)
             ->setOrderDirection('asc')
             ->renderJson(fn (Promotion $promotion) => [
                 $this->renderView('admin/promotion/_link.html.twig', ['item' => $promotion]),
@@ -63,7 +63,7 @@ class PromotionController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $channel = $this->em->getRepository(Channel::class)->findOneBy(['code' => 'WEB']);
-            if ($channel !== null) {
+            if (null !== $channel) {
                 $promotion->addChannel($channel);
             }
             $this->applyRulesConfiguration($form, $promotion);
