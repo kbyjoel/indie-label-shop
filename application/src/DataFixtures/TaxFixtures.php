@@ -59,25 +59,32 @@ class TaxFixtures extends Fixture implements FixtureGroupInterface, DependentFix
         ];
 
         foreach ($taxCategories as $code => $data) {
-            $category = new TaxCategory();
-            $category->setCode($code);
+            $category = $manager->getRepository(TaxCategory::class)->findOneBy(['code' => $code]);
+            if (!$category) {
+                $category = new TaxCategory();
+                $category->setCode($code);
+                $manager->persist($category);
+            }
             $category->setName($data['name']);
             $category->setDefaultForAlbum($data['album']);
             $category->setDefaultForTrack($data['track']);
             $category->setDefaultForMerch($data['merch']);
-            $manager->persist($category);
             $this->addReference('tax_category_' . $code, $category);
 
             foreach ($data['rates'] as $zoneCode => $amount) {
-                $rate = new TaxRate();
-                $rate->setCode($code . '_' . $zoneCode);
+                $rateCode = $code . '_' . $zoneCode;
+                $rate = $manager->getRepository(TaxRate::class)->findOneBy(['code' => $rateCode]);
+                if (!$rate) {
+                    $rate = new TaxRate();
+                    $rate->setCode($rateCode);
+                    $manager->persist($rate);
+                }
                 $rate->setName($data['name'] . ' - ' . $zoneCode);
                 $rate->setAmount((float) $amount);
                 $rate->setIncludedInPrice(true);
                 $rate->setCalculator('default');
                 $rate->setCategory($category);
                 $rate->setZone($this->getReference('zone_' . $zoneCode, Zone::class));
-                $manager->persist($rate);
             }
         }
 

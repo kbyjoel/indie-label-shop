@@ -50,31 +50,50 @@ class BaseFixtures extends Fixture implements FixtureGroupInterface
         $countries = Countries::getNames('fr');
         $countryEntities = [];
 
-        foreach ($countries as $code => $name) {
-            $country = new Country();
-            $country->setCode($code);
-            $country->setEnabled(isset($codesToEnable[$code])); // Enabled if part of a zone
+        $existingCountries = $manager->getRepository(Country::class)->findAll();
+        foreach ($existingCountries as $existingCountry) {
+            $countryEntities[$existingCountry->getCode()] = $existingCountry;
+        }
 
-            $manager->persist($country);
-            $countryEntities[$code] = $country;
+        foreach ($countries as $code => $name) {
+            if (isset($countryEntities[$code])) {
+                $country = $countryEntities[$code];
+            } else {
+                $country = new Country();
+                $country->setCode($code);
+                $manager->persist($country);
+                $countryEntities[$code] = $country;
+            }
+
+            $country->setEnabled(isset($codesToEnable[$code])); // Enabled if part of a zone
         }
 
         // 4. Create zones in DB
         foreach ($zones as $code => $data) {
-            $zone = new Zone();
-            $zone->setCode($code);
+            $zone = $manager->getRepository(Zone::class)->findOneBy(['code' => $code]);
+            if (!$zone) {
+                $zone = new Zone();
+                $zone->setCode($code);
+                $manager->persist($zone);
+            }
             $zone->setName($data['name']);
             $zone->setType($data['type']);
             $zone->setScope('all');
-            $manager->persist($zone);
             $this->addReference('zone_' . $code, $zone);
 
             foreach ($data['members'] as $memberCode) {
                 if (isset($countryEntities[$memberCode])) {
-                    $member = new ZoneMember();
-                    $member->setCode($memberCode);
-                    $member->setBelongsTo($zone);
-                    $manager->persist($member);
+                    $member = $manager->getRepository(ZoneMember::class)->findOneBy([
+                        'code' => $memberCode,
+                        'belongsTo' => $zone,
+                    ]);
+
+                    if (!$member) {
+                        $member = new ZoneMember();
+                        $member->setCode($memberCode);
+                        $member->setBelongsTo($zone);
+                        $manager->persist($member);
+                    }
                 }
             }
         }
