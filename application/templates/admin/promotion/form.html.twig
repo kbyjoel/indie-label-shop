@@ -2,8 +2,8 @@
 {% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
 {% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
 
-{% form_theme form.rules 'form/promotion_rule_widget.html.twig' %}
-{% form_theme form.actions 'form/promotion_action_widget.html.twig' %}
+{% form_theme form.rules 'admin/promotion/form/promotion_rule_widget.html.twig' %}
+{% form_theme form.actions 'admin/promotion/form/promotion_action_widget.html.twig' %}
 
 {% set is_edit = promotion.id is not null %}
 {% set title = is_edit ? 'text.edit'|trans ~ ' : ' ~ promotion.name : 'text.add'|trans %}
