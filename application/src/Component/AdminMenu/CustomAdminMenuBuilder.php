@@ -23,8 +23,8 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
         $additionalMenus = [];
         $additionalMenus[] = $this->buildContentMenu();
         $additionalMenus[] = $this->buildMerchMenu();
-        $additionalMenus[] = $this->buildPromoMenu();
         $additionalMenus[] = $this->buildShopMenu();
+        $additionalMenus[] = $this->buildSettingsMenu();
 
         // Menus reserved for ROLE_SUPER_ADMIN
         if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
@@ -53,10 +53,13 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
         return $menu;
     }
 
-    private function buildPromoMenu(): Menu
+    private function buildSettingsMenu(): Menu
     {
-        $menu = new Menu('promo', 'Promotions');
-        $menu->addItem(new Link('Promotions', 'admin_promotion_index', [], ['icon' => 'fas fa-percentage']));
+        $menu = new Menu('settings', 'Réglages');
+        $menu->addItem(new Link('Pays', 'admin_country_index', [], ['icon' => 'fas fa-list-ul']));
+        $menu->addItem(new Link('Zones', 'admin_zone_index', [], ['icon' => 'fas fa-list-ul']));
+        $menu->addItem(new Link('Catégories de taxes', 'admin_tax_category_index', [], ['icon' => 'fas fa-tags']));
+        $menu->addItem(new Link('Taux de taxes', 'admin_tax_rate_index', [], ['icon' => 'fas fa-percentage']));
 
         return $menu;
     }
@@ -65,12 +68,9 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
     {
         $menu = new Menu('content', 'Shop');
         $menu->addItem(new Link('Clients', 'admin_customer_index', [], ['icon' => 'fas fa-list-ul']));
-        $menu->addItem(new Link('Pays', 'admin_country_index', [], ['icon' => 'fas fa-list-ul']));
-        $menu->addItem(new Link('Zones', 'admin_zone_index', [], ['icon' => 'fas fa-list-ul']));
-        $menu->addItem(new Link('Catégories de taxes', 'admin_tax_category_index', [], ['icon' => 'fas fa-tags']));
-        $menu->addItem(new Link('Taux de taxes', 'admin_tax_rate_index', [], ['icon' => 'fas fa-percentage']));
         $menu->addItem(new Link('Paiements', 'admin_payment_method_index', [], ['icon' => 'fas fa-credit-card']));
         $menu->addItem(new Link('Livraison', 'admin_shipping_method_index', [], ['icon' => 'fas fa-truck']));
+        $menu->addItem(new Link('Promotions', 'admin_promotion_index', [], ['icon' => 'fas fa-percentage']));
 
         return $menu;
     }
