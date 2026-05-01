@@ -5,7 +5,7 @@
 {% block content %}
 <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
 
-    {# Hero placeholder #}
+    {# Hero #}
     <section class="mb-16 text-center">
         <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
             {{ 'home.headline'|trans }}
@@ -15,30 +15,50 @@
         </p>
     </section>
 
-    {# Latest releases placeholder — will be populated in Step 2 #}
+    {# Latest releases #}
     <section class="mb-16">
-        <h2 class="mb-6 text-2xl font-bold tracking-tight">
-            {{ 'home.latest_releases'|trans }}
-        </h2>
-        <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-            {# Album cards rendered in Step 2 #}
-            <p class="col-span-full text-sm text-muted">
-                {{ 'home.no_releases'|trans }}
-            </p>
+        <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-2xl font-display font-bold tracking-tight">
+                {{ 'home.latest_releases'|trans }}
+            </h2>
+            <a href="{{ path('front_album_index') }}"
+               class="text-sm text-accent hover:text-accent-hover transition-colors">
+                {{ 'home.see_all_albums'|trans }} →
+            </a>
         </div>
+
+        {% if latestAlbums is empty %}
+            <p class="text-sm text-muted">{{ 'home.no_releases'|trans }}</p>
+        {% else %}
+            <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
+                {% for album in latestAlbums %}
+                    {{ include('front/partials/_album_card.html.twig') }}
+                {% endfor %}
+            </div>
+        {% endif %}
     </section>
 
-    {# Artists placeholder — will be populated in Step 2 #}
+    {# Artists #}
     <section>
-        <h2 class="mb-6 text-2xl font-bold tracking-tight">
-            {{ 'home.artists'|trans }}
-        </h2>
-        <div class="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-6">
-            {# Band cards rendered in Step 2 #}
-            <p class="col-span-full text-sm text-muted">
-                {{ 'home.no_artists'|trans }}
-            </p>
+        <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-2xl font-display font-bold tracking-tight">
+                {{ 'home.artists'|trans }}
+            </h2>
+            <a href="{{ path('front_band_index') }}"
+               class="text-sm text-accent hover:text-accent-hover transition-colors">
+                {{ 'home.see_all_artists'|trans }} →
+            </a>
         </div>
+
+        {% if bands is empty %}
+            <p class="text-sm text-muted">{{ 'home.no_artists'|trans }}</p>
+        {% else %}
+            <div class="grid grid-cols-3 gap-6 sm:grid-cols-4 lg:grid-cols-8">
+                {% for band in bands %}
+                    {{ include('front/partials/_band_card.html.twig') }}
+                {% endfor %}
+            </div>
+        {% endif %}
     </section>
 
 </div>

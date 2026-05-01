@@ -64,7 +64,7 @@ castor docker:builder -- php bin/console cache:clear
 | Step | Content | Documentation |
 |---|---|---|
 | Step 1 | Layout, Tailwind, conditional i18n | [i18n-routing.md](i18n-routing.md) · [blank-theme.md](blank-theme.md) |
-| Step 2 | Music catalogue (albums, artists) | — |
+| Step 2 | Music catalogue (albums, artists) | [catalogue.md](catalogue.md) |
 | Step 3 | Album page + WaveSurfer audio player | — |
 | Step 4 | Merch shop, custom cart | — |
 | Step 5 | Checkout (address, shipping) + customer account | — |

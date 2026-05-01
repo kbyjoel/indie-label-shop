@@ -1,0 +1,66 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'album.index.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+
+    <div class="mb-8 sm:flex sm:items-center sm:justify-between">
+        <h1 class="text-3xl font-display font-bold tracking-tight sm:text-4xl">
+            {{ 'album.index.title'|trans }}
+        </h1>
+
+        {# Band filter #}
+        {% if bands is not empty %}
+            <div class="mt-4 sm:mt-0">
+                <label for="band-filter" class="sr-only">{{ 'album.index.filter_by_artist'|trans }}</label>
+                <select id="band-filter"
+                        onchange="if(this.value){ window.location.href=this.value } else { window.location.href='{{ path('front_album_index') }}' }"
+                        class="rounded-md border-border bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                    <option value="">{{ 'album.index.all_artists'|trans }}</option>
+                    {% for band in bands %}
+                        <option value="{{ path('front_album_index', {band: band.slug}) }}"
+                                {% if selectedBand and selectedBand.id == band.id %}selected{% endif %}>
+                            {{ band.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if albums.currentPageResults|length == 0 %}
+        <p class="text-muted">{{ 'album.index.empty'|trans }}</p>
+    {% else %}
+        <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            {% for album in albums.currentPageResults %}
+                {{ include('front/partials/_album_card.html.twig') }}
+            {% endfor %}
+        </div>
+
+        {# Pagination #}
+        {% if albums.haveToPaginate %}
+            <nav class="mt-12 flex items-center justify-center gap-2" aria-label="{{ 'pagination.label'|trans }}">
+                {% if albums.hasPreviousPage %}
+                    <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({page: albums.previousPage, band: app.request.query.get('band')})) }}"
+                       class="rounded-md border border-border px-4 py-2 text-sm hover:bg-surface transition-colors">
+                        {{ 'pagination.previous'|trans }}
+                    </a>
+                {% endif %}
+
+                <span class="text-sm text-muted">
+                    {{ 'pagination.page_x_of_y'|trans({page: albums.currentPage, total: albums.nbPages}) }}
+                </span>
+
+                {% if albums.hasNextPage %}
+                    <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({page: albums.nextPage, band: app.request.query.get('band')})) }}"
+                       class="rounded-md border border-border px-4 py-2 text-sm hover:bg-surface transition-colors">
+                        {{ 'pagination.next'|trans }}
+                    </a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% endif %}
+
+</div>
+{% endblock %}

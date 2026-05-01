@@ -25,6 +25,20 @@ liip_imagine:
 
     # define your filter sets under this option
     filter_sets:
+        album_card:
+            quality: 80
+            filters:
+                thumbnail: { size: [400, 400], mode: outbound }
+
+        album_artwork:
+            quality: 85
+            filters:
+                thumbnail: { size: [800, 800], mode: inset }
+
+        band_card:
+            quality: 80
+            filters:
+                thumbnail: { size: [400, 400], mode: outbound }
 
 aropixel_admin:
     filter_sets:

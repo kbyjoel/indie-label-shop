@@ -1,0 +1,87 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ band.name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+
+    <div class="lg:flex lg:gap-16">
+
+        {# Photo & infos #}
+        <aside class="mb-10 lg:mb-0 lg:w-64 lg:shrink-0">
+            <img src="{{ band.image|aropixel_imagine_filter('band_card') }}"
+                 alt="{{ band.image ? band.image.attrAlt : band.name }}"
+                 class="w-40 h-40 rounded-full object-cover mx-auto lg:mx-0 lg:w-48 lg:h-48">
+
+            {% set socials = {
+                website:   band.website,
+                facebook:  band.facebook,
+                twitter:   band.twitter,
+                instagram: band.instagram
+            } %}
+            {% set hasSocials = band.website or band.facebook or band.twitter or band.instagram %}
+            {% if hasSocials %}
+                <nav class="mt-6 flex flex-wrap gap-3 justify-center lg:justify-start" aria-label="{{ 'band.show.social_links'|trans }}">
+                    {% if band.website %}
+                        <a href="{{ band.website }}" target="_blank" rel="noopener noreferrer"
+                           class="text-sm text-muted hover:text-accent transition-colors">
+                            {{ 'band.show.website'|trans }}
+                        </a>
+                    {% endif %}
+                    {% if band.facebook %}
+                        <a href="{{ band.facebook }}" target="_blank" rel="noopener noreferrer"
+                           class="text-sm text-muted hover:text-accent transition-colors">Facebook</a>
+                    {% endif %}
+                    {% if band.twitter %}
+                        <a href="{{ band.twitter }}" target="_blank" rel="noopener noreferrer"
+                           class="text-sm text-muted hover:text-accent transition-colors">Twitter / X</a>
+                    {% endif %}
+                    {% if band.instagram %}
+                        <a href="{{ band.instagram }}" target="_blank" rel="noopener noreferrer"
+                           class="text-sm text-muted hover:text-accent transition-colors">Instagram</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+
+            {% if band.members is not empty %}
+                <div class="mt-8">
+                    <h3 class="text-xs font-semibold uppercase tracking-widest text-muted mb-3">
+                        {{ 'band.show.members'|trans }}
+                    </h3>
+                    <ul class="space-y-1">
+                        {% for member in band.members %}
+                            <li class="text-sm">{{ member.firstName }} {{ member.lastName }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </aside>
+
+        {# Main content #}
+        <div class="flex-1 min-w-0">
+            <h1 class="text-3xl font-display font-bold tracking-tight sm:text-4xl">{{ band.name }}</h1>
+
+            {% if band.description %}
+                <div class="mt-6 prose prose-sm max-w-none text-muted">
+                    {{ band.description|nl2br }}
+                </div>
+            {% endif %}
+
+            {% if albums is not empty %}
+                <section class="mt-12">
+                    <h2 class="mb-6 text-xl font-display font-semibold tracking-tight">
+                        {{ 'band.show.discography'|trans }}
+                    </h2>
+                    <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+                        {% for album in albums %}
+                            {{ include('front/partials/_album_card.html.twig') }}
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

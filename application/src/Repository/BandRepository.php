@@ -15,4 +15,30 @@ class BandRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Band::class);
     }
+
+    /** @return Band[] */
+    public function findAllOnline(): array
+    {
+        return $this->createQueryBuilder('b')
+            ->leftJoin('b.image', 'i')
+            ->addSelect('i')
+            ->where('b.status = :status')
+            ->setParameter('status', 'online')
+            ->orderBy('b.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findOneBySlug(string $slug): ?Band
+    {
+        return $this->createQueryBuilder('b')
+            ->leftJoin('b.image', 'i')
+            ->addSelect('i')
+            ->leftJoin('b.members', 'm')
+            ->addSelect('m')
+            ->where('b.slug = :slug')
+            ->setParameter('slug', $slug)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

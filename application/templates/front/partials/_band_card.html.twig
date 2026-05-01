@@ -1,0 +1,12 @@
+{% set href = path('front_band_show', {slug: band.slug}) %}
+<article class="group text-center">
+    <a href="{{ href }}" class="block overflow-hidden rounded-full mx-auto w-24 h-24 sm:w-32 sm:h-32">
+        <img src="{{ band.image|aropixel_imagine_filter('band_card') }}"
+             alt="{{ band.image ? band.image.attrAlt : band.name }}"
+             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+             loading="lazy">
+    </a>
+    <h3 class="mt-3 font-display font-semibold text-sm sm:text-base">
+        <a href="{{ href }}" class="hover:text-accent transition-colors">{{ band.name }}</a>
+    </h3>
+</article>

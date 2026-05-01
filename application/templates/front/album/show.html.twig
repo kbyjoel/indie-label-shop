@@ -1,0 +1,78 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ album.name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+
+    <div class="lg:flex lg:gap-16">
+
+        {# Artwork #}
+        <div class="mb-10 lg:mb-0 lg:w-80 lg:shrink-0">
+            <img src="{{ album.artwork|aropixel_imagine_filter('album_artwork') }}"
+                 alt="{{ album.artwork ? album.artwork.attrAlt : album.name }}"
+                 class="w-full max-w-xs mx-auto lg:mx-0 rounded-lg shadow-md object-cover aspect-square">
+        </div>
+
+        {# Metadata & tracklist #}
+        <div class="flex-1 min-w-0">
+
+            {% if album.band %}
+                <p class="text-sm text-muted mb-2">
+                    <a href="{{ path('front_band_show', {slug: album.band.slug}) }}"
+                       class="hover:text-accent transition-colors">{{ album.band.name }}</a>
+                </p>
+            {% endif %}
+
+            <h1 class="text-3xl font-display font-bold tracking-tight sm:text-4xl">{{ album.name }}</h1>
+
+            <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
+                {% if album.releaseDate %}
+                    <div>
+                        <dt class="inline font-medium text-inherit">{{ 'album.show.release_date'|trans }}&nbsp;</dt>
+                        <dd class="inline">{{ album.releaseDate|date('d/m/Y') }}</dd>
+                    </div>
+                {% endif %}
+                {% if album.catalogNumber %}
+                    <div>
+                        <dt class="inline font-medium text-inherit">{{ 'album.show.catalog_number'|trans }}&nbsp;</dt>
+                        <dd class="inline">{{ album.catalogNumber }}</dd>
+                    </div>
+                {% endif %}
+            </dl>
+
+            {% if album.description %}
+                <div class="mt-6 prose prose-sm max-w-none text-muted">
+                    {{ album.description|nl2br }}
+                </div>
+            {% endif %}
+
+            {# Tracklist — interactive player added in Step 3 #}
+            {% if album.tracklists is not empty %}
+                <section class="mt-10">
+                    <h2 class="mb-4 text-lg font-display font-semibold">
+                        {{ 'album.show.tracklist'|trans }}
+                    </h2>
+                    <ol class="divide-y divide-border">
+                        {% for tracklist in album.tracklists %}
+                            {% set track = tracklist.track %}
+                            {% if track %}
+                                <li class="flex items-center gap-4 py-3">
+                                    <span class="w-6 text-right text-xs text-muted shrink-0">{{ loop.index }}</span>
+                                    <span class="flex-1 text-sm font-medium">{{ track.title }}</span>
+                                    {% if track.duration %}
+                                        <span class="text-xs text-muted shrink-0">{{ track.duration }}</span>
+                                    {% endif %}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ol>
+                </section>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

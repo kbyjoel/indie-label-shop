@@ -16,8 +16,37 @@ home:
     subheadline: Découvrez notre catalogue musical
     latest_releases: Dernières sorties
     no_releases: Aucune sortie pour l'instant.
+    see_all_albums: Voir tous les albums
     artists: Artistes
     no_artists: Aucun artiste pour l'instant.
+    see_all_artists: Voir tous les artistes
+
+band:
+    index:
+        title: Artistes
+        empty: Aucun artiste pour l'instant.
+    show:
+        members: Membres
+        discography: Discographie
+        social_links: Réseaux sociaux
+        website: Site web
+
+album:
+    index:
+        title: Albums
+        empty: Aucun album pour l'instant.
+        filter_by_artist: Filtrer par artiste
+        all_artists: Tous les artistes
+    show:
+        release_date: "Date de sortie :"
+        catalog_number: "Réf. catalogue :"
+        tracklist: Tracklist
+
+pagination:
+    label: Pagination
+    previous: Précédent
+    next: Suivant
+    page_x_of_y: "Page {page} sur {total}"
 
 footer:
     nav_aria_label: Navigation du pied de page

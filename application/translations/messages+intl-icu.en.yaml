@@ -16,8 +16,37 @@ home:
     subheadline: Explore our music catalogue
     latest_releases: Latest Releases
     no_releases: No releases yet.
+    see_all_albums: See all albums
     artists: Artists
     no_artists: No artists yet.
+    see_all_artists: See all artists
+
+band:
+    index:
+        title: Artists
+        empty: No artists yet.
+    show:
+        members: Members
+        discography: Discography
+        social_links: Social links
+        website: Website
+
+album:
+    index:
+        title: Albums
+        empty: No albums yet.
+        filter_by_artist: Filter by artist
+        all_artists: All artists
+    show:
+        release_date: "Release date:"
+        catalog_number: "Catalogue ref.:"
+        tracklist: Tracklist
+
+pagination:
+    label: Pagination
+    previous: Previous
+    next: Next
+    page_x_of_y: "Page {page} of {total}"
 
 footer:
     nav_aria_label: Footer navigation

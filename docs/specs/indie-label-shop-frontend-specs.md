@@ -699,18 +699,19 @@ Le layout global du front (header, footer, navigation) est opérationnel avec Ta
 - [`docs/frontend/i18n-routing.md`](../frontend/i18n-routing.md) — Système locale conditionnel, FrontRouteLoader, LocaleSubscriber
 - [`docs/frontend/blank-theme.md`](../frontend/blank-theme.md) — Thème blank, variables CSS, personnalisation, Tailwind build
 
-###   Step 2: Pages catalogue musical : listing albums et page artiste (Band)
+###   Step 2: Pages catalogue musical : listing albums et page artiste (Band) ✅
 Les pages publiques de navigation dans le catalogue musical sont accessibles : listing albums paginé et fiches artistes, avec contenu traduit.
 
-- Créer `src/Controller/Front/BandController.php` avec actions `index()` et `show(string $slug)`, attributs `#[Route('/artistes')]` et `#[Route('/artiste/{slug}')]` (sans préfixe locale — géré par `FrontRouteLoader`)
-- Créer `src/Controller/Front/AlbumController.php` avec actions `index()` et `show(string $slug)`, attributs `#[Route('/albums')]` et `#[Route('/album/{slug}')]`
-- Dans les controllers, appeler `$entity->setTranslatableLocale($request->getLocale())` + `$em->refresh($entity)` pour Band et Album (DoctrineExtensions) afin d'obtenir la bonne traduction
-- Implémenter les requêtes Doctrine (filtrage `status = online`, tri par `releaseDate`, filtre par Band)
-- Créer `templates/front/band/index.html.twig`, `band/show.html.twig`, `album/index.html.twig`
-- Créer les partials `front/partials/_album_card.html.twig` et `_band_card.html.twig` (artwork, titre, date, lien)
-- Intégrer la pagination Pagerfanta dans le listing albums
-- Alimenter la page d'accueil (`front/home/index.html.twig`) avec les dernières sorties et la grille d'artistes
-- Compléter `translations/messages+intl-icu.{fr|en}.yaml` avec les clés de cette section (filtres, pagination, labels)
+**Décisions d'implémentation :**
+- `pagerfanta/doctrine-orm-adapter` installé (uniquement `pagerfanta/core` était présent)
+- `band` ManyToOne est sur l'entité `Product` (parent de `Album`), accessible via `a.band` en DQL et `album.band` en Twig
+- Filter sets LiipImagine définis dans `liip_imagine.yaml` : `album_card` (400×400 outbound), `album_artwork` (800×800 inset), `band_card` (400×400 outbound)
+- Images gérées via `aropixel_imagine_filter` (vendor `aropixel/admin-bundle`) — placeholder automatique pour images manquantes, aucune garde null nécessaire sur le `src`
+- `album/show.html.twig` créé en stub (tracklist statique sans player) — lecteur WaveSurfer ajouté au Step 3
+- `AlbumRepository::findLatestOnline()` accepte un `?Band` optionnel (utilisé pour la discographie sur la page artiste)
+
+**Documentation créée :**
+- [`docs/frontend/catalogue.md`](../frontend/catalogue.md) — routes, entités, Gedmo refresh, filter sets, pagination, repositories
 
 ###   Step 3: Page album avec tracklist et lecteur audio WaveSurfer.js
 La page album affiche la tracklist complète avec un lecteur audio waveform interactif pour chaque piste disposant d'une preview.

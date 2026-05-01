@@ -1,0 +1,23 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'band.index.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+
+    <h1 class="mb-12 text-3xl font-display font-bold tracking-tight sm:text-4xl">
+        {{ 'band.index.title'|trans }}
+    </h1>
+
+    {% if bands is empty %}
+        <p class="text-muted">{{ 'band.index.empty'|trans }}</p>
+    {% else %}
+        <div class="grid grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            {% for band in bands %}
+                {{ include('front/partials/_band_card.html.twig') }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
