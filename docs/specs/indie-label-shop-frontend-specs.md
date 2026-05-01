@@ -681,20 +681,23 @@ Chaque page et fonctionnalité interactive sera validée en boîte noire via le 
 
 # Delivery Steps
 
-###   Step 1: Mise en place du layout principal, charte Tailwind et routage conditionnel i18n
+> **Documentation** : à chaque étape livrée, mettre à jour le `README.md` racine si nécessaire et créer ou compléter les fichiers dans `docs/frontend/`.
+
+---
+
+###   Step 1: Mise en place du layout principal, charte Tailwind et routage conditionnel i18n ✅
 Le layout global du front (header, footer, navigation) est opérationnel avec Tailwind CSS et le routage conditionnel (mono/multi-locale) actif.
 
-- Ajouter `tailwindcss` dans `importmap.php` et configurer le CDN play (ou standalone CLI si besoin)
-- Créer `src/Routing/FrontRouteLoader.php` : charge les routes front via annotation loader ; ajoute le préfixe `/{_locale}` (+ requirement `[a-z]{2}` + default sur première locale) uniquement si `count(%app.locales%) > 1` ; enregistrer comme service avec tag `routing.loader`
-- Créer `src/EventListener/LocaleSubscriber.php` : écoute `kernel.request` (priorité haute) et force `$request->setLocale()` à la locale unique ; ne s'enregistre que si `count(%app.locales%) == 1`
-- En mode multi-locales : ajouter une route de redirection `/` → `/{locale_par_defaut}/`
-- Créer `templates/front/layout.html.twig` étendant `base.html.twig` : header avec logo/nav, footer ; sélecteur de langue conditionnel (`{% if app.locales|length > 1 %}`) ; balises `<link rel="alternate" hreflang>` conditionnelles
-- Créer les partials `templates/front/partials/_header.html.twig` et `_footer.html.twig`
-- Créer `translations/messages+intl-icu.fr.yaml` (et `en.yaml` si multi-locales) avec les premières clés (nav, footer)
-- Mettre à jour `assets/app.css` avec les directives Tailwind et les variables de thème (couleurs label)
-- Mettre à jour `assets/app.js` pour enregistrer les futurs contrôleurs Stimulus
-- Créer `src/Controller/Front/HomeController.php` avec une action `index()` (attribut `#[Route('/')]` sans préfixe locale — le loader s'en charge)
-- Créer `templates/front/home/index.html.twig` étendant le layout (page test de structure)
+**Décisions d'implémentation :**
+- `symfonycasts/tailwind-bundle` (Tailwind v4 standalone CLI) à la place du CDN play — pas de Node.js, compatible Asset Mapper
+- `APP_LOCALES=fr,en` (format CSV, processeur `env(csv:APP_LOCALES)`) — multi-locale actif par défaut
+- `LocaleSubscriber` toujours enregistré, mais no-op en mode multi (check dans le handler, pas dans `getSubscribedEvents()`)
+- Thème blank via `@theme` Tailwind v4 : les variables (`--color-accent`, etc.) génèrent automatiquement les utilities Tailwind
+
+**Documentation créée :**
+- [`docs/frontend/README.md`](../frontend/README.md) — Vue d'ensemble du front, stack, commandes
+- [`docs/frontend/i18n-routing.md`](../frontend/i18n-routing.md) — Système locale conditionnel, FrontRouteLoader, LocaleSubscriber
+- [`docs/frontend/blank-theme.md`](../frontend/blank-theme.md) — Thème blank, variables CSS, personnalisation, Tailwind build
 
 ###   Step 2: Pages catalogue musical : listing albums et page artiste (Band)
 Les pages publiques de navigation dans le catalogue musical sont accessibles : listing albums paginé et fiches artistes, avec contenu traduit.
