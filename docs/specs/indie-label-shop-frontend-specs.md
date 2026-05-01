@@ -191,7 +191,7 @@ Le backend est complet :
 - **Entités Sylius Core** : `Product` (merch + album via héritage discriminé), `ProductVariant`, `Order`, `OrderItem`, `Payment`, `Shipment`, `ShippingMethod`, `PaymentMethod`, `Customer` — issues de `sylius/core` uniquement, **SyliusShopBundle non installé**
 - **PaymentMethod** : entité étendue avec `gatewayType` (`"stripe"` / `"paypal"`) et `credentials` (JSON — clés API, mode sandbox/live) ; admin CRUD complet avec Stimulus controller de toggle des champs de credentials
 - **Track** : `previewPath` et `waveformPath` générés par l'encodeur async Messenger (128 kbps preview + waveform PNG) ; master FLAC accessible via Flysystem `private.storage` en production
-- **Encodeur existant** (`src/Component/Track/`) : `EncodeTrackMp3Message` → `EncodeTrackMp3Handler` ; utilise `php-ffmpeg/php-ffmpeg` ; écrit sur `previews.storage` ; **la pipeline de vente (320 kbps, WAV, ZIP) est entièrement à créer**
+- **Encodeur existant** (`src/Component/Track/`) : `EncodeTrackMp3Message` → `EncodeTrackMp3Handler` ; utilise `php-ffmpeg/php-ffmpeg` ; écrit sur `previews.storage` ; génère actuellement un PNG de waveform (à remplacer par **JSON peaks WaveSurfer.js** — Step 3) ; **la pipeline de vente (320 kbps, WAV, ZIP) est entièrement à créer**
 - **Messenger** : transport `async` (Doctrine) + transport `failed` configurés ; routing `EncodeTrackMp3Message` → `async` en place ; prêt à accueillir `GenerateDownloadMessage`
 - **Flysystem** : 3 disques en production (`private.storage`, `public.storage`, `previews.storage`) tous sur le bucket Cellar (Clever Cloud, S3-compatible via AsyncAws)
 - **Stack front existant** : Twig, Stimulus 3, Turbo 7, Asset Mapper — aucune page publique développée
@@ -707,13 +707,57 @@ Les pages publiques de navigation dans le catalogue musical sont accessibles : l
 - `band` ManyToOne est sur l'entité `Product` (parent de `Album`), accessible via `a.band` en DQL et `album.band` en Twig
 - Filter sets LiipImagine définis dans `liip_imagine.yaml` : `album_card` (400×400 outbound), `album_artwork` (800×800 inset), `band_card` (400×400 outbound)
 - Images gérées via `aropixel_imagine_filter` (vendor `aropixel/admin-bundle`) — placeholder automatique pour images manquantes, aucune garde null nécessaire sur le `src`
-- `album/show.html.twig` créé en stub (tracklist statique sans player) — lecteur WaveSurfer ajouté au Step 3
+- `album/show.html.twig` créé en stub (tracklist statique sans player) — lecteur WaveSurfer ajouté au Step 4
 - `AlbumRepository::findLatestOnline()` accepte un `?Band` optionnel (utilisé pour la discographie sur la page artiste)
 
 **Documentation créée :**
 - [`docs/frontend/catalogue.md`](../frontend/catalogue.md) — routes, entités, Gedmo refresh, filter sets, pagination, repositories
 
-###   Step 3: Page album avec tracklist et lecteur audio WaveSurfer.js
+###   Step 3: Pipeline encodage previews audio (MP3 128kbps + JSON peaks waveform)
+La pipeline d'encodage des previews audio est complète et validée : MP3 128kbps généré et accessible publiquement, waveform JSON peaks disponible pour le lecteur WaveSurfer.js.
+
+**Stratégie preview (métier) :**
+- Piste entière (full track) en MP3 128kbps CBR — qualité "radio" qui valorise par contraste l'achat du master
+- Génération unique à l'upload du master, stockage permanent dans `previews.storage` (S3 Cellar, préfixe public)
+- Accès public direct (HTTP Range Requests natif S3 pour le streaming/scrubbing), pas d'URL signée nécessaire
+- Empreinte estimée à ~6,6 Go pour 150 albums (~1 800 titres × 3,7 Mo) — ~0,13 €/mois sur Cellar
+
+**Ce qui est déjà en place (validation uniquement) :**
+- `EncodeTrackMp3Handler` : encodage 128kbps CBR via `php-ffmpeg/php-ffmpeg` ✅
+- `TrackMasterFileListener` : déclenchement automatique sur `postPersist`/`postUpdate` ✅
+- `previews.storage` Flysystem (local en dev, S3 Cellar en prod), fichiers écrits avec `visibility = public` ✅
+- `Track.previewPath` mis à jour après encodage ✅
+- Routing Messenger `EncodeTrackMp3Message → async` ✅
+
+**À implémenter — génération JSON peaks (remplace le PNG actuel) :**
+- Modifier `EncodeTrackMp3Handler` : supprimer `$audio->waveform(...)` (génération PNG)
+- Après encodage MP3, lancer un subprocess FFmpeg pour extraire le signal PCM brut : `ffmpeg -i {mp3} -f s16le -ac 1 -ar 8000 pipe:1`
+- En PHP : calculer les amplitudes RMS sur ~1000 fenêtres régulières, normaliser entre 0.0 et 1.0
+- Écrire `{basename}.peaks.json` dans `previews.storage` avec `visibility = public` ; format : `{"version":2,"channels":1,"sample_rate":8000,"samples_per_pixel":N,"bits":8,"length":1000,"data":[0.1,0.3,...]}`
+- Mettre à jour `Track.waveformPath` avec le chemin vers ce fichier JSON
+
+**À implémenter — extraction de la durée :**
+- Après encodage MP3, appeler `FFProbe::create()->format($tmpMp3)->get('duration')`
+- Si `Track.duration` est null, le renseigner au format `M:SS`
+
+**À implémenter — service URL publique :**
+- Créer `src/Service/PreviewUrlResolver.php` :
+  - `getPreviewUrl(Track $track): ?string`
+  - `getWaveformUrl(Track $track): ?string`
+  - En dev : URL relative `/previews/{path}` (servi depuis `public/previews/`)
+  - En prod : `{PREVIEWS_BASE_URL}/{path}` (variable d'env à ajouter dans `.env` et `.env.dist`)
+- Exposé comme service injectable (utilisé par les controllers et templates du Step 4)
+
+**À documenter (`docs/frontend/audio-previews.md`) :**
+- Architecture de la pipeline (upload master → Messenger → MP3 + peaks JSON → S3)
+- Format du peaks JSON et son usage dans WaveSurfer.js
+- Configuration CORS Cellar (règles XML à appliquer côté console Clever Cloud pour autoriser `GET` depuis le domaine du shop)
+- Comment tester en dev : upload master via admin + `castor docker:builder -- php bin/console messenger:consume async --limit=1`
+
+**Dette technique documentée :**
+- La lecture du master dans `EncodeTrackMp3Handler` utilise le path local `$projectDir/public/uploads/files/{filename}` — en production si les masters migrent vers `private.storage` (S3), ce code devra être adapté (à adresser au Step 8, pipeline de vente)
+
+###   Step 4: Page album avec tracklist et lecteur audio WaveSurfer.js
 La page album affiche la tracklist complète avec un lecteur audio waveform interactif pour chaque piste disposant d'une preview.
 
 - Créer `templates/front/album/show.html.twig` : artwork, métadonnées, description, albums similaires
@@ -721,12 +765,13 @@ La page album affiche la tracklist complète avec un lecteur audio waveform inte
 - Ajouter `wavesurfer.js` dans `importmap.php`
 - Créer `assets/controllers/audio_player_controller.js` (Stimulus) :
   - Valeurs : `previewUrlValue`, `waveformUrlValue`
-  - `connect()` : instancie WaveSurfer avec les peaks JSON du `waveformPath`
+  - `connect()` : instancie WaveSurfer avec les peaks JSON du `waveformPath` (chargés via `fetch`)
   - Action `play()` / `pause()` liée au bouton
   - Gestion d'un seul lecteur actif à la fois (arrêt des autres)
 - Intégrer le contrôleur dans `_track_row.html.twig` via attributs `data-controller`
+- Injecter `PreviewUrlResolver` dans `AlbumController` pour transmettre les URLs publiques au template
 
-###   Step 4: Boutique merch, panier custom et sélection de variant
+###   Step 5: Boutique merch, panier custom et sélection de variant
 La boutique merch est navigable avec un panier entièrement custom basé sur les entités Sylius Core (sans SyliusShopBundle).
 
 - Créer `src/Controller/Front/ProductController.php` avec actions `index()` et `show(string $slug)`, attributs `#[Route('/boutique')]` et `#[Route('/produit/{slug}')]` (préfixe locale géré par `FrontRouteLoader`)
@@ -740,7 +785,7 @@ La boutique merch est navigable avec un panier entièrement custom basé sur les
 - Créer `assets/controllers/product_variant_controller.js` (Stimulus) : mise à jour du prix/stock au changement de variant
 - Créer `assets/controllers/cart_controller.js` (Stimulus) : soumission fetch vers `CartController::add`, mise à jour compteur header
 
-###   Step 5: Tunnel checkout — adresse, livraison et espace compte client
+###   Step 6: Tunnel checkout — adresse, livraison et espace compte client
 Le tunnel d'achat (étapes adresse et livraison) et l'espace compte client sont fonctionnels.
 
 - Créer `src/Controller/Front/CheckoutController.php` avec actions `address()`, `shipment()`, `payment()`, `confirm()`
@@ -751,7 +796,7 @@ Le tunnel d'achat (étapes adresse et livraison) et l'espace compte client sont 
 - Configurer le firewall Symfony pour les routes `/compte/*` (accès réservé aux clients connectés)
 - Ajouter les tests fonctionnels `tests/Controller/Front/` : `HomeControllerTest`, `BandControllerTest`, `AlbumControllerTest`, `ProductControllerTest`, `CartControllerTest`
 
-###   Step 6: Intégration paiement Stripe & PayPal
+###   Step 7: Intégration paiement Stripe & PayPal
 La page de paiement accepte les cartes bancaires via Stripe Elements et PayPal via Smart Buttons ; les webhooks garantissent la fiabilité des mises à jour d'état.
 
 - Installer `stripe/stripe-php` et `paypal/checkout-sdk-php` via Composer
@@ -769,7 +814,7 @@ La page de paiement accepte les cartes bancaires via Stripe Elements et PayPal v
 - Ajouter `STRIPE_WEBHOOK_SECRET` et `PAYPAL_WEBHOOK_ID` dans `.env` et `.env.dist`
 - Ajouter les tests : `WebhookControllerTest` (Stripe signature valide/invalide, PayPal capture), `CheckoutPaymentTest` (initiation Stripe/PayPal, idempotence PaymentProcessor)
 
-###   Step 7: Téléchargement de fichiers numériques (post-achat)
+###   Step 8: Téléchargement de fichiers numériques (post-achat)
 Le workflow asynchrone de génération et de téléchargement des fichiers numériques (MP3 320 kbps, WAV, ZIP) est opérationnel pour les commandes digitales.
 
 - Créer la migration Doctrine et l'entité `src/Entity/DownloadToken.php` (champs : `orderItem`, `format`, `status`, `s3Path`, `expiresAt`, `createdAt`)
@@ -794,7 +839,7 @@ Le workflow asynchrone de génération et de téléchargement des fichiers numé
 - Ajouter les tests : `DownloadControllerTest`, `GenerateDownloadHandlerTest` (avec mocks Flysystem)
 - Dans `GenerateDownloadHandler` : dispatcher `SendDownloadReadyMessage` après `DownloadToken::status = ready`
 
-###   Step 8: Emails transactionnels post-achat
+###   Step 9: Emails transactionnels post-achat
 Les emails de confirmation de commande (avec facture PDF) et de téléchargement prêt sont envoyés de façon asynchrone.
 
 - Ajouter la dépendance `dompdf/dompdf` via Composer
