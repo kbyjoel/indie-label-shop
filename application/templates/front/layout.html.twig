@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {%- if block('page_title') is defined -%}
+        {{ block('page_title') }} — {{ 'site.name'|trans }}
+    {%- else -%}
+        {{ 'site.name'|trans }}
+    {%- endif -%}
+{% endblock %}
+
+{% block seo %}
+    {% if app_locales|length > 1 %}
+        {% set route = app.request.attributes.get('_route') %}
+        {% set params = app.request.attributes.get('_route_params') ?? {} %}
+        {% for locale in app_locales %}
+            <link rel="alternate" hreflang="{{ locale }}"
+                  href="{{ path(route, params|merge({_locale: locale})) }}">
+        {% endfor %}
+        <link rel="alternate" hreflang="x-default"
+              href="{{ path(route, params|merge({_locale: app_locales[0]})) }}">
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    {{ include('front/partials/_header.html.twig') }}
+
+    <main id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {{ include('front/partials/_footer.html.twig') }}
+{% endblock %}

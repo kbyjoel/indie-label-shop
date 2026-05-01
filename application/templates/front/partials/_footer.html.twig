@@ -1,0 +1,24 @@
+<footer class="border-t border-border mt-16">
+    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div class="flex flex-col items-center justify-between gap-6 sm:flex-row">
+
+            {# Label name / brand #}
+            <p class="text-sm font-semibold tracking-tight">
+                {{ 'site.name'|trans }}
+            </p>
+
+            {# Navigation links #}
+            <nav class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted" aria-label="{{ 'footer.nav_aria_label'|trans }}">
+                <a href="#" class="hover:text-black transition-colors">{{ 'nav.albums'|trans }}</a>
+                <a href="#" class="hover:text-black transition-colors">{{ 'nav.artists'|trans }}</a>
+                <a href="#" class="hover:text-black transition-colors">{{ 'nav.shop'|trans }}</a>
+            </nav>
+
+            {# Copyright #}
+            <p class="text-xs text-muted">
+                {{ 'footer.copyright'|trans({year: 'now'|date('Y')}) }}
+            </p>
+
+        </div>
+    </div>
+</footer>

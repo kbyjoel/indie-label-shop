@@ -8,6 +8,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     admin_path: '%env(ADMIN_PATH)%'
+    app.locales: "%env(csv:APP_LOCALES)%"
+    app.default_locale: 'fr'
 
 services:
     # default configuration for services in *this* file
@@ -24,6 +26,16 @@ services:
         arguments:
             $previewsStorage: '@previews.storage'
             $projectDir: '%kernel.project_dir%'
+
+    App\Routing\FrontRouteLoader:
+        arguments:
+            $locales: '%app.locales%'
+        tags:
+            - { name: routing.loader }
+
+    App\EventListener\LocaleSubscriber:
+        arguments:
+            $locales: '%app.locales%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

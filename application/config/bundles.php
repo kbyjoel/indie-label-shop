@@ -17,4 +17,5 @@ return [
     League\FlysystemBundle\FlysystemBundle::class => ['all' => true],
     Aropixel\AdminBundle\AropixelAdminBundle::class => ['all' => true],
     Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class => ['dev' => true, 'test' => true],
+    Symfonycasts\TailwindBundle\SymfonycastsTailwindBundle::class => ['all' => true],
 ];

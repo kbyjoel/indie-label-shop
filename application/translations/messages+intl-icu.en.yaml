@@ -1,0 +1,24 @@
+site:
+    name: Indie Label Shop
+
+nav:
+    albums: Albums
+    artists: Artists
+    shop: Shop
+    cart: Cart
+    aria_label: Main navigation
+    language_switcher: Switch language
+    menu_toggle: Menu
+
+home:
+    title: Home
+    headline: Welcome
+    subheadline: Explore our music catalogue
+    latest_releases: Latest Releases
+    no_releases: No releases yet.
+    artists: Artists
+    no_artists: No artists yet.
+
+footer:
+    nav_aria_label: Footer navigation
+    copyright: "© {year} Indie Label Shop"

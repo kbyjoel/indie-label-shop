@@ -1,0 +1,45 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'home.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+
+    {# Hero placeholder #}
+    <section class="mb-16 text-center">
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+            {{ 'home.headline'|trans }}
+        </h1>
+        <p class="mt-4 text-lg text-muted">
+            {{ 'home.subheadline'|trans }}
+        </p>
+    </section>
+
+    {# Latest releases placeholder — will be populated in Step 2 #}
+    <section class="mb-16">
+        <h2 class="mb-6 text-2xl font-bold tracking-tight">
+            {{ 'home.latest_releases'|trans }}
+        </h2>
+        <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            {# Album cards rendered in Step 2 #}
+            <p class="col-span-full text-sm text-muted">
+                {{ 'home.no_releases'|trans }}
+            </p>
+        </div>
+    </section>
+
+    {# Artists placeholder — will be populated in Step 2 #}
+    <section>
+        <h2 class="mb-6 text-2xl font-bold tracking-tight">
+            {{ 'home.artists'|trans }}
+        </h2>
+        <div class="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-cols-6">
+            {# Band cards rendered in Step 2 #}
+            <p class="col-span-full text-sm text-muted">
+                {{ 'home.no_artists'|trans }}
+            </p>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

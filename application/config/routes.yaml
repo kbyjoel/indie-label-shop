@@ -9,3 +9,7 @@
 
 controllers:
     resource: routing.controllers
+
+front:
+    resource: front
+    type: front
