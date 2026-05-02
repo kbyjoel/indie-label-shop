@@ -119,21 +119,24 @@ Lorsqu'une commande contient un `OrderItem` digital (album ou release), le clien
 - Le choix est mémorisé dans le `DownloadToken` associé à chaque `OrderItem` + format
 
 **Génération à la demande (on-the-fly)**
-- Aucun fichier de vente n'est stocké de manière permanente — seuls les masters FLAC persistent dans le bucket `private.storage`
+- Aucun fichier de vente n'est stocké de manière permanente — seuls les masters FLAC persistent dans `private.storage`
 - À la demande de téléchargement, un `GenerateDownloadMessage` est dispatché via Symfony Messenger (transport `async` déjà configuré)
-- Le handler lit le master FLAC via stream Flysystem (`private.storage`) → transcodage FFmpeg en RAM → écriture sur S3 dans `temp-downloads/{order_id}/{format}/{filename}`
+- Le handler lit le master FLAC via stream Flysystem (`private.storage`) → transcodage FFmpeg en RAM → écriture dans `private.storage` sous le préfixe `temp-downloads/{order_id}/{format}/{filename}` (même disque, sous-répertoire dédié)
 - Formats : MP3 CBR 320 kbps (FFmpeg — différent des previews à 128 kbps), WAV (FFmpeg copy PCM depuis FLAC), ZIP (archive des pistes du même format)
 
-**Stockage éphémère & URLs signées**
-- Les fichiers générés sont écrits sur le bucket Cellar (Clever Cloud) sous le préfixe `temp-downloads/{order_id}/`
-- L'accès se fait uniquement via **URL présignée S3** (validité 24 heures) — jamais d'URL publique directe
-- Une règle de **lifecycle S3** sur le préfixe `temp-downloads/` supprime automatiquement les objets après 1 jour (configurable hors du code applicatif, côté console Clever Cloud)
-- Si le fichier existe encore en S3 (regénération dans les 24h), `prepare` retourne directement l'URL présignée sans redispatch Messenger
+**Stockage éphémère & accès au fichier généré**
+
+Les fichiers générés sont écrits dans `private.storage` — disque défini par `aropixel/admin-bundle` via `prepend()`, son adaptateur varie selon l'environnement :
+
+- **Développement** : adaptateur `local` → `%kernel.project_dir%/private/` ; les fichiers générés se retrouvent dans `private/temp-downloads/{order_id}/` ; l'accès se fait via une **route Symfony dédiée** `GET /download/file/{token}` qui sert le fichier depuis le filesystem — pas d'URL présignée en local
+- **Production** : adaptateur `asyncaws` → bucket Cellar (Clever Cloud, S3-compatible), préfixe `private` ; l'accès se fait via **URL présignée S3** (validité 24 heures) ; une règle de lifecycle S3 sur le préfixe `private/temp-downloads/` supprime automatiquement les objets après 1 jour (configuration côté console Clever Cloud, hors code applicatif)
+- `DownloadTokenManager` détecte le mode via `%kernel.environment%` et retourne l'URL appropriée : route interne en dev, URL présignée S3 en prod
+- Si le fichier existe encore (regénération dans les 24h), `prepare` retourne directement l'URL sans redispatch Messenger
 
 **UX asynchrone (polling)**
 1. Le client clique "Télécharger" → `POST /download/prepare` → HTTP 202, `DownloadToken` créé/retourné
 2. Le Stimulus controller `download_controller.js` interroge `GET /download/status/{token}` toutes les 2 secondes
-3. Quand le statut passe à `ready`, le controller déclenche le téléchargement via l'URL présignée S3
+3. Quand le statut passe à `ready`, le controller déclenche le téléchargement via l'URL retournée (présignée S3 en prod, route interne en dev)
 4. États possibles du token : `pending` (job en attente), `processing` (encodage en cours), `ready` (URL disponible), `failed` (erreur FFmpeg)
 
 ---
@@ -736,6 +739,11 @@ La pipeline d'encodage des previews audio est complète et validée : MP3 128kbp
 - Écrire `{basename}.peaks.json` dans `previews.storage` avec `visibility = public` ; format : `{"version":2,"channels":1,"sample_rate":8000,"samples_per_pixel":N,"bits":8,"length":1000,"data":[0.1,0.3,...]}`
 - Mettre à jour `Track.waveformPath` avec le chemin vers ce fichier JSON
 
+**À implémenter — correction `EncodeTrackMp3Handler` (lecture du master) :**
+- Le handler actuel lit le master via un chemin local hardcodé `$projectDir/public/uploads/files/{filename}` — non fonctionnel : les masters sont écrits dans `private.storage` par `UploadFileListener` du bundle `aropixel/admin-bundle`
+- Remplacer par une lecture via Flysystem : injecter `FilesystemOperator $privateStorage` (disque `private.storage`) et copier le stream vers un fichier temporaire local avant encodage FFmpeg
+- Supprimer l'injection de `$projectDir` devenue inutile
+
 **À implémenter — extraction de la durée :**
 - Après encodage MP3, appeler `FFProbe::create()->format($tmpMp3)->get('duration')`
 - Si `Track.duration` est null, le renseigner au format `M:SS`
@@ -754,8 +762,10 @@ La pipeline d'encodage des previews audio est complète et validée : MP3 128kbp
 - Configuration CORS Cellar (règles XML à appliquer côté console Clever Cloud pour autoriser `GET` depuis le domaine du shop)
 - Comment tester en dev : upload master via admin + `castor docker:builder -- php bin/console messenger:consume async --limit=1`
 
-**Dette technique documentée :**
-- La lecture du master dans `EncodeTrackMp3Handler` utilise le path local `$projectDir/public/uploads/files/{filename}` — en production si les masters migrent vers `private.storage` (S3), ce code devra être adapté (à adresser au Step 8, pipeline de vente)
+**Note sur le disque `private.storage` :**
+- `private.storage` est défini par `aropixel/admin-bundle` via `prepend()` — en dev : adaptateur `local` → `%kernel.project_dir%/private/` ; en prod : adaptateur `asyncaws` → bucket Cellar préfixe `private`
+- Tous les fichiers uploadés non accessibles publiquement (masters, fichiers admin) y sont écrits par `UploadFileListener` du bundle
+- `EncodeTrackMp3Handler` doit donc lire depuis `private.storage` (corrigé dans ce Step 3)
 
 ###   Step 4: Page album avec tracklist et lecteur audio WaveSurfer.js
 La page album affiche la tracklist complète avec un lecteur audio waveform interactif pour chaque piste disposant d'une preview.
@@ -820,18 +830,19 @@ Le workflow asynchrone de génération et de téléchargement des fichiers numé
 - Créer la migration Doctrine et l'entité `src/Entity/DownloadToken.php` (champs : `orderItem`, `format`, `status`, `s3Path`, `expiresAt`, `createdAt`)
 - Créer `src/Download/GenerateDownloadMessage.php` : value object `{ orderItemId, format }`
 - Créer `src/Download/GenerateDownloadHandler.php` :
-  - Lit le master FLAC via `$privateStorage->readStream(track.masterPath)` (Flysystem `private.storage`)
+  - Lit le master FLAC via `$privateStorage->readStream(track.masterPath)` (Flysystem `private.storage` — même disque en dev et prod, adaptateur local ou S3 selon l'env)
   - MP3 : `FFMpeg → Mp3::create() → setAudioKiloBitrate(320)` (diffère des previews à 128 kbps)
   - WAV : `FFMpeg → Wav::create()` (copy PCM depuis FLAC — pas de perte)
   - ZIP : itère les pistes de l'album, encode chacune, compresse en archive
-  - Écrit via `$publicStorage->writeStream("temp-downloads/{orderId}/{format}/{filename}")`
-  - Met à jour `DownloadToken` (status, s3Path, expiresAt = +24h)
+  - Écrit via `$privateStorage->writeStream("temp-downloads/{orderId}/{format}/{filename}")` (même disque `private.storage`, sous-répertoire dédié)
+  - Met à jour `DownloadToken` (status, storagePath, expiresAt = +24h)
   - En cas d'exception : `DownloadToken::status = failed`
 - Enregistrer le routage Messenger : `GenerateDownloadMessage` → transport `async`
-- Créer `src/Download/DownloadTokenManager.php` : crée/récupère le token, appelle `AsyncAws S3Client::presign(GetObjectRequest, '+24 hours')` pour générer l'URL signée
+- Créer `src/Download/DownloadTokenManager.php` : crée/récupère le token ; génère l'URL d'accès selon l'environnement : URL présignée S3 (`AsyncAws S3Client::presign`, validité 24h) en prod, URL vers la route interne `GET /download/file/{token}` en dev
 - Créer `src/Controller/Front/DownloadController.php` :
   - `POST /download/prepare` : vérifie ownership + état commande, retourne token (202 si pending, 200 si déjà ready)
   - `GET /download/status/{token}` : retourne JSON `{ status, url? }`
+  - `GET /download/file/{token}` (dev uniquement) : sert le fichier généré depuis `private.storage` filesystem local
 - Créer `assets/controllers/download_controller.js` (Stimulus) : poll toutes les 2s, déclenche le téléchargement sur `ready`, affiche l'erreur sur `failed`
 - Créer `templates/front/partials/_download_item.html.twig` : sélecteur de format (radio MP3/WAV/ZIP), bouton "Télécharger", zone de statut Stimulus
 - Intégrer `_download_item.html.twig` dans `account/order_show.html.twig` pour chaque OrderItem digital

@@ -25,7 +25,7 @@ services:
     App\Component\Track\MessageHandler\EncodeTrackMp3Handler:
         arguments:
             $previewsStorage: '@previews.storage'
-            $projectDir: '%kernel.project_dir%'
+            $privateStorage: '@private.storage'
 
     App\Routing\FrontRouteLoader:
         arguments:

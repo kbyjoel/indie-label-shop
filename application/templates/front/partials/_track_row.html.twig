@@ -1,0 +1,47 @@
+{# Expects: trackIndex (int), track (Track), previewUrl (?string), waveformUrl (?string) #}
+{% set hasPreview = previewUrl is not null %}
+<li class="flex items-center gap-4 py-3"
+    {% if hasPreview %}
+        data-controller="audio-player"
+        data-audio-player-preview-url-value="{{ previewUrl }}"
+        data-audio-player-waveform-url-value="{{ waveformUrl }}"
+    {% endif %}>
+
+    {# Track number or play/pause button #}
+    <div class="w-6 shrink-0 flex items-center justify-center">
+        {% if hasPreview %}
+            <button type="button"
+                    class="flex items-center justify-center w-6 h-6 text-muted hover:text-accent transition-colors"
+                    data-action="audio-player#toggle"
+                    aria-label="{{ 'front.track.toggle_play'|trans }}">
+                <svg data-audio-player-target="playIcon"
+                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                     class="w-4 h-4" aria-hidden="true">
+                    <path d="M6.3 2.841A1.5 1.5 0 0 0 4 4.11V15.89a1.5 1.5 0 0 0 2.3 1.269l9.344-5.89a1.5 1.5 0 0 0 0-2.538L6.3 2.84Z"/>
+                </svg>
+                <svg data-audio-player-target="pauseIcon"
+                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                     class="w-4 h-4 hidden" aria-hidden="true">
+                    <path d="M5.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75A.75.75 0 0 0 7.25 3h-1.5ZM12.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75a.75.75 0 0 0-.75-.75h-1.5Z"/>
+                </svg>
+            </button>
+        {% else %}
+            <span class="text-right text-xs text-muted">{{ trackIndex }}</span>
+        {% endif %}
+    </div>
+
+    {# Title + waveform #}
+    <div class="flex-1 min-w-0">
+        <span class="block text-sm font-medium truncate">{{ track.name }}</span>
+        {% if hasPreview %}
+            <div data-audio-player-target="waveform"
+                 class="mt-1 h-8 w-full opacity-0 transition-opacity duration-300"></div>
+        {% endif %}
+    </div>
+
+    {# Duration #}
+    {% if track.duration %}
+        <span class="text-xs text-muted shrink-0">{{ track.duration }}</span>
+    {% endif %}
+
+</li>

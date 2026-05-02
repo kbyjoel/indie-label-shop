@@ -6,6 +6,7 @@ namespace App\Controller\Front;
 
 use App\Repository\AlbumRepository;
 use App\Repository\BandRepository;
+use App\Service\PreviewUrlResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
@@ -38,7 +39,7 @@ class AlbumController extends AbstractController
     }
 
     #[Route('/album/{slug}', name: 'front_album_show')]
-    public function show(string $slug, Request $request, AlbumRepository $albumRepository, EntityManagerInterface $em): Response
+    public function show(string $slug, Request $request, AlbumRepository $albumRepository, EntityManagerInterface $em, PreviewUrlResolver $previewUrlResolver): Response
     {
         $album = $albumRepository->findOneBySlug($slug);
 
@@ -49,8 +50,20 @@ class AlbumController extends AbstractController
         $album->setTranslatableLocale($request->getLocale());
         $em->refresh($album);
 
+        $trackUrls = [];
+        foreach ($album->getTracklists() as $tracklist) {
+            $track = $tracklist->getTrack();
+            if ($track !== null) {
+                $trackUrls[$track->getId()] = [
+                    'previewUrl'  => $previewUrlResolver->getPreviewUrl($track),
+                    'waveformUrl' => $previewUrlResolver->getWaveformUrl($track),
+                ];
+            }
+        }
+
         return $this->render('front/album/show.html.twig', [
-            'album' => $album,
+            'album'     => $album,
+            'trackUrls' => $trackUrls,
         ]);
     }
 }

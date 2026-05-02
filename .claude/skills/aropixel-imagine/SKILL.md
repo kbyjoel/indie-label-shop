@@ -1,21 +1,24 @@
 ---
 name: aropixel-imagine
 description: >
-  Using the aropixel_imagine_filter Twig filter for image display with automatic placeholder handling.
-  Use this skill whenever displaying images from Band, Album, Release, or any entity that uses
-  AttachedImage / ImageInterface. The filter handles null/missing images automatically — never
-  write manual null checks or placeholder <img> fallbacks.
+  Using the aropixel_imagine_filter Twig filter for image display with automatic placeholder handling,
+  and reading/writing uploaded files via Flysystem with aropixel/admin-bundle.
+  Use this skill whenever displaying images from any entity that uses AttachedImage / ImageInterface.
+  The filter handles null/missing images automatically — never write manual null checks or placeholder
+  <img> fallbacks.
+  Also use this skill when a custom service or handler needs to read or write a file that was
+  uploaded via the admin — to know which Flysystem disk to inject.
 ---
 
-# Skill: aropixel_imagine_filter
+# Skill: aropixel/admin-bundle — images & Flysystem storage
 
-## Origin
+## Twig filter: aropixel_imagine_filter
+
+### Origin
 
 The filter is provided by **`aropixel/admin-bundle`** (vendor). No installation or registration needed — it is always available in Twig.
 
----
-
-## Twig syntax
+### Syntax
 
 ```twig
 {{ image | aropixel_imagine_filter('filter_name') }}
@@ -26,27 +29,13 @@ The filter is provided by **`aropixel/admin-bundle`** (vendor). No installation 
 
 The filter **always returns a valid URL**. When `image` is `null` or the file is missing, it generates a gray placeholder sized to match the requested filter's dimensions.
 
----
-
-## Entity image access
-
-### Band → BandImage (AttachedImage)
+### Entity image access
 
 ```twig
-{{ band.image | aropixel_imagine_filter('band_card') }}
+{{ entity.image | aropixel_imagine_filter('my_filter') }}
 ```
 
-`band.image` is `null` when no image is uploaded → placeholder is returned automatically.
-
-### Album → AlbumImage (AttachedImage), accessed via `artwork`
-
-```twig
-{{ album.artwork | aropixel_imagine_filter('album_card') }}
-```
-
-`album.artwork` is `null` when no artwork is uploaded → placeholder returned automatically.
-
-### Generic pattern
+`entity.image` returns `null` when no image is uploaded → placeholder is returned automatically.
 
 ```twig
 <img src="{{ entity.image | aropixel_imagine_filter('my_filter') }}"
@@ -59,33 +48,28 @@ Never add `{% if entity.image %}` guards just for the `src` attribute — the fi
 
 ## Defining filter sets
 
-Add custom filter sets in `application/config/packages/liip_imagine.yaml` under the root `liip_imagine.filter_sets` key (not under `when@prod` or `when@dev`):
+Add custom filter sets in `config/packages/liip_imagine.yaml` under the root `liip_imagine.filter_sets` key (not under `when@prod` or `when@dev`):
 
 ```yaml
 liip_imagine:
     driver: "imagick"
     filter_sets:
-        album_card:
+        my_card:
             quality: 80
             filters:
                 thumbnail: { size: [400, 400], mode: outbound }
 
-        album_artwork:
+        my_detail:
             quality: 85
             filters:
                 thumbnail: { size: [800, 800], mode: inset }
-
-        band_card:
-            quality: 80
-            filters:
-                thumbnail: { size: [400, 400], mode: outbound }
 ```
 
 **Modes:**
 - `outbound` — crops to exact dimensions (fills the box, may crop edges)
 - `inset` — fits inside the box without cropping (may leave transparent/white edges)
 
-After adding a new filter, **clear the cache**:
+After adding a new filter, clear the cache:
 ```bash
 castor docker:builder -- php bin/console cache:clear
 ```
@@ -102,7 +86,7 @@ These are available without configuration — do not redefine them:
 | `admin_preview` | widen to 800px | Admin lightbox |
 | `admin_crop` | widen to 600px | Admin crop tool |
 
-Do **not** use admin filter names in front-end templates — define dedicated front filter sets for correct sizing and SEO.
+Do **not** use admin filter names in front-end templates — define dedicated front-end filter sets for correct sizing and SEO.
 
 ---
 
@@ -113,24 +97,62 @@ When image is `null` or the file is absent:
 - A **gray (#d5d5d5) background** placeholder is returned
 - Fallback default: 200×200 if no size found in config
 
-No additional code needed — the placeholder is transparent to the template.
-
 ---
 
-## Complete example — album card partial
+## Flysystem storage — disks defined by the bundle
 
-```twig
-{# templates/front/partials/_album_card.html.twig #}
-<article class="group">
-    <a href="{{ path('front_album_show', {slug: album.slug}) }}">
-        <img src="{{ album.artwork | aropixel_imagine_filter('album_card') }}"
-             alt="{{ album.artwork ? album.artwork.attrAlt : album.title }}"
-             class="w-full aspect-square object-cover"
-             loading="lazy">
-        <div class="mt-2">
-            <h3 class="font-display font-semibold">{{ album.title }}</h3>
-            <p class="text-muted text-sm">{{ album.releaseDate|date('Y') }}</p>
-        </div>
-    </a>
-</article>
+### How disks are registered
+
+`private.storage` and `public.storage` are registered by **`AropixelAdminExtension::prepend()`** — they must **not** be declared in the project's `config/packages/flysystem.yaml`. The project can override them under `when@prod` if needed (e.g. to switch to S3).
+
+| Disk | Dev (adapter: `local`) | Prod (adapter: `asyncaws`, typical) |
+|---|---|---|
+| `private.storage` | `%kernel.project_dir%/private/` | S3-compatible bucket, prefix `private` |
+| `public.storage` | `%kernel.project_dir%/public/` | S3-compatible bucket, prefix `public` |
+
+### Which disk for which file
+
+- **`private.storage`** — any uploaded file that must not be publicly accessible (audio masters, admin attachments). `UploadFileListener` writes there automatically on every `postPersist`.
+- **`public.storage`** — images whose URLs are exposed directly; LiipImagine reads from this disk via the `flysystem` loader.
+- Any additional disk (e.g. `previews.storage`) is project-specific and must be declared in `flysystem.yaml`.
+
+### Reading an uploaded file in a custom service
+
+Inject `FilesystemOperator $privateStorage` (parameter name must match the disk name in camelCase):
+
+```php
+use League\Flysystem\FilesystemOperator;
+
+class MyHandler
+{
+    public function __construct(
+        private FilesystemOperator $privateStorage,
+    ) {}
+
+    public function handle(MyEntity $entity): void
+    {
+        $filename = $entity->getFile()->getFilename();
+
+        // Copy to a local temp file (required for tools like FFmpeg that need a real path)
+        $stream = $this->privateStorage->readStream($filename);
+        $tmpPath = sys_get_temp_dir() . '/' . uniqid('file_', true);
+        file_put_contents($tmpPath, $stream);
+
+        // ... process $tmpPath ...
+
+        unlink($tmpPath);
+    }
+}
+```
+
+**Never** reconstruct the path via `$projectDir . '/private/' . $filename` — this breaks in production (S3).
+
+### Writing a generated non-public file
+
+Use `private.storage` with a dedicated sub-path:
+
+```php
+$stream = fopen($tmpOutputPath, 'r');
+$this->privateStorage->writeStream('generated/' . $subPath . '/' . $filename, $stream);
+fclose($stream);
 ```

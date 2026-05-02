@@ -33,4 +33,7 @@ return [
         'path' => './vendor/aropixel/admin-bundle/assets/admin.js',
         'entrypoint' => true,
     ],
+    'wavesurfer.js' => [
+        'version' => '7.12.6',
+    ],
 ];

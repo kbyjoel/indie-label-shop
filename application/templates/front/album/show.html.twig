@@ -47,7 +47,6 @@
                 </div>
             {% endif %}
 
-            {# Tracklist — interactive player added in Step 3 #}
             {% if album.tracklists is not empty %}
                 <section class="mt-10">
                     <h2 class="mb-4 text-lg font-display font-semibold">
@@ -57,13 +56,12 @@
                         {% for tracklist in album.tracklists %}
                             {% set track = tracklist.track %}
                             {% if track %}
-                                <li class="flex items-center gap-4 py-3">
-                                    <span class="w-6 text-right text-xs text-muted shrink-0">{{ loop.index }}</span>
-                                    <span class="flex-1 text-sm font-medium">{{ track.name }}</span>
-                                    {% if track.duration %}
-                                        <span class="text-xs text-muted shrink-0">{{ track.duration }}</span>
-                                    {% endif %}
-                                </li>
+                                {{ include('front/partials/_track_row.html.twig', {
+                                    trackIndex: loop.index,
+                                    track: track,
+                                    previewUrl:  trackUrls[track.id].previewUrl  ?? null,
+                                    waveformUrl: trackUrls[track.id].waveformUrl ?? null,
+                                }) }}
                             {% endif %}
                         {% endfor %}
                     </ol>
