@@ -8,8 +8,6 @@ use App\Component\Cart\CartContext;
 use App\Component\Cart\CartManager;
 use App\Entity\OrderItem;
 use App\Entity\ProductVariant;
-use App\Entity\Release;
-use App\Entity\Track;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -49,7 +47,7 @@ class CartController extends AbstractController
 
         /** @var ProductVariant|null $variant */
         $variant = $this->em->find(ProductVariant::class, $variantId);
-        if (null === $variant || $variant instanceof Release || $variant instanceof Track) {
+        if (null === $variant) {
             return $this->json(['success' => false, 'message' => 'Variant not found'], 404);
         }
 

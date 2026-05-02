@@ -311,7 +311,8 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 $product->setBand($band);
                 $product->setTaxCategory($taxMerch);
                 $product->addChannel($channel);
-                $product->setEnabled(true);
+                // Most products are enabled; ~20% are disabled (for future tests)
+                $product->setEnabled($faker->boolean(80));
 
                 // Translations
                 $translationEn = new ProductTranslation();

@@ -41,11 +41,14 @@ album:
         release_date: "Date de sortie :"
         catalog_number: "Réf. catalogue :"
         tracklist: Tracklist
+        buy_releases: "Acheter cet album"
 
 product:
     index:
         title: Boutique
         empty: Aucun produit pour l'instant.
+        albums_section: Albums
+        merch_section: Merchandising
     card:
         no_image: Pas d'image
         from_price: "à partir de"

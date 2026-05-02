@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Front;
 
 use App\Entity\ProductVariant;
+use App\Repository\AlbumRepository;
 use App\Repository\ProductRepository;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
@@ -16,14 +17,21 @@ use Symfony\Component\Routing\Attribute\Route;
 class ProductController extends AbstractController
 {
     #[Route('/boutique', name: 'front_product_index')]
-    public function index(Request $request, ProductRepository $productRepository): Response
+    public function index(Request $request, ProductRepository $productRepository, AlbumRepository $albumRepository): Response
     {
-        $pagerfanta = new Pagerfanta(new QueryAdapter($productRepository->createEnabledPaginatedQuery()));
-        $pagerfanta->setMaxPerPage(12);
-        $pagerfanta->setCurrentPage(max(1, $request->query->getInt('page', 1)));
+        $page = max(1, $request->query->getInt('page', 1));
+
+        $products = new Pagerfanta(new QueryAdapter($productRepository->createEnabledPaginatedQuery()));
+        $products->setMaxPerPage(12);
+        $products->setCurrentPage($page);
+
+        $albums = new Pagerfanta(new QueryAdapter($albumRepository->createOnlinePaginatedQuery()));
+        $albums->setMaxPerPage(12);
+        $albums->setCurrentPage($page);
 
         return $this->render('front/product/index.html.twig', [
-            'products' => $pagerfanta,
+            'products' => $products,
+            'albums' => $albums,
         ]);
     }
 

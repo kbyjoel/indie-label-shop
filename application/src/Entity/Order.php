@@ -36,6 +36,9 @@ class Order extends BaseOrder
     #[ORM\JoinColumn(name: 'billing_address_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     protected $billingAddress;
 
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
+    protected $tokenValue;
+
     #[ORM\Column(type: 'string', length: 255)]
     protected $state = self::STATE_CART;
 

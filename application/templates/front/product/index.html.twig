@@ -5,38 +5,58 @@
 {% block content %}
 <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
 
-    <h1 class="mb-8 text-3xl font-display font-bold tracking-tight sm:text-4xl">
+    <h1 class="mb-12 text-3xl font-display font-bold tracking-tight sm:text-4xl">
         {{ 'product.index.title'|trans }}
     </h1>
 
-    {% if products.currentPageResults|length == 0 %}
-        <p class="text-muted">{{ 'product.index.empty'|trans }}</p>
-    {% else %}
+    {# Albums section #}
+    {% if albums.currentPageResults|length > 0 %}
+    <section class="mb-16">
+        <h2 class="mb-6 text-xl font-display font-semibold">{{ 'product.index.albums_section'|trans }}</h2>
+        <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+            {% for album in albums.currentPageResults %}
+                {{ include('front/partials/_album_card.html.twig') }}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {# Merch section #}
+    {% if products.currentPageResults|length > 0 %}
+    <section>
+        <h2 class="mb-6 text-xl font-display font-semibold">{{ 'product.index.merch_section'|trans }}</h2>
         <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
             {% for product in products.currentPageResults %}
                 {{ include('front/partials/_product_card.html.twig') }}
             {% endfor %}
         </div>
+    </section>
+    {% endif %}
 
-        {% if products.haveToPaginate %}
-            <nav class="mt-12 flex items-center justify-center gap-2" aria-label="{{ 'pagination.label'|trans }}">
-                {% if products.hasPreviousPage %}
-                    <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({page: products.previousPage})) }}"
-                       class="rounded-md border border-border px-4 py-2 text-sm hover:bg-surface transition-colors">
-                        {{ 'pagination.previous'|trans }}
-                    </a>
-                {% endif %}
-                <span class="text-sm text-muted">
-                    {{ 'pagination.page_x_of_y'|trans({page: products.currentPage, total: products.nbPages}) }}
-                </span>
-                {% if products.hasNextPage %}
-                    <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({page: products.nextPage})) }}"
-                       class="rounded-md border border-border px-4 py-2 text-sm hover:bg-surface transition-colors">
-                        {{ 'pagination.next'|trans }}
-                    </a>
-                {% endif %}
-            </nav>
-        {% endif %}
+    {% if albums.currentPageResults|length == 0 and products.currentPageResults|length == 0 %}
+        <p class="text-muted">{{ 'product.index.empty'|trans }}</p>
+    {% endif %}
+
+    {# Pagination (shared page param) #}
+    {% set pager = products.haveToPaginate ? products : (albums.haveToPaginate ? albums : null) %}
+    {% if pager %}
+        <nav class="mt-12 flex items-center justify-center gap-2" aria-label="{{ 'pagination.label'|trans }}">
+            {% if pager.hasPreviousPage %}
+                <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({page: pager.previousPage})) }}"
+                   class="rounded-md border border-border px-4 py-2 text-sm hover:bg-surface transition-colors">
+                    {{ 'pagination.previous'|trans }}
+                </a>
+            {% endif %}
+            <span class="text-sm text-muted">
+                {{ 'pagination.page_x_of_y'|trans({page: pager.currentPage, total: pager.nbPages}) }}
+            </span>
+            {% if pager.hasNextPage %}
+                <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({page: pager.nextPage})) }}"
+                   class="rounded-md border border-border px-4 py-2 text-sm hover:bg-surface transition-colors">
+                    {{ 'pagination.next'|trans }}
+                </a>
+            {% endif %}
+        </nav>
     {% endif %}
 
 </div>

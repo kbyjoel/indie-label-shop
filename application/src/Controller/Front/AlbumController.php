@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Front;
 
 use App\Component\Track\PreviewUrlResolver;
+use App\Entity\Release;
 use App\Repository\AlbumRepository;
 use App\Repository\BandRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -61,9 +62,15 @@ class AlbumController extends AbstractController
             }
         }
 
+        $releases = array_values(array_filter(
+            $album->getVariants()->toArray(),
+            static fn ($v): bool => $v instanceof Release,
+        ));
+
         return $this->render('front/album/show.html.twig', [
             'album' => $album,
             'trackUrls' => $trackUrls,
+            'releases' => $releases,
         ]);
     }
 }

@@ -1,5 +1,6 @@
-{# Expects: trackIndex (int), track (Track), previewUrl (?string), waveformUrl (?string) #}
+{# Expects: trackIndex (int), track (Track), previewUrl (?string), waveformUrl (?string), cartAddUrl (?string) #}
 {% set hasPreview = previewUrl is not null %}
+{% set hasPrice = track.price is not null and cartAddUrl is defined %}
 <li class="flex items-center gap-4 py-3"
     {% if hasPreview %}
         data-controller="audio-player"
@@ -42,6 +43,18 @@
     {# Duration #}
     {% if track.duration %}
         <span class="text-xs text-muted shrink-0">{{ track.duration }}</span>
+    {% endif %}
+
+    {# Price + buy button #}
+    {% if hasPrice %}
+        <form data-action="submit->cart#add" class="shrink-0">
+            <input type="hidden" name="variantId" value="{{ track.id }}">
+            <input type="hidden" name="qty" value="1">
+            <button type="submit"
+                    class="rounded-md border border-accent px-3 py-1 text-xs font-semibold text-accent hover:bg-accent hover:text-white transition-colors">
+                {{ (track.price / 100)|number_format(2, ',', '\u{202F}') }} €
+            </button>
+        </form>
     {% endif %}
 
 </li>

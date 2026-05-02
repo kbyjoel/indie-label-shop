@@ -3,7 +3,9 @@
 {% block page_title %}{{ album.name }}{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"
+     data-controller="cart"
+     data-cart-add-url-value="{{ path('front_cart_add') }}">
 
     <div class="lg:flex lg:gap-16">
 
@@ -14,7 +16,7 @@
                  class="w-full max-w-xs mx-auto lg:mx-0 rounded-lg shadow-md object-cover aspect-square">
         </div>
 
-        {# Metadata & tracklist #}
+        {# Metadata, buy section & tracklist #}
         <div class="flex-1 min-w-0">
 
             {% if album.band %}
@@ -47,6 +49,38 @@
                 </div>
             {% endif %}
 
+            {# Releases (buy full album) #}
+            {% if releases is not empty %}
+                <section class="mt-8">
+                    <h2 class="mb-3 text-base font-semibold">{{ 'album.show.buy_releases'|trans }}</h2>
+                    <ul class="space-y-3">
+                        {% for release in releases %}
+                            <li class="flex items-center justify-between gap-4 rounded-md border border-border p-4">
+                                <div>
+                                    <p class="font-medium">{{ release.name }}</p>
+                                    {% if release.price is not null %}
+                                        <p class="text-sm text-muted mt-0.5">
+                                            {{ (release.price / 100)|number_format(2, ',', '\u{202F}') }} €
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                {% if release.price is not null %}
+                                    <form data-action="submit->cart#add">
+                                        <input type="hidden" name="variantId" value="{{ release.id }}">
+                                        <input type="hidden" name="qty" value="1">
+                                        <button type="submit"
+                                                class="rounded-md bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/90 transition-colors">
+                                            {{ 'product.show.add_to_cart'|trans }}
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+            {% endif %}
+
+            {# Tracklist #}
             {% if album.tracklists is not empty %}
                 <section class="mt-10">
                     <h2 class="mb-4 text-lg font-display font-semibold">
@@ -61,6 +95,7 @@
                                     track: track,
                                     previewUrl: trackUrls[track.id].previewUrl ?? null,
                                     waveformUrl: trackUrls[track.id].waveformUrl ?? null,
+                                    cartAddUrl: path('front_cart_add'),
                                 }) }}
                             {% endif %}
                         {% endfor %}

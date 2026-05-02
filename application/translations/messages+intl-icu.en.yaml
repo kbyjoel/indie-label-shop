@@ -41,11 +41,14 @@ album:
         release_date: "Release date:"
         catalog_number: "Catalogue ref.:"
         tracklist: Tracklist
+        buy_releases: "Buy this album"
 
 product:
     index:
         title: Shop
         empty: No products yet.
+        albums_section: Albums
+        merch_section: Merchandise
     card:
         no_image: No image
         from_price: "from"
