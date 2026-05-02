@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Front;
 
+use App\Component\Track\PreviewUrlResolver;
 use App\Repository\AlbumRepository;
 use App\Repository\BandRepository;
-use App\Service\PreviewUrlResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;

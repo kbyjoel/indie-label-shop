@@ -256,8 +256,8 @@ Front/AccountController.php       — Connexion, inscription, compte client
 
 ### Services custom à créer (`src/`)
 ```
-Service/Cart/CartContext.php                  — Récupération/création de l'Order courant (session)
-Service/Cart/CartManager.php                 — Ajout/retrait d'items, recalcul totaux
+Component/Cart/CartContext.php                  — Récupération/création de l'Order courant (session)
+Component/Cart/CartManager.php                 — Ajout/retrait d'items, recalcul totaux
 Routing/FrontRouteLoader.php                 — Route loader conditionnel (préfixe /{_locale} si multi-locales)
 EventListener/LocaleSubscriber.php           — Force la locale unique sur kernel.request (mode mono-locale)
 Payment/Gateway/PaymentGatewayInterface.php  — Contrat commun : createIntent(), capture(), refund()
@@ -531,6 +531,9 @@ graph TD
 ```
 application/
   src/
+    Component/Cart/
+      CartContext.php             [NEW]
+      CartManager.php             [NEW]
     Controller/Front/
       HomeController.php          [NEW]
       BandController.php          [NEW]
@@ -543,9 +546,6 @@ application/
       AccountController.php       [NEW]
     Entity/
       DownloadToken.php           [NEW]
-    Service/Cart/
-      CartContext.php             [NEW]
-      CartManager.php             [NEW]
     Routing/
       FrontRouteLoader.php        [NEW]
     EventListener/
@@ -723,7 +723,7 @@ La pipeline d'encodage des previews audio est complète, et le lecteur WaveSurfe
 - `EncodeTrackMp3Handler` corrigé : lecture du master depuis `private.storage` via `'files/{filename}'` (chemin défini par `PathResolver` du bundle) — suppression du `$projectDir` hardcodé
 - Génération PNG supprimée ; remplacée par extraction PCM 8kHz mono via subprocess FFmpeg → calcul RMS sur 1 000 fenêtres → JSON peaks normalisés (format WaveSurfer v7)
 - Durée extraite via `FFProbe` après encodage MP3 et stockée au format `M:SS` si null
-- `PreviewUrlResolver` (`src/Service/`) : URL relative `/previews/{path}` en dev, `{PREVIEWS_BASE_URL}/{path}` en prod — aucune entrée `services.yaml` nécessaire (autowiring `App\:`)
+- `PreviewUrlResolver` (`src/Component/Track/`) : URL relative `/previews/{path}` en dev, `{PREVIEWS_BASE_URL}/{path}` en prod — aucune entrée `services.yaml` nécessaire (autowiring `App\:`)
 - `PREVIEWS_BASE_URL=` ajouté dans `.env` (valeur vide = mode dev)
 - `audio_player_controller.js` : init WaveSurfer lazy au premier clic, peaks JSON pré-fetchés avant instanciation, un seul player actif via `Set` module-level, compatible Turbo Drive (`disconnect()` détruit l'instance)
 - `wavesurfer.js` ajouté à `importmap.php` via `importmap:require`
@@ -741,9 +741,9 @@ La boutique merch est navigable avec un panier entièrement custom basé sur les
 - Créer `src/Controller/Front/ProductController.php` avec actions `index()` et `show(string $slug)`, attributs `#[Route('/boutique')]` et `#[Route('/produit/{slug}')]` (préfixe locale géré par `FrontRouteLoader`)
 - Créer `templates/front/product/index.html.twig` : grille de produits (image, nom, prix)
 - Créer `templates/front/product/show.html.twig` : galerie, description, options/variants
-- Créer `src/Service/Cart/CartContext.php` : récupère/crée l'`Order` (state=`cart`) persisté en base ; stocke uniquement le `tokenValue` (UUID) en session — pattern natif Sylius.
+- Créer `src/Component/Cart/CartContext.php` : récupère/crée l'`Order` (state=`cart`) persisté en base ; stocke uniquement le `tokenValue` (UUID) en session — pattern natif Sylius.
 - Créer `src/Command/PurgeExpiredCartsCommand.php` (`app:cart:purge-expired`) : supprime les `Order[state=cart]` dont `updatedAt` est antérieur au TTL configuré (param `%app.cart.expiration_days%`, défaut 14). À planifier en cron quotidien.
-- Créer `src/Service/Cart/CartManager.php` : ajoute/retire des `OrderItem`, recalcule les totaux
+- Créer `src/Component/Cart/CartManager.php` : ajoute/retire des `OrderItem`, recalcule les totaux
 - Créer `src/Controller/Front/CartController.php` : actions `index()`, `add()`, `remove()`, `update()`
 - Créer `templates/front/cart/index.html.twig` : résumé du panier
 - Créer `assets/controllers/product_variant_controller.js` (Stimulus) : mise à jour du prix/stock au changement de variant
