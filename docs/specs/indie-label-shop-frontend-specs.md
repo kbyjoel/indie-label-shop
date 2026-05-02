@@ -684,7 +684,7 @@ Chaque page et fonctionnalité interactive sera validée en boîte noire via le 
 
 # Delivery Steps
 
-> **Documentation** : à chaque étape livrée, mettre à jour le `README.md` racine si nécessaire et créer ou compléter les fichiers dans `docs/frontend/`.
+> **Documentation** : à chaque étape livrée, mettre à jour le `README.md` racine si nécessaire et créer ou compléter les fichiers dans `docs/frontend/`. **Toute la documentation technique doit être rédigée en anglais.**
 
 ---
 
@@ -710,76 +710,30 @@ Les pages publiques de navigation dans le catalogue musical sont accessibles : l
 - `band` ManyToOne est sur l'entité `Product` (parent de `Album`), accessible via `a.band` en DQL et `album.band` en Twig
 - Filter sets LiipImagine définis dans `liip_imagine.yaml` : `album_card` (400×400 outbound), `album_artwork` (800×800 inset), `band_card` (400×400 outbound)
 - Images gérées via `aropixel_imagine_filter` (vendor `aropixel/admin-bundle`) — placeholder automatique pour images manquantes, aucune garde null nécessaire sur le `src`
-- `album/show.html.twig` créé en stub (tracklist statique sans player) — lecteur WaveSurfer ajouté au Step 4
+- `album/show.html.twig` créé en stub (tracklist statique sans player) — lecteur WaveSurfer finalisé au Step 3
 - `AlbumRepository::findLatestOnline()` accepte un `?Band` optionnel (utilisé pour la discographie sur la page artiste)
 
 **Documentation créée :**
 - [`docs/frontend/catalogue.md`](../frontend/catalogue.md) — routes, entités, Gedmo refresh, filter sets, pagination, repositories
 
-###   Step 3: Pipeline encodage previews audio (MP3 128kbps + JSON peaks waveform)
-La pipeline d'encodage des previews audio est complète et validée : MP3 128kbps généré et accessible publiquement, waveform JSON peaks disponible pour le lecteur WaveSurfer.js.
+###   Step 3 & 4: Pipeline encodage previews audio + lecteur WaveSurfer.js ✅
+La pipeline d'encodage des previews audio est complète, et le lecteur WaveSurfer.js est intégré sur la page album (Step 4 implémenté en même temps).
 
-**Stratégie preview (métier) :**
-- Piste entière (full track) en MP3 128kbps CBR — qualité "radio" qui valorise par contraste l'achat du master
-- Génération unique à l'upload du master, stockage permanent dans `previews.storage` (S3 Cellar, préfixe public)
-- Accès public direct (HTTP Range Requests natif S3 pour le streaming/scrubbing), pas d'URL signée nécessaire
-- Empreinte estimée à ~6,6 Go pour 150 albums (~1 800 titres × 3,7 Mo) — ~0,13 €/mois sur Cellar
+**Décisions d'implémentation :**
+- `EncodeTrackMp3Handler` corrigé : lecture du master depuis `private.storage` via `'files/{filename}'` (chemin défini par `PathResolver` du bundle) — suppression du `$projectDir` hardcodé
+- Génération PNG supprimée ; remplacée par extraction PCM 8kHz mono via subprocess FFmpeg → calcul RMS sur 1 000 fenêtres → JSON peaks normalisés (format WaveSurfer v7)
+- Durée extraite via `FFProbe` après encodage MP3 et stockée au format `M:SS` si null
+- `PreviewUrlResolver` (`src/Service/`) : URL relative `/previews/{path}` en dev, `{PREVIEWS_BASE_URL}/{path}` en prod — aucune entrée `services.yaml` nécessaire (autowiring `App\:`)
+- `PREVIEWS_BASE_URL=` ajouté dans `.env` (valeur vide = mode dev)
+- `audio_player_controller.js` : init WaveSurfer lazy au premier clic, peaks JSON pré-fetchés avant instanciation, un seul player actif via `Set` module-level, compatible Turbo Drive (`disconnect()` détruit l'instance)
+- `wavesurfer.js` ajouté à `importmap.php` via `importmap:require`
+- `_track_row.html.twig` créé : bouton play/pause conditionnel (`previewPath` non null), zone waveform `opacity-0` animée à l'apparition
 
-**Ce qui est déjà en place (validation uniquement) :**
-- `EncodeTrackMp3Handler` : encodage 128kbps CBR via `php-ffmpeg/php-ffmpeg` ✅
-- `TrackMasterFileListener` : déclenchement automatique sur `postPersist`/`postUpdate` ✅
-- `previews.storage` Flysystem (local en dev, S3 Cellar en prod), fichiers écrits avec `visibility = public` ✅
-- `Track.previewPath` mis à jour après encodage ✅
-- Routing Messenger `EncodeTrackMp3Message → async` ✅
+**Documentation créée :**
+- [`docs/frontend/audio-previews.md`](../frontend/audio-previews.md) — pipeline d'encodage, format JSON peaks, PreviewUrlResolver, lecteur Stimulus, CORS Cellar, test en dev
 
-**À implémenter — génération JSON peaks (remplace le PNG actuel) :**
-- Modifier `EncodeTrackMp3Handler` : supprimer `$audio->waveform(...)` (génération PNG)
-- Après encodage MP3, lancer un subprocess FFmpeg pour extraire le signal PCM brut : `ffmpeg -i {mp3} -f s16le -ac 1 -ar 8000 pipe:1`
-- En PHP : calculer les amplitudes RMS sur ~1000 fenêtres régulières, normaliser entre 0.0 et 1.0
-- Écrire `{basename}.peaks.json` dans `previews.storage` avec `visibility = public` ; format : `{"version":2,"channels":1,"sample_rate":8000,"samples_per_pixel":N,"bits":8,"length":1000,"data":[0.1,0.3,...]}`
-- Mettre à jour `Track.waveformPath` avec le chemin vers ce fichier JSON
-
-**À implémenter — correction `EncodeTrackMp3Handler` (lecture du master) :**
-- Le handler actuel lit le master via un chemin local hardcodé `$projectDir/public/uploads/files/{filename}` — non fonctionnel : les masters sont écrits dans `private.storage` par `UploadFileListener` du bundle `aropixel/admin-bundle`
-- Remplacer par une lecture via Flysystem : injecter `FilesystemOperator $privateStorage` (disque `private.storage`) et copier le stream vers un fichier temporaire local avant encodage FFmpeg
-- Supprimer l'injection de `$projectDir` devenue inutile
-
-**À implémenter — extraction de la durée :**
-- Après encodage MP3, appeler `FFProbe::create()->format($tmpMp3)->get('duration')`
-- Si `Track.duration` est null, le renseigner au format `M:SS`
-
-**À implémenter — service URL publique :**
-- Créer `src/Service/PreviewUrlResolver.php` :
-  - `getPreviewUrl(Track $track): ?string`
-  - `getWaveformUrl(Track $track): ?string`
-  - En dev : URL relative `/previews/{path}` (servi depuis `public/previews/`)
-  - En prod : `{PREVIEWS_BASE_URL}/{path}` (variable d'env à ajouter dans `.env` et `.env.dist`)
-- Exposé comme service injectable (utilisé par les controllers et templates du Step 4)
-
-**À documenter (`docs/frontend/audio-previews.md`) :**
-- Architecture de la pipeline (upload master → Messenger → MP3 + peaks JSON → S3)
-- Format du peaks JSON et son usage dans WaveSurfer.js
-- Configuration CORS Cellar (règles XML à appliquer côté console Clever Cloud pour autoriser `GET` depuis le domaine du shop)
-- Comment tester en dev : upload master via admin + `castor docker:builder -- php bin/console messenger:consume async --limit=1`
-
-**Note sur le disque `private.storage` :**
-- `private.storage` est défini par `aropixel/admin-bundle` via `prepend()` — en dev : adaptateur `local` → `%kernel.project_dir%/private/` ; en prod : adaptateur `asyncaws` → bucket Cellar préfixe `private`
-- Tous les fichiers uploadés non accessibles publiquement (masters, fichiers admin) y sont écrits par `UploadFileListener` du bundle
-- `EncodeTrackMp3Handler` doit donc lire depuis `private.storage` (corrigé dans ce Step 3)
-
-###   Step 4: Page album avec tracklist et lecteur audio WaveSurfer.js
-La page album affiche la tracklist complète avec un lecteur audio waveform interactif pour chaque piste disposant d'une preview.
-
-- Créer `templates/front/album/show.html.twig` : artwork, métadonnées, description, albums similaires
-- Créer `templates/front/partials/_track_row.html.twig` : titre, durée, bouton play conditionnel (`previewPath` non null)
-- Ajouter `wavesurfer.js` dans `importmap.php`
-- Créer `assets/controllers/audio_player_controller.js` (Stimulus) :
-  - Valeurs : `previewUrlValue`, `waveformUrlValue`
-  - `connect()` : instancie WaveSurfer avec les peaks JSON du `waveformPath` (chargés via `fetch`)
-  - Action `play()` / `pause()` liée au bouton
-  - Gestion d'un seul lecteur actif à la fois (arrêt des autres)
-- Intégrer le contrôleur dans `_track_row.html.twig` via attributs `data-controller`
-- Injecter `PreviewUrlResolver` dans `AlbumController` pour transmettre les URLs publiques au template
+###   Step 4: Page album avec tracklist et lecteur audio WaveSurfer.js ✅
+> Implémenté dans le cadre du Step 3 — voir ci-dessus.
 
 ###   Step 5: Boutique merch, panier custom et sélection de variant
 La boutique merch est navigable avec un panier entièrement custom basé sur les entités Sylius Core (sans SyliusShopBundle).
