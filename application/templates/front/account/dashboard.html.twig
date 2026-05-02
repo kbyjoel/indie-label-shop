@@ -1,0 +1,59 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'account.dashboard.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+
+    <h1 class="mb-8 text-3xl font-display font-bold tracking-tight">{{ 'account.dashboard.title'|trans }}</h1>
+
+    <h2 class="mb-4 text-lg font-semibold">{{ 'account.dashboard.orders_heading'|trans }}</h2>
+
+    {% if orders|length == 0 %}
+        <p class="text-muted">{{ 'account.dashboard.no_orders'|trans }}</p>
+        <a href="{{ path('front_product_index', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}"
+           class="mt-4 inline-block text-sm text-accent hover:underline">
+            {{ 'cart.continue_shopping'|trans }}
+        </a>
+    {% else %}
+        <div class="overflow-hidden rounded-xl border border-border">
+            <table class="min-w-full divide-y divide-border">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted">{{ 'account.order.title'|trans }}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted">{{ 'account.order.date'|trans }}</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted">{{ 'account.order.status'|trans }}</th>
+                        <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted">{{ 'account.order.total'|trans }}</th>
+                        <th class="px-4 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border bg-white">
+                    {% for order in orders %}
+                        <tr>
+                            <td class="px-4 py-4 text-sm font-medium">{{ order.number }}</td>
+                            <td class="px-4 py-4 text-sm text-muted">{{ order.createdAt ? order.createdAt|date('d/m/Y') : '—' }}</td>
+                            <td class="px-4 py-4 text-sm">
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                    {% if order.state == 'new' %}bg-blue-100 text-blue-800
+                                    {% elseif order.state == 'fulfilled' %}bg-green-100 text-green-800
+                                    {% elseif order.state == 'cancelled' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ ('account.states.' ~ order.state)|trans }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-4 text-right text-sm font-medium">
+                                {{ (order.total / 100)|number_format(2, ',', "\u{202F}") }} €
+                            </td>
+                            <td class="px-4 py-4 text-right text-sm">
+                                <a href="{{ path('front_account_order_show', (app_locales|length > 1 ? {_locale: app.request.locale} : {})|merge({number: order.number})) }}"
+                                   class="text-accent hover:underline">{{ 'account.order.view'|trans }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

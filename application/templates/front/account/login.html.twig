@@ -1,0 +1,60 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'account.login.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-md px-4 py-16 sm:px-6">
+
+    <div class="rounded-xl border border-border bg-white p-8 shadow-sm">
+        <h1 class="mb-6 text-2xl font-display font-bold tracking-tight">{{ 'account.login.title'|trans }}</h1>
+
+        {% if error %}
+            <div class="mb-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-200">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('front_account_login', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}" novalidate>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('login') }}">
+
+            <div class="mb-4">
+                <label for="email" class="mb-1 block text-sm font-medium">{{ 'account.login.email'|trans }}</label>
+                <input type="email"
+                       id="email"
+                       name="email"
+                       value="{{ lastUsername }}"
+                       required
+                       autocomplete="email"
+                       class="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <div class="mb-6">
+                <label for="password" class="mb-1 block text-sm font-medium">{{ 'account.login.password'|trans }}</label>
+                <input type="password"
+                       id="password"
+                       name="password"
+                       required
+                       autocomplete="current-password"
+                       class="w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+            </div>
+
+            <div class="mb-6 flex items-center gap-2">
+                <input type="checkbox" id="remember_me" name="_remember_me" class="h-4 w-4 rounded border-border text-accent">
+                <label for="remember_me" class="text-sm text-muted">{{ 'account.login.remember_me'|trans }}</label>
+            </div>
+
+            <button type="submit"
+                    class="w-full rounded-md bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent/90 transition-colors">
+                {{ 'account.login.submit'|trans }}
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-muted">
+            {{ 'account.login.no_account'|trans }}
+            <a href="{{ path('front_account_register', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}"
+               class="text-accent hover:underline">{{ 'account.login.register_link'|trans }}</a>
+        </p>
+    </div>
+
+</div>
+{% endblock %}

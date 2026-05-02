@@ -1,0 +1,39 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'checkout.success.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-lg px-4 py-16 sm:px-6 text-center">
+
+    <div class="mb-6 flex justify-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+    </div>
+
+    <h1 class="mb-3 text-3xl font-display font-bold tracking-tight">{{ 'checkout.success.title'|trans }}</h1>
+    <p class="mb-2 text-muted">{{ 'checkout.success.message'|trans }}</p>
+    <p class="mb-8 text-sm font-medium">{{ 'checkout.success.order_number'|trans }} <span class="font-bold">{{ order.number }}</span></p>
+
+    <div class="mb-4 rounded-xl border border-border p-5 text-left">
+        <div class="flex justify-between text-sm">
+            <span class="text-muted">{{ 'account.order.total'|trans }}</span>
+            <span class="font-bold">{{ (order.total / 100)|number_format(2, ',', "\u{202F}") }} €</span>
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <a href="{{ path('front_account_dashboard', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}"
+           class="rounded-md bg-accent px-6 py-2.5 text-sm font-semibold text-white hover:bg-accent/90 transition-colors">
+            {{ 'checkout.success.view_orders'|trans }}
+        </a>
+        <a href="{{ path('front_product_index', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}"
+           class="rounded-md border border-border px-6 py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors">
+            {{ 'checkout.success.back_to_shop'|trans }}
+        </a>
+    </div>
+
+</div>
+{% endblock %}

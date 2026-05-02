@@ -61,6 +61,8 @@ doctrine:
             Sylius\Component\Product\Model\ProductOptionValueInterface: App\Entity\ProductOptionValue
             Sylius\Component\Product\Model\ProductOptionValueTranslationInterface: App\Entity\ProductOptionValueTranslation
             Sylius\Component\Shipping\Model\ShippingMethodTranslationInterface: App\Entity\ShippingMethodTranslation
+            Sylius\Component\Core\Model\ShopUserInterface: App\Entity\ShopUser
+            Sylius\Component\User\Model\UserInterface: App\Entity\ShopUser
 
 when@test:
     doctrine:

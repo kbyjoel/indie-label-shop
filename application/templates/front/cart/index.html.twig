@@ -85,7 +85,8 @@
                    class="text-sm text-accent hover:underline">
                     {{ 'cart.continue_shopping'|trans }}
                 </a>
-                <a href="#" class="rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent/90 transition-colors text-center">
+                <a href="{{ path('front_checkout_address', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}"
+                   class="rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent/90 transition-colors text-center">
                     {{ 'cart.checkout'|trans }}
                 </a>
             </div>

@@ -1,0 +1,51 @@
+<aside class="rounded-xl border border-border bg-gray-50 p-5">
+    <h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-muted">{{ 'checkout.summary.title'|trans }}</h2>
+
+    <ol class="space-y-3">
+        {% for item in cart.items %}
+            {% set variant = item.variant %}
+            {% set product = variant ? variant.product : null %}
+            <li class="flex items-start gap-3 text-sm">
+                <div class="w-10 h-10 shrink-0 overflow-hidden rounded-md bg-border">
+                    {% if product and product.image %}
+                        <img src="{{ product.image|aropixel_imagine_filter('product_card') }}"
+                             alt="{{ product.name }}"
+                             class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-medium truncate">{{ product ? product.name : '—' }}</p>
+                    {% if variant and variant.optionValues|length > 0 %}
+                        <p class="text-xs text-muted">{{ variant.optionValuesLabel }}</p>
+                    {% endif %}
+                    <p class="text-xs text-muted">× {{ item.quantity }}</p>
+                </div>
+                <span class="shrink-0 text-sm font-medium">{{ (item.total / 100)|number_format(2, ',', "\u{202F}") }} €</span>
+            </li>
+        {% endfor %}
+    </ol>
+
+    {% set shippingTotal = 0 %}
+    {% for adj in cart.adjustments %}
+        {% if adj.type == 'shipping' %}
+            {% set shippingTotal = shippingTotal + adj.amount %}
+        {% endif %}
+    {% endfor %}
+
+    <div class="mt-4 space-y-1 border-t border-border pt-4 text-sm">
+        <div class="flex justify-between text-muted">
+            <span>{{ 'checkout.summary.subtotal'|trans }}</span>
+            <span>{{ (cart.itemsTotal / 100)|number_format(2, ',', "\u{202F}") }} €</span>
+        </div>
+        {% if shippingTotal > 0 %}
+            <div class="flex justify-between text-muted">
+                <span>{{ 'checkout.summary.shipping'|trans }}</span>
+                <span>{{ (shippingTotal / 100)|number_format(2, ',', "\u{202F}") }} €</span>
+            </div>
+        {% endif %}
+        <div class="flex justify-between font-bold">
+            <span>{{ 'cart.total'|trans }}</span>
+            <span>{{ (cart.total / 100)|number_format(2, ',', "\u{202F}") }} €</span>
+        </div>
+    </div>
+</aside>

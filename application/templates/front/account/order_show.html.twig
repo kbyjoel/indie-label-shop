@@ -1,0 +1,80 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'account.order.title'|trans }} {{ order.number }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+
+    <a href="{{ path('front_account_dashboard', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}"
+       class="mb-6 inline-flex items-center gap-1 text-sm text-muted hover:text-black transition-colors">
+        ← {{ 'account.order.back'|trans }}
+    </a>
+
+    <h1 class="mb-8 text-3xl font-display font-bold tracking-tight">
+        {{ 'account.order.title'|trans }} {{ order.number }}
+    </h1>
+
+    <div class="grid gap-6 md:grid-cols-2">
+
+        {# Shipping address #}
+        {% if order.shippingAddress %}
+            <div class="rounded-xl border border-border p-5">
+                <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-muted">{{ 'account.order.shipping_address'|trans }}</h2>
+                <address class="not-italic text-sm leading-relaxed">
+                    {{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}<br>
+                    {% if order.shippingAddress.company %}{{ order.shippingAddress.company }}<br>{% endif %}
+                    {{ order.shippingAddress.street }}<br>
+                    {{ order.shippingAddress.postcode }} {{ order.shippingAddress.city }}<br>
+                    {{ order.shippingAddress.countryCode }}
+                </address>
+            </div>
+        {% endif %}
+
+        {# Shipment #}
+        {% if order.shipments|length > 0 %}
+            <div class="rounded-xl border border-border p-5">
+                <h2 class="mb-3 text-sm font-semibold uppercase tracking-wider text-muted">{{ 'account.order.shipping_method'|trans }}</h2>
+                {% for shipment in order.shipments %}
+                    <p class="text-sm">{{ shipment.method ? shipment.method.name : '—' }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+
+    {# Items #}
+    <div class="mt-6 rounded-xl border border-border">
+        <h2 class="border-b border-border px-5 py-4 text-sm font-semibold uppercase tracking-wider text-muted">{{ 'account.order.items'|trans }}</h2>
+        <ol class="divide-y divide-border">
+            {% for item in order.items %}
+                {% set variant = item.variant %}
+                {% set product = variant ? variant.product : null %}
+                <li class="flex items-center gap-4 px-5 py-4">
+                    <div class="w-12 h-12 shrink-0 overflow-hidden rounded-md bg-border">
+                        {% if product and product.image %}
+                            <img src="{{ product.image|aropixel_imagine_filter('product_card') }}"
+                                 alt="{{ product.name }}"
+                                 class="w-full h-full object-cover">
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium truncate">{{ product ? product.name : '—' }}</p>
+                        {% if variant and variant.optionValues|length > 0 %}
+                            <p class="text-xs text-muted">{{ variant.optionValuesLabel }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="text-right text-sm">
+                        <p class="text-muted">× {{ item.quantity }}</p>
+                        <p class="font-medium">{{ (item.total / 100)|number_format(2, ',', "\u{202F}") }} €</p>
+                    </div>
+                </li>
+            {% endfor %}
+        </ol>
+        <div class="flex justify-end gap-4 border-t border-border px-5 py-4">
+            <span class="text-sm text-muted">{{ 'account.order.total'|trans }}</span>
+            <span class="text-base font-bold">{{ (order.total / 100)|number_format(2, ',', "\u{202F}") }} €</span>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

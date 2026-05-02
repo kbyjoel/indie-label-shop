@@ -6,6 +6,8 @@ nav:
     artists: Artistes
     shop: Boutique
     cart: Panier
+    account: Mon compte
+    logout: Déconnexion
     aria_label: Navigation principale
     language_switcher: Changer de langue
     menu_toggle: Menu
@@ -65,6 +67,90 @@ cart:
         unit: unité
         quantity: Quantité
         remove: Supprimer
+
+checkout:
+    steps:
+        aria_label: Étapes de commande
+        address: Adresse
+        shipment: Livraison
+        payment: Paiement
+    address:
+        title: Adresse de livraison
+        first_name: Prénom
+        last_name: Nom
+        company: Société (optionnel)
+        street: Adresse
+        city: Ville
+        postcode: Code postal
+        country: Pays
+        phone: Téléphone (optionnel)
+        continue: Continuer
+    shipment:
+        title: Mode de livraison
+        choose_method: Choisir un mode de livraison
+        continue: Continuer
+    payment:
+        title: Paiement
+        choose_method: Choisir un mode de paiement
+        confirm: Confirmer la commande
+        no_methods: Aucun mode de paiement disponible.
+    summary:
+        title: Récapitulatif
+        subtotal: Sous-total
+        shipping: Livraison
+    success:
+        title: Commande confirmée !
+        message: Merci pour votre commande.
+        order_number: "N° de commande :"
+        view_orders: Voir mes commandes
+        back_to_shop: Retour à la boutique
+    error:
+        cart_empty: Votre panier est vide.
+        no_address: Veuillez renseigner une adresse de livraison.
+        no_shipment: Veuillez choisir un mode de livraison.
+
+account:
+    login:
+        title: Connexion
+        email: Adresse e-mail
+        password: Mot de passe
+        remember_me: Se souvenir de moi
+        submit: Se connecter
+        no_account: Pas encore de compte ?
+        register_link: Créer un compte
+    register:
+        title: Créer un compte
+        first_name: Prénom
+        last_name: Nom
+        email: Adresse e-mail
+        password: Mot de passe
+        password_confirm: Confirmer le mot de passe
+        password_mismatch: Les mots de passe ne correspondent pas.
+        agree_terms: J'accepte les conditions générales de vente
+        agree_terms_required: Vous devez accepter les conditions générales.
+        submit: Créer mon compte
+        already_account: Déjà un compte ?
+        login_link: Se connecter
+        email_taken: Cette adresse e-mail est déjà utilisée.
+    dashboard:
+        title: Mon compte
+        orders_heading: Mes commandes
+        no_orders: Vous n'avez pas encore passé de commande.
+    order:
+        title: Commande
+        date: Date
+        status: Statut
+        view: Voir
+        shipping_address: Adresse de livraison
+        shipping_method: Mode de livraison
+        items: Articles
+        total: Total
+        back: Retour à mon compte
+    states:
+        cart: Panier
+        new: En cours
+        fulfilled: Expédié
+        cancelled: Annulé
 
 pagination:
     label: Pagination

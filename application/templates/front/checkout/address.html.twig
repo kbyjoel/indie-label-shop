@@ -1,0 +1,88 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'checkout.address.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+
+    {# Step indicator #}
+    {% include 'front/checkout/_steps.html.twig' with {currentStep: 'address'} %}
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-3">
+
+        {# Form #}
+        <div class="lg:col-span-2">
+            <h1 class="mb-6 text-2xl font-display font-bold tracking-tight">{{ 'checkout.address.title'|trans }}</h1>
+
+            {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+                {% if form.vars.errors|length > 0 %}
+                    <div class="mb-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-200">
+                        {{ form_errors(form) }}
+                    </div>
+                {% endif %}
+
+                <div class="mb-4 grid grid-cols-2 gap-4">
+                    <div>
+                        {{ form_label(form.firstName, null, {label_attr: {class: 'mb-1 block text-sm font-medium'}}) }}
+                        {{ form_widget(form.firstName, {attr: {class: 'w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent'}}) }}
+                        {{ form_errors(form.firstName) }}
+                    </div>
+                    <div>
+                        {{ form_label(form.lastName, null, {label_attr: {class: 'mb-1 block text-sm font-medium'}}) }}
+                        {{ form_widget(form.lastName, {attr: {class: 'w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent'}}) }}
+                        {{ form_errors(form.lastName) }}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.company, null, {label_attr: {class: 'mb-1 block text-sm font-medium'}}) }}
+                    {{ form_widget(form.company, {attr: {class: 'w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent'}}) }}
+                    {{ form_errors(form.company) }}
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.street, null, {label_attr: {class: 'mb-1 block text-sm font-medium'}}) }}
+                    {{ form_widget(form.street, {attr: {class: 'w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent'}}) }}
+                    {{ form_errors(form.street) }}
+                </div>
+
+                <div class="mb-4 grid grid-cols-2 gap-4">
+                    <div>
+                        {{ form_label(form.postcode, null, {label_attr: {class: 'mb-1 block text-sm font-medium'}}) }}
+                        {{ form_widget(form.postcode, {attr: {class: 'w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent'}}) }}
+                        {{ form_errors(form.postcode) }}
+                    </div>
+                    <div>
+                        {{ form_label(form.city, null, {label_attr: {class: 'mb-1 block text-sm font-medium'}}) }}
+                        {{ form_widget(form.city, {attr: {class: 'w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent'}}) }}
+                        {{ form_errors(form.city) }}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form_label(form.countryCode, null, {label_attr: {class: 'mb-1 block text-sm font-medium'}}) }}
+                    {{ form_widget(form.countryCode, {attr: {class: 'w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent'}}) }}
+                    {{ form_errors(form.countryCode) }}
+                </div>
+
+                <div class="mb-6">
+                    {{ form_label(form.phoneNumber, null, {label_attr: {class: 'mb-1 block text-sm font-medium'}}) }}
+                    {{ form_widget(form.phoneNumber, {attr: {class: 'w-full rounded-md border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent'}}) }}
+                    {{ form_errors(form.phoneNumber) }}
+                </div>
+
+                <button type="submit"
+                        class="w-full rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent/90 transition-colors">
+                    {{ 'checkout.address.continue'|trans }}
+                </button>
+
+            {{ form_end(form) }}
+        </div>
+
+        {# Order summary sidebar #}
+        {% include 'front/checkout/_summary.html.twig' with {cart: cart} %}
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'checkout.payment.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+
+    {# Step indicator #}
+    {% include 'front/checkout/_steps.html.twig' with {currentStep: 'payment'} %}
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-3">
+
+        {# Payment methods #}
+        <div class="lg:col-span-2">
+            <h1 class="mb-6 text-2xl font-display font-bold tracking-tight">{{ 'checkout.payment.title'|trans }}</h1>
+
+            <form method="post"
+                  action="{{ path('front_checkout_confirm', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('checkout_confirm') }}">
+
+                <div class="space-y-3">
+                    {% for method in paymentMethods %}
+                        <label class="flex cursor-pointer items-center gap-4 rounded-xl border border-border p-4 hover:border-accent transition-colors has-[:checked]:border-accent has-[:checked]:bg-accent/5">
+                            <input type="radio"
+                                   name="payment_method_id"
+                                   value="{{ method.id }}"
+                                   {% if loop.first %}checked{% endif %}
+                                   class="h-4 w-4 text-accent border-border focus:ring-accent">
+                            <span class="text-sm font-medium">{{ method.name }}</span>
+                        </label>
+                    {% else %}
+                        <p class="text-muted text-sm">{{ 'checkout.payment.no_methods'|trans }}</p>
+                    {% endfor %}
+                </div>
+
+                <button type="submit"
+                        class="mt-6 w-full rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent/90 transition-colors">
+                    {{ 'checkout.payment.confirm'|trans }}
+                </button>
+            </form>
+        </div>
+
+        {# Order summary sidebar #}
+        {% include 'front/checkout/_summary.html.twig' with {cart: cart} %}
+
+    </div>
+</div>
+{% endblock %}

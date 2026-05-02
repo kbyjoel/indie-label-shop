@@ -26,6 +26,12 @@ class Customer extends BaseCustomer
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected $lastName;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    protected $emailCanonical;
+
+    #[ORM\OneToOne(mappedBy: 'customer', targetEntity: ShopUser::class, cascade: ['persist'])]
+    protected $user;
+
     #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Order::class)]
     protected $orders;
 

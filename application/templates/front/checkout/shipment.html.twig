@@ -1,0 +1,42 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'checkout.shipment.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+
+    {# Step indicator #}
+    {% include 'front/checkout/_steps.html.twig' with {currentStep: 'shipment'} %}
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-3">
+
+        {# Form #}
+        <div class="lg:col-span-2">
+            <h1 class="mb-6 text-2xl font-display font-bold tracking-tight">{{ 'checkout.shipment.title'|trans }}</h1>
+
+            {{ form_start(form) }}
+
+                <div class="space-y-3">
+                    {% for choice in form.shippingMethod %}
+                        <label class="flex cursor-pointer items-center gap-4 rounded-xl border border-border p-4 hover:border-accent transition-colors has-[:checked]:border-accent has-[:checked]:bg-accent/5">
+                            {{ form_widget(choice, {attr: {class: 'h-4 w-4 text-accent border-border focus:ring-accent'}}) }}
+                            <span class="text-sm font-medium">{{ choice.vars.label }}</span>
+                        </label>
+                    {% endfor %}
+                    {{ form_errors(form.shippingMethod) }}
+                </div>
+
+                <button type="submit"
+                        class="mt-6 w-full rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent/90 transition-colors">
+                    {{ 'checkout.shipment.continue'|trans }}
+                </button>
+
+            {{ form_end(form) }}
+        </div>
+
+        {# Order summary sidebar #}
+        {% include 'front/checkout/_summary.html.twig' with {cart: cart} %}
+
+    </div>
+</div>
+{% endblock %}

@@ -6,6 +6,8 @@ nav:
     artists: Artists
     shop: Shop
     cart: Cart
+    account: My account
+    logout: Sign out
     aria_label: Main navigation
     language_switcher: Switch language
     menu_toggle: Menu
@@ -65,6 +67,90 @@ cart:
         unit: unit
         quantity: Quantity
         remove: Remove
+
+checkout:
+    steps:
+        aria_label: Order steps
+        address: Address
+        shipment: Shipping
+        payment: Payment
+    address:
+        title: Shipping Address
+        first_name: First name
+        last_name: Last name
+        company: Company (optional)
+        street: Street address
+        city: City
+        postcode: Postcode
+        country: Country
+        phone: Phone (optional)
+        continue: Continue
+    shipment:
+        title: Shipping Method
+        choose_method: Choose a shipping method
+        continue: Continue
+    payment:
+        title: Payment
+        choose_method: Choose a payment method
+        confirm: Place order
+        no_methods: No payment methods available.
+    summary:
+        title: Order Summary
+        subtotal: Subtotal
+        shipping: Shipping
+    success:
+        title: Order Confirmed!
+        message: Thank you for your order.
+        order_number: "Order number:"
+        view_orders: View my orders
+        back_to_shop: Back to shop
+    error:
+        cart_empty: Your cart is empty.
+        no_address: Please provide a shipping address.
+        no_shipment: Please choose a shipping method.
+
+account:
+    login:
+        title: Sign In
+        email: Email address
+        password: Password
+        remember_me: Remember me
+        submit: Sign in
+        no_account: No account yet?
+        register_link: Create an account
+    register:
+        title: Create an Account
+        first_name: First name
+        last_name: Last name
+        email: Email address
+        password: Password
+        password_confirm: Confirm password
+        password_mismatch: The passwords do not match.
+        agree_terms: I agree to the terms and conditions
+        agree_terms_required: You must agree to the terms and conditions.
+        submit: Create my account
+        already_account: Already have an account?
+        login_link: Sign in
+        email_taken: This email address is already in use.
+    dashboard:
+        title: My Account
+        orders_heading: My Orders
+        no_orders: You have not placed any orders yet.
+    order:
+        title: Order
+        date: Date
+        status: Status
+        view: View
+        shipping_address: Shipping address
+        shipping_method: Shipping method
+        items: Items
+        total: Total
+        back: Back to my account
+    states:
+        cart: Cart
+        new: Processing
+        fulfilled: Shipped
+        cancelled: Cancelled
 
 pagination:
     label: Pagination

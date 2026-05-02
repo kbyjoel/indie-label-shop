@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Form\Front;
+
+use App\Entity\Address;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CountryType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
+
+/** @extends AbstractType<mixed> */
+class CheckoutAddressType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder
+            ->add('firstName', TextType::class, [
+                'label' => 'checkout.address.first_name',
+                'constraints' => [new NotBlank()],
+            ])
+            ->add('lastName', TextType::class, [
+                'label' => 'checkout.address.last_name',
+                'constraints' => [new NotBlank()],
+            ])
+            ->add('company', TextType::class, [
+                'label' => 'checkout.address.company',
+                'required' => false,
+            ])
+            ->add('street', TextType::class, [
+                'label' => 'checkout.address.street',
+                'constraints' => [new NotBlank()],
+            ])
+            ->add('city', TextType::class, [
+                'label' => 'checkout.address.city',
+                'constraints' => [new NotBlank()],
+            ])
+            ->add('postcode', TextType::class, [
+                'label' => 'checkout.address.postcode',
+                'constraints' => [new NotBlank()],
+            ])
+            ->add('countryCode', CountryType::class, [
+                'label' => 'checkout.address.country',
+                'constraints' => [new NotBlank()],
+                'preferred_choices' => ['FR', 'BE', 'CH', 'LU'],
+            ])
+            ->add('phoneNumber', TextType::class, [
+                'label' => 'checkout.address.phone',
+                'required' => false,
+            ])
+        ;
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => Address::class,
+            'translation_domain' => 'messages',
+        ]);
+    }
+}

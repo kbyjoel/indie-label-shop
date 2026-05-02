@@ -12,6 +12,10 @@ security:
             entity:
                 class: Aropixel\AdminBundle\Entity\User
                 property: email
+        shop_user_provider:
+            entity:
+                class: App\Entity\ShopUser
+                property: usernameCanonical
 
     role_hierarchy:
         ROLE_USER:           [ROLE_USER]
@@ -49,13 +53,16 @@ security:
             security: false
         main:
             lazy: true
-            security: false
-
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
+            provider: shop_user_provider
+            custom_authenticators:
+                - App\Security\LoginFormAuthenticator
+            logout:
+                path: front_account_logout
+                target: front_home_index
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 2592000
+                path: /
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
