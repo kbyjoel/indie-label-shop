@@ -1,0 +1,96 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'cart.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+
+    <h1 class="mb-8 text-3xl font-display font-bold tracking-tight">{{ 'cart.title'|trans }}</h1>
+
+    {% if cart.items|length == 0 %}
+        <p class="text-muted">{{ 'cart.empty'|trans }}</p>
+        <a href="{{ path('front_product_index') }}"
+           class="mt-4 inline-block text-sm text-accent hover:underline">
+            {{ 'cart.continue_shopping'|trans }}
+        </a>
+    {% else %}
+        <div data-controller="cart">
+            <ol class="divide-y divide-border">
+                {% for item in cart.items %}
+                    {% set variant = item.variant %}
+                    {% set product = variant ? variant.product : null %}
+                    <li class="flex items-start gap-4 py-5" id="cart-item-{{ item.id }}" data-cart-item-id="{{ item.id }}">
+
+                        {# Product image #}
+                        <div class="w-16 h-16 shrink-0 overflow-hidden rounded-md bg-border">
+                            {% if product and product.image %}
+                                <img src="{{ product.image|aropixel_imagine_filter('product_card') }}"
+                                     alt="{{ product.name }}"
+                                     class="w-full h-full object-cover">
+                            {% endif %}
+                        </div>
+
+                        {# Item details #}
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium truncate">{{ product ? product.name : '—' }}</p>
+                            {% if variant and variant.optionValues|length > 0 %}
+                                <p class="text-xs text-muted mt-0.5">{{ variant.optionValuesLabel }}</p>
+                            {% endif %}
+                            <p class="text-sm text-muted mt-1">
+                                {{ (item.unitPrice / 100)|number_format(2, ',', '\u{202F}') }} € / {{ 'cart.item.unit'|trans }}
+                            </p>
+                        </div>
+
+                        {# Quantity + subtotal #}
+                        <div class="shrink-0 flex items-center gap-3">
+                            <div class="flex items-center gap-1">
+                                <label for="qty-{{ item.id }}" class="sr-only">{{ 'cart.item.quantity'|trans }}</label>
+                                <input type="number"
+                                       id="qty-{{ item.id }}"
+                                       value="{{ item.quantity }}"
+                                       min="0"
+                                       class="w-14 rounded border border-border px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-accent"
+                                       data-action="change->cart#update"
+                                       data-item-id="{{ item.id }}"
+                                       data-update-url="{{ path('front_cart_update', {itemId: item.id}) }}">
+                            </div>
+                            <span class="w-16 text-right text-sm font-medium" id="subtotal-{{ item.id }}">
+                                {{ (item.total / 100)|number_format(2, ',', '\u{202F}') }} €
+                            </span>
+                            <button type="button"
+                                    class="text-muted hover:text-red-500 transition-colors"
+                                    aria-label="{{ 'cart.item.remove'|trans }}"
+                                    data-action="click->cart#remove"
+                                    data-item-id="{{ item.id }}"
+                                    data-remove-url="{{ path('front_cart_remove', {itemId: item.id}) }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                    </li>
+                {% endfor %}
+            </ol>
+
+            <div class="mt-6 flex items-center justify-end gap-4 border-t border-border pt-6">
+                <span class="text-sm text-muted">{{ 'cart.total'|trans }}</span>
+                <span class="text-lg font-bold" id="cart-total">
+                    {{ (cart.total / 100)|number_format(2, ',', '\u{202F}') }} €
+                </span>
+            </div>
+
+            <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-between">
+                <a href="{{ path('front_product_index') }}"
+                   class="text-sm text-accent hover:underline">
+                    {{ 'cart.continue_shopping'|trans }}
+                </a>
+                <a href="#" class="rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent/90 transition-colors text-center">
+                    {{ 'cart.checkout'|trans }}
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

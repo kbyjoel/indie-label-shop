@@ -40,6 +40,16 @@ liip_imagine:
             filters:
                 thumbnail: { size: [400, 400], mode: outbound }
 
+        product_card:
+            quality: 80
+            filters:
+                thumbnail: { size: [400, 400], mode: outbound }
+
+        product_image:
+            quality: 85
+            filters:
+                thumbnail: { size: [800, 800], mode: inset }
+
 aropixel_admin:
     filter_sets:
 

@@ -10,6 +10,7 @@ parameters:
     admin_path: '%env(ADMIN_PATH)%'
     app.locales: "%env(csv:APP_LOCALES)%"
     app.default_locale: 'fr'
+    app.cart.expiration_days: 14
 
 services:
     # default configuration for services in *this* file

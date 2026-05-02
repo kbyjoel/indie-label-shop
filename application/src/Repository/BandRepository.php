@@ -26,7 +26,8 @@ class BandRepository extends ServiceEntityRepository
             ->setParameter('status', 'online')
             ->orderBy('b.name', 'ASC')
             ->getQuery()
-            ->getResult();
+            ->getResult()
+        ;
     }
 
     public function findOneBySlug(string $slug): ?Band
@@ -39,6 +40,7 @@ class BandRepository extends ServiceEntityRepository
             ->where('b.slug = :slug')
             ->setParameter('slug', $slug)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getOneOrNullResult()
+        ;
     }
 }

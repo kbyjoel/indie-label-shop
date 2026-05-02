@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Core\Model\Product as BaseProduct;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ProductRepository::class)]
 #[ORM\Table(name: 'sylius_product')]
 #[ORM\InheritanceType('JOINED')]
 #[ORM\DiscriminatorColumn(name: 'discr', type: 'string')]
@@ -22,6 +23,9 @@ class Product extends BaseProduct
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
     protected $code;
+
+    #[ORM\Column(type: 'boolean')]
+    protected $enabled = false;
 
     #[ORM\OneToMany(mappedBy: 'translatable', targetEntity: ProductTranslation::class, cascade: ['all'], fetch: 'EAGER', orphanRemoval: true, indexBy: 'locale')]
     protected $translations;
@@ -48,6 +52,9 @@ class Product extends BaseProduct
     #[ORM\ManyToOne(targetEntity: Band::class)]
     #[ORM\JoinColumn(name: 'band_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?Band $band = null;
+
+    #[ORM\OneToOne(targetEntity: ProductImage::class, mappedBy: 'product', cascade: ['all'], orphanRemoval: true)]
+    private ?ProductImage $image = null;
 
     public function __construct()
     {
@@ -84,5 +91,20 @@ class Product extends BaseProduct
     public function setTaxCategory(?TaxCategoryInterface $taxCategory): void
     {
         $this->taxCategory = $taxCategory;
+    }
+
+    public function getImage(): ?ProductImage
+    {
+        return $this->image;
+    }
+
+    public function setImage(?ProductImage $image): void
+    {
+        if (null === $image || null === $image->getImage()) {
+            $this->image = null;
+        } else {
+            $this->image = $image;
+            $this->image->setProduct($this);
+        }
     }
 }

@@ -17,17 +17,17 @@ class PreviewUrlResolver
 
     public function getPreviewUrl(Track $track): ?string
     {
-        return $track->getPreviewPath() !== null ? $this->buildUrl($track->getPreviewPath()) : null;
+        return null !== $track->getPreviewPath() ? $this->buildUrl($track->getPreviewPath()) : null;
     }
 
     public function getWaveformUrl(Track $track): ?string
     {
-        return $track->getWaveformPath() !== null ? $this->buildUrl($track->getWaveformPath()) : null;
+        return null !== $track->getWaveformPath() ? $this->buildUrl($track->getWaveformPath()) : null;
     }
 
     private function buildUrl(string $path): string
     {
-        if ($this->previewsBaseUrl === '') {
+        if ('' === $this->previewsBaseUrl) {
             return '/previews/' . $path;
         }
 

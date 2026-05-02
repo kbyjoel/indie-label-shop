@@ -42,6 +42,27 @@ album:
         catalog_number: "Réf. catalogue :"
         tracklist: Tracklist
 
+product:
+    index:
+        title: Boutique
+        empty: Aucun produit pour l'instant.
+    card:
+        no_image: Pas d'image
+        from_price: "à partir de"
+    show:
+        add_to_cart: Ajouter au panier
+
+cart:
+    title: Panier
+    empty: Votre panier est vide.
+    continue_shopping: Continuer mes achats
+    checkout: Passer commande
+    total: Total
+    item:
+        unit: unité
+        quantity: Quantité
+        remove: Supprimer
+
 pagination:
     label: Pagination
     previous: Précédent

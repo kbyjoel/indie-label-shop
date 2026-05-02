@@ -18,7 +18,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class LocaleSubscriber implements EventSubscriberInterface
 {
     /** @param list<string> $locales */
-    public function __construct(private readonly array $locales) {}
+    public function __construct(private readonly array $locales)
+    {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -27,7 +29,7 @@ class LocaleSubscriber implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        if (\count($this->locales) !== 1 || !$event->isMainRequest()) {
+        if (1 !== \count($this->locales) || !$event->isMainRequest()) {
             return;
         }
 

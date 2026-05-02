@@ -14,10 +14,10 @@
                  class="w-40 h-40 rounded-full object-cover mx-auto lg:mx-0 lg:w-48 lg:h-48">
 
             {% set socials = {
-                website:   band.website,
-                facebook:  band.facebook,
-                twitter:   band.twitter,
-                instagram: band.instagram
+                website: band.website,
+                facebook: band.facebook,
+                twitter: band.twitter,
+                instagram: band.instagram,
             } %}
             {% set hasSocials = band.website or band.facebook or band.twitter or band.instagram %}
             {% if hasSocials %}

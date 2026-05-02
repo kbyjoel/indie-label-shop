@@ -59,7 +59,7 @@
                                 {{ include('front/partials/_track_row.html.twig', {
                                     trackIndex: loop.index,
                                     track: track,
-                                    previewUrl:  trackUrls[track.id].previewUrl  ?? null,
+                                    previewUrl: trackUrls[track.id].previewUrl ?? null,
                                     waveformUrl: trackUrls[track.id].waveformUrl ?? null,
                                 }) }}
                             {% endif %}

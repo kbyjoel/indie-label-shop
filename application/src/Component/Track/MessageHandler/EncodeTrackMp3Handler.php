@@ -42,8 +42,8 @@ class EncodeTrackMp3Handler
         $masterStream = $this->privateStorage->readStream($storagePath);
         $ext = pathinfo((string) $filename, \PATHINFO_EXTENSION) ?: 'flac';
         $tmpMasterPath = sys_get_temp_dir() . '/' . uniqid('master_', true) . '.' . $ext;
-        $handle = fopen($tmpMasterPath, 'w+b');
-        if ($handle === false) {
+        $handle = fopen($tmpMasterPath, 'w+');
+        if (false === $handle) {
             fclose($masterStream);
 
             return;
@@ -62,11 +62,11 @@ class EncodeTrackMp3Handler
         $audio->save($format, $tmpPreviewPath);
 
         // 2. Extract duration from encoded MP3
-        if ($track->getDuration() === null) {
+        if (null === $track->getDuration()) {
             try {
                 $secs = (float) FFProbe::create()->format($tmpPreviewPath)->get('duration');
                 if ($secs > 0) {
-                    $track->setDuration(sprintf('%d:%02d', (int) floor($secs / 60), (int) round(fmod($secs, 60))));
+                    $track->setDuration(\sprintf('%d:%02d', (int) floor($secs / 60), (int) round(fmod($secs, 60))));
                 }
             } catch (\Throwable) {
             }
@@ -108,24 +108,24 @@ class EncodeTrackMp3Handler
     {
         $tmpPcmPath = sys_get_temp_dir() . '/' . uniqid('pcm_', true) . '.raw';
 
-        exec(sprintf(
+        exec(\sprintf(
             'ffmpeg -y -i %s -f s16le -ac 1 -ar 8000 %s 2>/dev/null',
             escapeshellarg($mp3Path),
             escapeshellarg($tmpPcmPath)
         ), $out, $code);
 
-        if ($code !== 0 || !file_exists($tmpPcmPath) || filesize($tmpPcmPath) === 0) {
+        if (0 !== $code || !file_exists($tmpPcmPath) || 0 === filesize($tmpPcmPath)) {
             return [];
         }
 
         $pcm = file_get_contents($tmpPcmPath);
         @unlink($tmpPcmPath);
 
-        if ($pcm === false || strlen($pcm) < 2) {
+        if (false === $pcm || \strlen($pcm) < 2) {
             return [];
         }
 
-        $sampleCount = intdiv(strlen($pcm), 2);
+        $sampleCount = intdiv(\strlen($pcm), 2);
         $windowCount = 1000;
         $samplesPerWindow = max(1, (int) ceil($sampleCount / $windowCount));
 
@@ -139,12 +139,13 @@ class EncodeTrackMp3Handler
 
         for ($i = 0; $i < $windowCount; ++$i) {
             $window = \array_slice($samples, $i * $samplesPerWindow, $samplesPerWindow);
-            if ($window === []) {
+            if ([] === $window) {
                 $rmsValues[] = 0.0;
+
                 continue;
             }
             $sumSquares = array_sum(array_map(fn (int $s): float => (float) ($s * $s), $window));
-            $rms = sqrt($sumSquares / count($window));
+            $rms = sqrt($sumSquares / \count($window));
             $rmsValues[] = $rms;
             if ($rms > $maxRms) {
                 $maxRms = $rms;
@@ -161,7 +162,7 @@ class EncodeTrackMp3Handler
             'sample_rate' => 8000,
             'samples_per_pixel' => $samplesPerWindow,
             'bits' => 8,
-            'length' => count($data),
+            'length' => \count($data),
             'data' => $data,
         ];
     }

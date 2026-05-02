@@ -735,19 +735,21 @@ La pipeline d'encodage des previews audio est complète, et le lecteur WaveSurfe
 ###   Step 4: Page album avec tracklist et lecteur audio WaveSurfer.js ✅
 > Implémenté dans le cadre du Step 3 — voir ci-dessus.
 
-###   Step 5: Boutique merch, panier custom et sélection de variant
+###   Step 5: Boutique merch, panier custom et sélection de variant ✅
 La boutique merch est navigable avec un panier entièrement custom basé sur les entités Sylius Core (sans SyliusShopBundle).
 
-- Créer `src/Controller/Front/ProductController.php` avec actions `index()` et `show(string $slug)`, attributs `#[Route('/boutique')]` et `#[Route('/produit/{slug}')]` (préfixe locale géré par `FrontRouteLoader`)
-- Créer `templates/front/product/index.html.twig` : grille de produits (image, nom, prix)
-- Créer `templates/front/product/show.html.twig` : galerie, description, options/variants
-- Créer `src/Component/Cart/CartContext.php` : récupère/crée l'`Order` (state=`cart`) persisté en base ; stocke uniquement le `tokenValue` (UUID) en session — pattern natif Sylius.
-- Créer `src/Command/PurgeExpiredCartsCommand.php` (`app:cart:purge-expired`) : supprime les `Order[state=cart]` dont `updatedAt` est antérieur au TTL configuré (param `%app.cart.expiration_days%`, défaut 14). À planifier en cron quotidien.
-- Créer `src/Component/Cart/CartManager.php` : ajoute/retire des `OrderItem`, recalcule les totaux
-- Créer `src/Controller/Front/CartController.php` : actions `index()`, `add()`, `remove()`, `update()`
-- Créer `templates/front/cart/index.html.twig` : résumé du panier
-- Créer `assets/controllers/product_variant_controller.js` (Stimulus) : mise à jour du prix/stock au changement de variant
-- Créer `assets/controllers/cart_controller.js` (Stimulus) : soumission fetch vers `CartController::add`, mise à jour compteur header
+**Décisions d'implémentation :**
+- `ProductImage` entity créée (`indie_product_image`) — même pattern que `AlbumImage`, sans crops pour cette étape. Migration appliquée. Filtres LiipImagine : `product_card` et `product_image`.
+- `ProductRepository` requête avec `NOT INSTANCE OF Album` (JOINED inheritance) ; slug via `JOIN ProductTranslation` (pattern Sylius, différent de l'Album qui utilise Gedmo Sluggable directement).
+- `CartContext` : clé session `_cart_token` (UUID) ; `getCartItemCount()` retourne 0 sans créer de panier si aucun token en session. Channel résolu via `findOneBy([])`.
+- `CartManager` : `unitPrice` copié depuis `ProductVariant::getPrice()` au moment de l'ajout (prix figé dans le panier).
+- `CartExtension` Twig : fonction `cart_item_count()` pour le compteur initial dans le header.
+- URLs cart passées en `data-*` depuis Twig (compatible préfixe locale).
+- `CartController::add()` vérifie que le variant n'est pas une `Release` ni un `Track`.
+- Navigation header câblée sur les vraies routes (`front_album_index`, `front_band_index`, `front_product_index`, `front_cart_index`).
+
+**Documentation créée :**
+- [`docs/frontend/cart.md`](../frontend/cart.md) — CartContext, CartManager, API endpoints, Stimulus controllers, commande purge, test en dev
 
 ###   Step 6: Tunnel checkout — adresse, livraison et espace compte client
 Le tunnel d'achat (étapes adresse et livraison) et l'espace compte client sont fonctionnels.

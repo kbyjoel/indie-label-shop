@@ -42,6 +42,27 @@ album:
         catalog_number: "Catalogue ref.:"
         tracklist: Tracklist
 
+product:
+    index:
+        title: Shop
+        empty: No products yet.
+    card:
+        no_image: No image
+        from_price: "from"
+    show:
+        add_to_cart: Add to cart
+
+cart:
+    title: Cart
+    empty: Your cart is empty.
+    continue_shopping: Continue shopping
+    checkout: Proceed to checkout
+    total: Total
+    item:
+        unit: unit
+        quantity: Quantity
+        remove: Remove
+
 pagination:
     label: Pagination
     previous: Previous

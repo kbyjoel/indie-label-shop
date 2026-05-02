@@ -27,7 +27,7 @@ class BandController extends AbstractController
     {
         $band = $bandRepository->findOneBySlug($slug);
 
-        if (!$band || $band->getStatus() !== 'online') {
+        if (!$band || 'online' !== $band->getStatus()) {
             throw $this->createNotFoundException();
         }
 

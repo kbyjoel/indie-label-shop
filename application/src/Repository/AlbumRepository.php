@@ -25,9 +25,10 @@ class AlbumRepository extends ServiceEntityRepository
             ->addSelect('aw')
             ->where('a.status = :status')
             ->setParameter('status', 'online')
-            ->orderBy('a.releaseDate', 'DESC');
+            ->orderBy('a.releaseDate', 'DESC')
+        ;
 
-        if ($band !== null) {
+        if (null !== $band) {
             $qb->andWhere('a.band = :band')->setParameter('band', $band);
         }
 
@@ -43,9 +44,10 @@ class AlbumRepository extends ServiceEntityRepository
             ->where('a.status = :status')
             ->setParameter('status', 'online')
             ->orderBy('a.releaseDate', 'DESC')
-            ->setMaxResults($limit);
+            ->setMaxResults($limit)
+        ;
 
-        if ($band !== null) {
+        if (null !== $band) {
             $qb->andWhere('a.band = :band')->setParameter('band', $band);
         }
 
@@ -67,6 +69,7 @@ class AlbumRepository extends ServiceEntityRepository
             ->setParameter('slug', $slug)
             ->orderBy('tl.position', 'ASC')
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getOneOrNullResult()
+        ;
     }
 }

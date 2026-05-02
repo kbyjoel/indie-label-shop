@@ -23,7 +23,7 @@ class AlbumController extends AbstractController
         $selectedBand = null;
         $bandSlug = $request->query->getString('band');
 
-        if ($bandSlug !== '') {
+        if ('' !== $bandSlug) {
             $selectedBand = $bandRepository->findOneBySlug($bandSlug);
         }
 
@@ -43,7 +43,7 @@ class AlbumController extends AbstractController
     {
         $album = $albumRepository->findOneBySlug($slug);
 
-        if (!$album || $album->getStatus() !== 'online') {
+        if (!$album || 'online' !== $album->getStatus()) {
             throw $this->createNotFoundException();
         }
 
@@ -53,16 +53,16 @@ class AlbumController extends AbstractController
         $trackUrls = [];
         foreach ($album->getTracklists() as $tracklist) {
             $track = $tracklist->getTrack();
-            if ($track !== null) {
+            if (null !== $track) {
                 $trackUrls[$track->getId()] = [
-                    'previewUrl'  => $previewUrlResolver->getPreviewUrl($track),
+                    'previewUrl' => $previewUrlResolver->getPreviewUrl($track),
                     'waveformUrl' => $previewUrlResolver->getWaveformUrl($track),
                 ];
             }
         }
 
         return $this->render('front/album/show.html.twig', [
-            'album'     => $album,
+            'album' => $album,
             'trackUrls' => $trackUrls,
         ]);
     }
