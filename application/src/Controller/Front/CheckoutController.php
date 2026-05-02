@@ -107,7 +107,7 @@ class CheckoutController extends AbstractController
             $adjustment->setAmount($amount);
             $cart->addAdjustment($adjustment);
 
-            $cart->setTotal($cart->getItemsTotal() + $amount);
+            $cart->recalculateItemsTotal();
             $this->em->flush();
 
             return $this->redirectToRoute('front_checkout_payment');

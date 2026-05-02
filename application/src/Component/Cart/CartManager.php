@@ -69,12 +69,6 @@ class CartManager
 
     private function recalculate(Order $cart): void
     {
-        $total = 0;
-        foreach ($cart->getItems() as $item) {
-            if ($item instanceof OrderItem) {
-                $total += $item->getTotal();
-            }
-        }
-        $cart->setTotal($total);
+        $cart->recalculateItemsTotal();
     }
 }
