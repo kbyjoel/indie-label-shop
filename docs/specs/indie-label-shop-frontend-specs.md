@@ -751,7 +751,7 @@ La boutique merch est navigable avec un panier entièrement custom basé sur les
 **Documentation créée :**
 - [`docs/frontend/cart.md`](../frontend/cart.md) — CartContext, CartManager, API endpoints, Stimulus controllers, commande purge, test en dev
 
-###   Step 6: Tunnel checkout — adresse, livraison et espace compte client
+###   Step 6: Tunnel checkout — adresse, livraison et espace compte client ✅
 Le tunnel d'achat (étapes adresse et livraison) et l'espace compte client sont fonctionnels.
 
 - Créer `src/Controller/Front/CheckoutController.php` avec actions `address()`, `shipment()`, `payment()`, `confirm()`
@@ -767,8 +767,8 @@ La page de paiement accepte les cartes bancaires via Stripe Elements et PayPal v
 
 - Installer `stripe/stripe-php` et `paypal/checkout-sdk-php` via Composer
 - Créer `src/Payment/Gateway/PaymentGatewayInterface.php` (`createIntent`, `captureOrder`, `verifyWebhook`)
-- Créer `src/Payment/Gateway/StripeGateway.php` : lit `credentials['stripeSecretKey']` depuis `PaymentMethod` ; implémente `createIntent(amount, currency)` et `retrieve(paymentIntentId)`
-- Créer `src/Payment/Gateway/PaypalGateway.php` : lit `credentials['paypalClientId']`, `paypalSecret`, `paypalMode` ; implémente `createOrder()` et `captureOrder(orderId)`
+- Créer `src/Payment/Gateway/StripeGateway.php` : lit `credentials['stripeSecretKey']` et `credentials['stripePublishableKey']` depuis `PaymentMethod` ; implémente `createIntent(amount, currency)` et `retrieve(paymentIntentId)` — **mode sandbox** : utiliser des clés préfixées `sk_test_` / `pk_test_` ; aucune URL ni config supplémentaire, le mode est déterminé automatiquement par le préfixe de clé
+- Créer `src/Payment/Gateway/PaypalGateway.php` : lit `credentials['paypalClientId']`, `paypalSecret`, `paypalMode` (`"sandbox"` | `"live"`) depuis `PaymentMethod` ; implémente `createOrder()` et `captureOrder(orderId)` — **mode sandbox** : `paypalMode = "sandbox"` → `PaypalGateway` utilise `https://api-m.sandbox.paypal.com` ; `"live"` → `https://api-m.paypal.com`
 - Créer `src/Payment/PaymentProcessor.php` : résout le gateway depuis `PaymentMethod.gatewayType`, met à jour `Payment::state` (idempotent — vérifie l'état avant de transitionner)
 - Compléter `CheckoutController::payment()` : appelle `PaymentProcessor::initiate()`, retourne `clientSecret` (Stripe) ou `clientId` (PayPal) au template
 - Ajouter `CheckoutController::paypalCreateOrder()`, `paypalCaptureOrder()`, `paymentConfirm()` (routes `POST`)
@@ -777,6 +777,7 @@ La page de paiement accepte les cartes bancaires via Stripe Elements et PayPal v
 - Créer `assets/controllers/stripe_payment_controller.js` : `connect()` → `Stripe(publishableKey).elements()`, monte le card element, action `submit()` → `confirmCardPayment(clientSecret)`, appelle `paymentConfirm` en cas de succès
 - Créer `assets/controllers/paypal_payment_controller.js` : charge le SDK PayPal via script dynamique avec `client-id`, rend les Smart Buttons, callbacks `createOrder` → `paypalCreateOrder`, `onApprove` → `paypalCaptureOrder`
 - Compléter `checkout/payment.html.twig` : affiche Stripe Elements ou PayPal Buttons selon `paymentMethod.gatewayType` ; transmet `publishableKey` / `clientId` en `data-value` Stimulus
+- Le formulaire admin `PaymentMethod` expose les champs de credentials adaptés à chaque gateway (Stimulus controller de toggle déjà en place) ; pour Stripe : `stripePublishableKey` + `stripeSecretKey` ; pour PayPal : `paypalClientId` + `paypalSecret` + `paypalMode` (select `sandbox`/`live`)
 - Ajouter `STRIPE_WEBHOOK_SECRET` et `PAYPAL_WEBHOOK_ID` dans `.env` et `.env.dist`
 - Ajouter les tests : `WebhookControllerTest` (Stripe signature valide/invalide, PayPal capture), `CheckoutPaymentTest` (initiation Stripe/PayPal, idempotence PaymentProcessor)
 
