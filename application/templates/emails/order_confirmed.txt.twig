@@ -1,0 +1,29 @@
+Confirmation de commande {{ order.number }}
+==========================================
+
+Merci pour votre commande {{ order.number }}.
+La facture PDF est jointe à cet email.
+
+ARTICLES
+--------
+{% for item in order.items %}{% set product = item.variant ? item.variant.product : null %}
+- {{ product ? product.name : '—' }}  x{{ item.quantity }}  {{ (item.total / 100)|number_format(2, ',', ' ') }} €
+{% endfor %}
+
+Total : {{ (order.total / 100)|number_format(2, ',', ' ') }} €
+
+{% if order.shippingAddress %}
+ADRESSE DE LIVRAISON
+--------------------
+{{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}
+{% if order.shippingAddress.company %}{{ order.shippingAddress.company }}
+{% endif %}{{ order.shippingAddress.street }}
+{{ order.shippingAddress.postcode }} {{ order.shippingAddress.city }}
+{{ order.shippingAddress.countryCode }}
+
+{% endif %}
+{% set hasDigital = false %}{% for item in order.items %}{% if item.variant is instanceof('App\\Entity\\Release') and item.variant.media is not null and item.variant.media.isDigital %}{% set hasDigital = true %}{% endif %}{% endfor %}
+{% if hasDigital %}
+Vos fichiers numériques sont disponibles dans votre espace client dès que leur préparation est terminée.
+
+{% endif %}

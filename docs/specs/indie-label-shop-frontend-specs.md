@@ -766,10 +766,10 @@ Le tunnel d'achat (étapes adresse et livraison) et l'espace compte client sont 
 La page de paiement accepte les cartes bancaires via Stripe Elements et PayPal via Smart Buttons ; les webhooks garantissent la fiabilité des mises à jour d'état.
 
 - Installer `stripe/stripe-php` et `paypal/checkout-sdk-php` via Composer
-- Créer `src/Payment/Gateway/PaymentGatewayInterface.php` (`createIntent`, `captureOrder`, `verifyWebhook`)
-- Créer `src/Payment/Gateway/StripeGateway.php` : lit `credentials['stripeSecretKey']` et `credentials['stripePublishableKey']` depuis `PaymentMethod` ; implémente `createIntent(amount, currency)` et `retrieve(paymentIntentId)` — **mode sandbox** : utiliser des clés préfixées `sk_test_` / `pk_test_` ; aucune URL ni config supplémentaire, le mode est déterminé automatiquement par le préfixe de clé
-- Créer `src/Payment/Gateway/PaypalGateway.php` : lit `credentials['paypalClientId']`, `paypalSecret`, `paypalMode` (`"sandbox"` | `"live"`) depuis `PaymentMethod` ; implémente `createOrder()` et `captureOrder(orderId)` — **mode sandbox** : `paypalMode = "sandbox"` → `PaypalGateway` utilise `https://api-m.sandbox.paypal.com` ; `"live"` → `https://api-m.paypal.com`
-- Créer `src/Payment/PaymentProcessor.php` : résout le gateway depuis `PaymentMethod.gatewayType`, met à jour `Payment::state` (idempotent — vérifie l'état avant de transitionner)
+- Créer `src/Component/Payment/Gateway/PaymentGatewayInterface.php` (`createIntent`, `captureOrder`, `verifyWebhook`)
+- Créer `src/Component/Payment/Gateway/StripeGateway.php` : lit `credentials['stripeSecretKey']` et `credentials['stripePublishableKey']` depuis `PaymentMethod` ; implémente `createIntent(amount, currency)` et `retrieve(paymentIntentId)` — **mode sandbox** : utiliser des clés préfixées `sk_test_` / `pk_test_` ; aucune URL ni config supplémentaire, le mode est déterminé automatiquement par le préfixe de clé
+- Créer `src/Component/Payment/Gateway/PaypalGateway.php` : lit `credentials['paypalClientId']`, `paypalSecret`, `paypalMode` (`"sandbox"` | `"live"`) depuis `PaymentMethod` ; implémente `createOrder()` et `captureOrder(orderId)` — **mode sandbox** : `paypalMode = "sandbox"` → `PaypalGateway` utilise `https://api-m.sandbox.paypal.com` ; `"live"` → `https://api-m.paypal.com`
+- Créer `src/Component/Payment/PaymentProcessor.php` : résout le gateway depuis `PaymentMethod.gatewayType`, met à jour `Payment::state` (idempotent — vérifie l'état avant de transitionner)
 - Compléter `CheckoutController::payment()` : appelle `PaymentProcessor::initiate()`, retourne `clientSecret` (Stripe) ou `clientId` (PayPal) au template
 - Ajouter `CheckoutController::paypalCreateOrder()`, `paypalCaptureOrder()`, `paymentConfirm()` (routes `POST`)
 - Créer `src/Controller/Front/WebhookController.php` : routes `POST /webhook/stripe` et `POST /webhook/paypal` ; vérification de signature ; dispatch vers `PaymentProcessor::complete()` ou `PaymentProcessor::fail()`
@@ -781,12 +781,12 @@ La page de paiement accepte les cartes bancaires via Stripe Elements et PayPal v
 - Ajouter `STRIPE_WEBHOOK_SECRET` et `PAYPAL_WEBHOOK_ID` dans `.env` et `.env.dist`
 - Ajouter les tests : `WebhookControllerTest` (Stripe signature valide/invalide, PayPal capture), `CheckoutPaymentTest` (initiation Stripe/PayPal, idempotence PaymentProcessor)
 
-###   Step 8: Téléchargement de fichiers numériques (post-achat)
+###   Step 8: Téléchargement de fichiers numériques (post-achat) ✅
 Le workflow asynchrone de génération et de téléchargement des fichiers numériques (MP3 320 kbps, WAV, ZIP) est opérationnel pour les commandes digitales.
 
 - Créer la migration Doctrine et l'entité `src/Entity/DownloadToken.php` (champs : `orderItem`, `format`, `status`, `s3Path`, `expiresAt`, `createdAt`)
-- Créer `src/Download/GenerateDownloadMessage.php` : value object `{ orderItemId, format }`
-- Créer `src/Download/GenerateDownloadHandler.php` :
+- Créer `src/Component/Download/GenerateDownloadMessage.php` : value object `{ orderItemId, format }`
+- Créer `src/Component/Download/GenerateDownloadHandler.php` :
   - Lit le master FLAC via `$privateStorage->readStream(track.masterPath)` (Flysystem `private.storage` — même disque en dev et prod, adaptateur local ou S3 selon l'env)
   - MP3 : `FFMpeg → Mp3::create() → setAudioKiloBitrate(320)` (diffère des previews à 128 kbps)
   - WAV : `FFMpeg → Wav::create()` (copy PCM depuis FLAC — pas de perte)
@@ -795,7 +795,7 @@ Le workflow asynchrone de génération et de téléchargement des fichiers numé
   - Met à jour `DownloadToken` (status, storagePath, expiresAt = +24h)
   - En cas d'exception : `DownloadToken::status = failed`
 - Enregistrer le routage Messenger : `GenerateDownloadMessage` → transport `async`
-- Créer `src/Download/DownloadTokenManager.php` : crée/récupère le token ; génère l'URL d'accès selon l'environnement : URL présignée S3 (`AsyncAws S3Client::presign`, validité 24h) en prod, URL vers la route interne `GET /download/file/{token}` en dev
+- Créer `src/Component/Download/DownloadTokenManager.php` : crée/récupère le token ; génère l'URL d'accès selon l'environnement : URL présignée S3 (`AsyncAws S3Client::presign`, validité 24h) en prod, URL vers la route interne `GET /download/file/{token}` en dev
 - Créer `src/Controller/Front/DownloadController.php` :
   - `POST /download/prepare` : vérifie ownership + état commande, retourne token (202 si pending, 200 si déjà ready)
   - `GET /download/status/{token}` : retourne JSON `{ status, url? }`
@@ -807,20 +807,20 @@ Le workflow asynchrone de génération et de téléchargement des fichiers numé
 - Ajouter les tests : `DownloadControllerTest`, `GenerateDownloadHandlerTest` (avec mocks Flysystem)
 - Dans `GenerateDownloadHandler` : dispatcher `SendDownloadReadyMessage` après `DownloadToken::status = ready`
 
-###   Step 9: Emails transactionnels post-achat
+###   Step 9: Emails transactionnels post-achat ✅
 Les emails de confirmation de commande (avec facture PDF) et de téléchargement prêt sont envoyés de façon asynchrone.
 
 - Ajouter la dépendance `dompdf/dompdf` via Composer
-- Créer `src/Mail/SendOrderConfirmedMessage.php` : value object `{ orderId }`
-- Créer `src/Mail/SendOrderConfirmedHandler.php` :
+- Créer `src/Component/Mail/SendOrderConfirmedMessage.php` : value object `{ orderId }`
+- Créer `src/Component/Mail/SendOrderConfirmedHandler.php` :
   - Charge l'Order + items + customer
   - Rend `emails/pdf/invoice.html.twig` → génère le PDF via `Dompdf::output()`
   - Crée un `TemplatedEmail` avec HTML, texte plain et pièce jointe PDF
   - Envoie via `MailerInterface`
   - Idempotence : vérifie `Order::confirmationEmailSentAt` avant envoi ; met à jour ce champ après envoi
-- Créer `src/Mail/SendDownloadReadyMessage.php` : value object `{ downloadTokenId }`
-- Créer `src/Mail/SendDownloadReadyHandler.php` : régénère l'URL signée via `DownloadTokenManager::refreshSignedUrl()`, envoie l'email avec le lien
-- Créer `src/Mail/OrderMailer.php` : service façade exposant `sendOrderConfirmed(Order)` et `sendDownloadReady(DownloadToken)` (dispatche les messages Messenger)
+- Créer `src/Component/Mail/SendDownloadReadyMessage.php` : value object `{ downloadTokenId }`
+- Créer `src/Component/Mail/SendDownloadReadyHandler.php` : régénère l'URL signée via `DownloadTokenManager::refreshSignedUrl()`, envoie l'email avec le lien
+- Créer `src/Component/Mail/OrderMailer.php` : service façade exposant `sendOrderConfirmed(Order)` et `sendDownloadReady(DownloadToken)` (dispatche les messages Messenger)
 - Dans `PaymentProcessor::complete()` : dispatcher `SendOrderConfirmedMessage` après mise à jour de l'état
 - Enregistrer les routages Messenger : `SendOrderConfirmedMessage` et `SendDownloadReadyMessage` → transport `async`
 - Créer les templates Twig : `emails/order_confirmed.html.twig`, `order_confirmed.txt.twig`, `emails/download_ready.html.twig`, `download_ready.txt.twig`, `emails/pdf/invoice.html.twig`

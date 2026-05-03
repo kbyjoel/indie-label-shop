@@ -1,0 +1,11 @@
+Vos fichiers sont prêts — commande {{ orderNumber }}
+====================================================
+
+Votre téléchargement pour la commande {{ orderNumber }} est prêt au format {{ format|upper }}.
+
+Le lien est valable 24 heures{% if expiresAt %} (jusqu'au {{ expiresAt|date('d/m/Y à H:i') }}){% endif %}.
+
+Télécharger mes fichiers :
+{{ signedUrl }}
+
+Vous pouvez également accéder à vos téléchargements depuis votre espace client.

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Component\Payment;
 
+use App\Component\Mail\Message\SendOrderConfirmedMessage;
 use App\Component\Payment\Gateway\PaypalGateway;
 use App\Component\Payment\Gateway\StripeGateway;
 use App\Entity\Order;
 use App\Entity\Payment;
 use App\Entity\PaymentMethod;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class PaymentProcessor
@@ -17,6 +19,7 @@ class PaymentProcessor
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly HttpClientInterface $httpClient,
+        private readonly MessageBusInterface $messageBus,
     ) {
     }
 
@@ -78,6 +81,13 @@ class PaymentProcessor
         }
 
         $this->em->flush();
+
+        if (null !== $order) {
+            $orderId = $order->getId();
+            if (null !== $orderId) {
+                $this->messageBus->dispatch(new SendOrderConfirmedMessage($orderId));
+            }
+        }
     }
 
     /**

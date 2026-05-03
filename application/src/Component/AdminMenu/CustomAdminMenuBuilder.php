@@ -56,6 +56,7 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
     private function buildSettingsMenu(): Menu
     {
         $menu = new Menu('settings', 'Réglages');
+        $menu->addItem(new Link('Boutique', 'admin_settings_index', [], ['icon' => 'fas fa-store']));
         $menu->addItem(new Link('Pays', 'admin_country_index', [], ['icon' => 'fas fa-list-ul']));
         $menu->addItem(new Link('Zones', 'admin_zone_index', [], ['icon' => 'fas fa-list-ul']));
         $menu->addItem(new Link('Catégories de taxes', 'admin_tax_category_index', [], ['icon' => 'fas fa-tags']));

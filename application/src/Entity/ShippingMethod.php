@@ -78,7 +78,7 @@ class ShippingMethod extends BaseShippingMethod
 
     public function getConfiguration(): array
     {
-        return $this->configuration ?? [];
+        return $this->configuration;
     }
 
     protected function createTranslation(): ShippingMethodTranslationInterface

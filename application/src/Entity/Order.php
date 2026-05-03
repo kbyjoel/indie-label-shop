@@ -42,6 +42,9 @@ class Order extends BaseOrder
     #[ORM\Column(type: 'string', length: 255)]
     protected $state = self::STATE_CART;
 
+    #[ORM\Column(type: 'string', length: 3, nullable: true)]
+    protected $currencyCode;
+
     #[ORM\Column(type: 'integer')]
     protected $total = 0;
 
@@ -62,9 +65,22 @@ class Order extends BaseOrder
     #[ORM\OneToMany(targetEntity: Adjustment::class, mappedBy: 'order', cascade: ['all'], orphanRemoval: true)]
     protected $adjustments;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $confirmationEmailSentAt = null;
+
     public function __construct()
     {
         parent::__construct();
+    }
+
+    public function getConfirmationEmailSentAt(): ?\DateTimeImmutable
+    {
+        return $this->confirmationEmailSentAt;
+    }
+
+    public function setConfirmationEmailSentAt(?\DateTimeImmutable $confirmationEmailSentAt): void
+    {
+        $this->confirmationEmailSentAt = $confirmationEmailSentAt;
     }
 
     public function setTotal(int $total): void

@@ -120,6 +120,7 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
         $channel->setHostname('localhost');
         $channel->setDefaultLocale($locale);
         $channel->setBaseCurrency($currency);
+        $channel->addCurrency($currency);
         $manager->persist($channel);
 
         // 1.5 Create Product Options

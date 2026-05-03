@@ -184,10 +184,15 @@ class CheckoutController extends AbstractController
                     'clientSecret' => $details['stripe_client_secret'] ?? '',
                 ]);
             })(),
-            'paypal' => $this->json([
-                'gatewayType' => 'paypal',
-                'clientId' => $details['paypal_client_id'] ?? '',
-            ]),
+            'paypal' => (function () use ($paymentMethod): JsonResponse {
+                /** @var PaypalGateway $gateway */
+                $gateway = $this->paymentProcessor->resolveGateway($paymentMethod);
+
+                return $this->json([
+                    'gatewayType' => 'paypal',
+                    'clientId' => $gateway->getClientId(),
+                ]);
+            })(),
             default => $this->json(['error' => 'unsupported_gateway'], 400),
         };
     }

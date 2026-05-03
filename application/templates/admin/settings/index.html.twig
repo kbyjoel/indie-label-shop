@@ -1,0 +1,23 @@
+{% extends '@AropixelAdmin/Form/base.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+{% import '@AropixelAdmin/Macro/forms.html.twig' as forms %}
+
+{% block meta_title %}Réglages boutique{% endblock %}
+{% block header_title %}Réglages boutique{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        {label: 'text.home'|trans, url: url('_admin')},
+        {label: 'Réglages boutique'},
+    ]) }}
+{% endblock %}
+
+{% block mainPanel %}
+    <div class="tab-pane active" id="panel-tab-general">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.baseCurrency) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

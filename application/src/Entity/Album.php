@@ -230,8 +230,12 @@ class Album extends Product implements Translatable
      */
     public function getReleases(): Collection
     {
-        /** @var Collection<int, Release> $releases */
-        return $this->getVariants()->filter(fn ($variant) => $variant instanceof Release);
+        /** @var array<int, Release> $releases */
+        $releases = array_values(
+            $this->getVariants()->filter(fn ($variant) => $variant instanceof Release)->toArray()
+        );
+
+        return new ArrayCollection($releases);
     }
 
     public function addRelease(Release $release): static

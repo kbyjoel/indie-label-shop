@@ -41,6 +41,14 @@ services:
         arguments:
             $kernelEnvironment: '%kernel.environment%'
 
+    App\Component\Mail\MessageHandler\SendOrderConfirmedHandler:
+        arguments:
+            $mailerFrom: '%env(MAILER_FROM)%'
+
+    App\Component\Mail\MessageHandler\SendDownloadReadyHandler:
+        arguments:
+            $mailerFrom: '%env(MAILER_FROM)%'
+
     App\Routing\FrontRouteLoader:
         arguments:
             $locales: '%app.locales%'
