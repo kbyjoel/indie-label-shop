@@ -50,17 +50,22 @@ class CheckoutController extends AbstractController
 
         /** @var ShopUser $shopUser */
         $shopUser = $this->getUser();
-        $cart->setCustomer($shopUser->getCustomer());
+        $customer = $shopUser->getCustomer();
+        $cart->setCustomer($customer);
 
-        $address = $cart->getShippingAddress() ?? new Address();
+        $address = $cart->getShippingAddress() ?? $this->cloneAddress($customer->getDefaultAddress() ?? new Address());
         $form = $this->createForm(CheckoutAddressType::class, $address);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->em->persist($address);
             $cart->setShippingAddress($address);
+
             $billing = $this->cloneAddress($address);
             $this->em->persist($billing);
             $cart->setBillingAddress($billing);
+
+            $customer->setDefaultAddress($address);
             $this->em->flush();
 
             return $this->redirectToRoute('front_checkout_shipment');

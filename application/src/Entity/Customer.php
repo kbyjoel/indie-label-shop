@@ -35,9 +35,17 @@ class Customer extends BaseCustomer
     #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Order::class)]
     protected $orders;
 
+    #[ORM\ManyToOne(targetEntity: Address::class)]
+    #[ORM\JoinColumn(name: 'default_address_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    protected $defaultAddress;
+
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: Address::class, cascade: ['persist'])]
+    protected $addresses;
+
     public function __construct()
     {
         parent::__construct();
         $this->orders = new ArrayCollection();
+        $this->addresses = new ArrayCollection();
     }
 }

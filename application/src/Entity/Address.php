@@ -11,6 +11,9 @@ use Sylius\Component\Core\Model\Address as BaseAddress;
 #[ORM\Table(name: 'sylius_address')]
 class Address extends BaseAddress
 {
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'addresses')]
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    protected $customer;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
