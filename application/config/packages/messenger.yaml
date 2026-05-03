@@ -24,3 +24,5 @@ framework:
 
             # Route your messages to the transports
             'App\Component\Track\Message\EncodeTrackMp3Message': async
+            'App\Component\Download\Message\GenerateDownloadMessage': async
+            'App\Component\Mail\Message\SendDownloadReadyMessage': async

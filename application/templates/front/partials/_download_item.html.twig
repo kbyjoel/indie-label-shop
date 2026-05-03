@@ -1,0 +1,44 @@
+{# @var item \App\Entity\OrderItem #}
+<div class="mt-3 rounded-lg border border-border bg-surface p-4"
+     data-controller="download"
+     data-download-prepare-url-value="{{ path('front_download_prepare', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}"
+     data-download-order-item-id-value="{{ item.id }}">
+
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
+        {{ 'download.title'|trans }}
+    </p>
+
+    <div class="mb-3 flex flex-wrap gap-3">
+        {% for format in ['mp3', 'wav', 'zip'] %}
+            <label class="flex cursor-pointer items-center gap-1.5 text-sm">
+                <input type="radio"
+                       name="download_format_{{ item.id }}"
+                       value="{{ format }}"
+                       {% if format == 'mp3' %}checked{% endif %}
+                       class="accent-accent"
+                       data-download-target="formatInput">
+                {{ ('download.format.' ~ format)|trans }}
+            </label>
+        {% endfor %}
+    </div>
+
+    <div class="flex items-center gap-3">
+        <button type="button"
+                class="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-60"
+                data-action="click->download#submit"
+                data-download-target="button">
+            <span data-download-target="spinner" class="hidden">
+                <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+            </span>
+            {{ 'download.button'|trans }}
+        </button>
+    </div>
+
+    <div data-download-target="status" class="hidden mt-2 text-sm">
+        <span data-download-target="statusText"></span>
+    </div>
+
+</div>

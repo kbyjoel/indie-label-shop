@@ -38,7 +38,7 @@ class CheckoutShipmentType extends AbstractType
                     ? number_format($amount / 100, 2, ',', "\u{202F}") . ' €'
                     : 'Gratuit';
 
-                return sprintf('%s — %s', $method->getName(), $price);
+                return \sprintf('%s — %s', $method->getName(), $price);
             },
             'constraints' => [new NotNull()],
             'translation_domain' => 'messages',

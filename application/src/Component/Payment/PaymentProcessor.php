@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Payment;
+namespace App\Component\Payment;
 
+use App\Component\Payment\Gateway\PaypalGateway;
+use App\Component\Payment\Gateway\StripeGateway;
 use App\Entity\Order;
 use App\Entity\Payment;
 use App\Entity\PaymentMethod;
-use App\Payment\Gateway\PaypalGateway;
-use App\Payment\Gateway\PaymentGatewayInterface;
-use App\Payment\Gateway\StripeGateway;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -100,7 +99,7 @@ class PaymentProcessor
         return match ($paymentMethod->getGatewayType()) {
             'stripe' => new StripeGateway($paymentMethod),
             'paypal' => new PaypalGateway($paymentMethod, $this->httpClient),
-            default => throw new \RuntimeException(sprintf('Unknown gateway type: %s', $paymentMethod->getGatewayType())),
+            default => throw new \RuntimeException(\sprintf('Unknown gateway type: %s', $paymentMethod->getGatewayType())),
         };
     }
 }

@@ -28,6 +28,19 @@ services:
             $previewsStorage: '@previews.storage'
             $privateStorage: '@private.storage'
 
+    App\Component\Download\MessageHandler\GenerateDownloadHandler:
+        arguments:
+            $privateStorage: '@private.storage'
+
+    App\Controller\Front\DownloadController:
+        arguments:
+            $privateStorage: '@private.storage'
+            $kernelEnvironment: '%kernel.environment%'
+
+    App\Component\Download\DownloadTokenManager:
+        arguments:
+            $kernelEnvironment: '%kernel.environment%'
+
     App\Routing\FrontRouteLoader:
         arguments:
             $locales: '%app.locales%'
@@ -44,3 +57,12 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+when@prod:
+    services:
+        App\Component\Download\DownloadTokenManager:
+            arguments:
+                $kernelEnvironment: 'prod'
+                $s3Client: '@cellar_spaces_service'
+                $cellarBucket: '%env(CELLAR_BUCKET)%'
+                $privateStoragePrefix: 'private'

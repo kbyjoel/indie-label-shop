@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Payment\Gateway;
+namespace App\Component\Payment\Gateway;
 
 use App\Entity\PaymentMethod;
 use Symfony\Contracts\HttpClient\HttpClientInterface;

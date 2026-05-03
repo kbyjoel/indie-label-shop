@@ -42,7 +42,7 @@
                                 </span>
                             </td>
                             <td class="px-4 py-4 text-right text-sm font-medium">
-                                {{ (order.total / 100)|number_format(2, ',', "\u{202F}") }} €
+                                {{ (order.total / 100)|number_format(2, ',', '\u{202F}') }} €
                             </td>
                             <td class="px-4 py-4 text-right text-sm">
                                 <a href="{{ path('front_account_order_show', (app_locales|length > 1 ? {_locale: app.request.locale} : {})|merge({number: order.number})) }}"

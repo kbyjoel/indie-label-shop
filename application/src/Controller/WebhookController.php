@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Component\Payment\Gateway\PaypalGateway;
+use App\Component\Payment\PaymentProcessor;
 use App\Entity\Payment;
 use App\Entity\PaymentMethod;
-use App\Payment\Gateway\PaypalGateway;
-use App\Payment\PaymentProcessor;
 use Doctrine\ORM\EntityManagerInterface;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\Webhook;
@@ -43,7 +43,7 @@ class WebhookController extends AbstractController
             return new Response('Invalid signature', Response::HTTP_BAD_REQUEST);
         }
 
-        if (in_array($event->type, ['payment_intent.succeeded', 'payment_intent.payment_failed'], true)) {
+        if (\in_array($event->type, ['payment_intent.succeeded', 'payment_intent.payment_failed'], true)) {
             $intentId = $event->data->object->id;
             $payment = $this->findPaymentByDetail('stripe_payment_intent_id', (string) $intentId);
 
@@ -72,7 +72,8 @@ class WebhookController extends AbstractController
         // Résoudre le gateway PayPal depuis la méthode de paiement active
         /** @var PaymentMethod|null $paymentMethod */
         $paymentMethod = $this->em->getRepository(PaymentMethod::class)
-            ->findOneBy(['gatewayType' => 'paypal', 'enabled' => true]);
+            ->findOneBy(['gatewayType' => 'paypal', 'enabled' => true])
+        ;
 
         if (null === $paymentMethod) {
             return new Response('No PayPal method configured', Response::HTTP_BAD_REQUEST);

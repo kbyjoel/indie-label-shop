@@ -50,14 +50,14 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        $params = count($this->locales) > 1 ? ['_locale' => $request->getLocale()] : [];
+        $params = \count($this->locales) > 1 ? ['_locale' => $request->getLocale()] : [];
 
         return new RedirectResponse($this->urlGenerator->generate('front_account_dashboard', $params));
     }
 
     protected function getLoginUrl(Request $request): string
     {
-        $params = count($this->locales) > 1 ? ['_locale' => $request->getLocale()] : [];
+        $params = \count($this->locales) > 1 ? ['_locale' => $request->getLocale()] : [];
 
         return $this->urlGenerator->generate('front_account_login', $params);
     }

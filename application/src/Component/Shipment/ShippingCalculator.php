@@ -61,19 +61,20 @@ class ShippingCalculator
 
     /**
      * @param ShippingMethod[] $methods
+     *
      * @return int|null Minimum zone member count among zones that explicitly list
      *                  the country, or null if no such zone exists (→ use catch-all)
      */
     private function findMostSpecificZoneSize(array $methods, string $countryCode): ?int
     {
-        if ($countryCode === '') {
+        if ('' === $countryCode) {
             return null;
         }
 
         $minSize = null;
         foreach ($methods as $method) {
             $zone = $method->getZone();
-            if ($zone === null) {
+            if (null === $zone) {
                 continue;
             }
             $members = $zone->getMembers();
@@ -83,9 +84,10 @@ class ShippingCalculator
             foreach ($members as $member) {
                 if ($member->getCode() === $countryCode) {
                     $size = $members->count();
-                    if ($minSize === null || $size < $minSize) {
+                    if (null === $minSize || $size < $minSize) {
                         $minSize = $size;
                     }
+
                     break;
                 }
             }
@@ -114,18 +116,18 @@ class ShippingCalculator
      */
     private function isZoneEligible(ShippingMethod $method, string $countryCode, ?int $targetZoneSize): bool
     {
-        if ($countryCode === '') {
+        if ('' === $countryCode) {
             return true;
         }
 
         $zone = $method->getZone();
-        if ($zone === null) {
+        if (null === $zone) {
             return true;
         }
 
         $members = $zone->getMembers();
 
-        if ($targetZoneSize === null) {
+        if (null === $targetZoneSize) {
             // No zone explicitly lists this country → only catch-all methods apply
             return $members->isEmpty();
         }
@@ -166,7 +168,7 @@ class ShippingCalculator
         foreach ($method->getConfiguration()['brackets'] ?? [] as $bracket) {
             $min = (float) ($bracket['min'] ?? 0);
             $max = isset($bracket['max']) ? (float) $bracket['max'] : null;
-            if ($weight >= $min && ($max === null || $weight <= $max)) {
+            if ($weight >= $min && (null === $max || $weight <= $max)) {
                 return true;
             }
         }
@@ -185,7 +187,7 @@ class ShippingCalculator
 
         // Per-channel format — prefer the cart's channel
         $channelCode = $cart->getChannel()?->getCode();
-        if ($channelCode !== null && isset($config[$channelCode]['amount'])) {
+        if (null !== $channelCode && isset($config[$channelCode]['amount'])) {
             return (int) $config[$channelCode]['amount'];
         }
 
@@ -204,7 +206,7 @@ class ShippingCalculator
         foreach ($method->getConfiguration()['brackets'] ?? [] as $bracket) {
             $min = (float) ($bracket['min'] ?? 0);
             $max = isset($bracket['max']) ? (float) $bracket['max'] : null;
-            if ($weight >= $min && ($max === null || $weight <= $max)) {
+            if ($weight >= $min && (null === $max || $weight <= $max)) {
                 return (int) ($bracket['amount'] ?? 0);
             }
         }
@@ -218,7 +220,7 @@ class ShippingCalculator
         foreach ($cart->getItems() as $item) {
             /** @var OrderItem $item */
             $variant = $item->getVariant();
-            if ($variant !== null) {
+            if (null !== $variant) {
                 $weight += ($variant->getShippingWeight() ?? 0.0) * $item->getQuantity();
             }
         }

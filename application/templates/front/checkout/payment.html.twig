@@ -5,7 +5,7 @@
 {% block content %}
 <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
 
-    {% include 'front/checkout/_steps.html.twig' with {currentStep: 'payment'} %}
+    {{ include('front/checkout/_steps.html.twig', {currentStep: 'payment'}) }}
 
     <div class="mt-8 grid gap-8 lg:grid-cols-3">
 
@@ -96,7 +96,7 @@
             {% endif %}
         </div>
 
-        {% include 'front/checkout/_summary.html.twig' with {cart: cart} %}
+        {{ include('front/checkout/_summary.html.twig', {cart: cart}) }}
 
     </div>
 </div>

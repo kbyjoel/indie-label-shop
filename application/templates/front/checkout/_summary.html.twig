@@ -20,7 +20,7 @@
                     {% endif %}
                     <p class="text-xs text-muted">× {{ item.quantity }}</p>
                 </div>
-                <span class="shrink-0 text-sm font-medium">{{ (item.total / 100)|number_format(2, ',', "\u{202F}") }} €</span>
+                <span class="shrink-0 text-sm font-medium">{{ (item.total / 100)|number_format(2, ',', '\u{202F}') }} €</span>
             </li>
         {% endfor %}
     </ol>
@@ -35,17 +35,17 @@
     <div class="mt-4 space-y-1 border-t border-border pt-4 text-sm">
         <div class="flex justify-between text-muted">
             <span>{{ 'checkout.summary.subtotal'|trans }}</span>
-            <span>{{ (cart.itemsTotal / 100)|number_format(2, ',', "\u{202F}") }} €</span>
+            <span>{{ (cart.itemsTotal / 100)|number_format(2, ',', '\u{202F}') }} €</span>
         </div>
         {% if shippingTotal > 0 %}
             <div class="flex justify-between text-muted">
                 <span>{{ 'checkout.summary.shipping'|trans }}</span>
-                <span>{{ (shippingTotal / 100)|number_format(2, ',', "\u{202F}") }} €</span>
+                <span>{{ (shippingTotal / 100)|number_format(2, ',', '\u{202F}') }} €</span>
             </div>
         {% endif %}
         <div class="flex justify-between font-bold">
             <span>{{ 'cart.total'|trans }}</span>
-            <span>{{ (cart.total / 100)|number_format(2, ',', "\u{202F}") }} €</span>
+            <span>{{ (cart.total / 100)|number_format(2, ',', '\u{202F}') }} €</span>
         </div>
     </div>
 </aside>

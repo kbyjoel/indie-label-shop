@@ -6,7 +6,7 @@
 <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
 
     {# Step indicator #}
-    {% include 'front/checkout/_steps.html.twig' with {currentStep: 'shipment'} %}
+    {{ include('front/checkout/_steps.html.twig', {currentStep: 'shipment'}) }}
 
     <div class="mt-8 grid gap-8 lg:grid-cols-3">
 
@@ -35,7 +35,7 @@
         </div>
 
         {# Order summary sidebar #}
-        {% include 'front/checkout/_summary.html.twig' with {cart: cart} %}
+        {{ include('front/checkout/_summary.html.twig', {cart: cart}) }}
 
     </div>
 </div>

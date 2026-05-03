@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Front;
 
 use App\Component\Cart\CartContext;
+use App\Component\Payment\Gateway\PaypalGateway;
+use App\Component\Payment\Gateway\StripeGateway;
+use App\Component\Payment\PaymentProcessor;
 use App\Component\Shipment\ShippingCalculator;
 use App\Entity\Address;
 use App\Entity\Adjustment;
@@ -16,9 +19,6 @@ use App\Entity\ShippingMethod;
 use App\Entity\ShopUser;
 use App\Form\Front\CheckoutAddressType;
 use App\Form\Front\CheckoutShipmentType;
-use App\Payment\Gateway\PaypalGateway;
-use App\Payment\Gateway\StripeGateway;
-use App\Payment\PaymentProcessor;
 use Doctrine\ORM\EntityManagerInterface;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Model\AdjustmentInterface;
@@ -213,6 +213,7 @@ class CheckoutController extends AbstractController
             }
             if (($p->getDetails()['stripe_payment_intent_id'] ?? '') === $paymentIntentId) {
                 $payment = $p;
+
                 break;
             }
         }
@@ -297,6 +298,7 @@ class CheckoutController extends AbstractController
             }
             if (($p->getDetails()['paypal_order_id'] ?? '') === $orderId) {
                 $payment = $p;
+
                 break;
             }
         }

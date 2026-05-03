@@ -8,6 +8,7 @@ use App\Component\Cart\CartContext;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
+use Twig\TwigTest;
 
 class CartExtension extends AbstractExtension
 {
@@ -15,6 +16,13 @@ class CartExtension extends AbstractExtension
         private CartContext $cartContext,
         private RequestStack $requestStack,
     ) {
+    }
+
+    public function getTests(): array
+    {
+        return [
+            new TwigTest('instanceof', fn (mixed $value, string $class): bool => $value instanceof $class),
+        ];
     }
 
     public function getFunctions(): array
