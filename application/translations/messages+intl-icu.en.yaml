@@ -94,6 +94,9 @@ checkout:
         choose_method: Choose a payment method
         confirm: Place order
         no_methods: No payment methods available.
+        processing: Processing...
+        error_card: Card declined. Please check your details.
+        error_generic: An error occurred. Please try again.
     summary:
         title: Order Summary
         subtotal: Subtotal

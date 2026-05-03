@@ -36,4 +36,7 @@ return [
     'wavesurfer.js' => [
         'version' => '7.12.6',
     ],
+    '@stripe/stripe-js' => [
+        'version' => '9.4.0',
+    ],
 ];

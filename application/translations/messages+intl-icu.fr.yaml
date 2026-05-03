@@ -94,6 +94,9 @@ checkout:
         choose_method: Choisir un mode de paiement
         confirm: Confirmer la commande
         no_methods: Aucun mode de paiement disponible.
+        processing: Traitement en cours...
+        error_card: Carte refusée. Vérifiez vos informations.
+        error_generic: Une erreur est survenue. Veuillez réessayer.
     summary:
         title: Récapitulatif
         subtotal: Sous-total

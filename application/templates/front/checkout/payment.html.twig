@@ -5,44 +5,168 @@
 {% block content %}
 <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
 
-    {# Step indicator #}
     {% include 'front/checkout/_steps.html.twig' with {currentStep: 'payment'} %}
 
     <div class="mt-8 grid gap-8 lg:grid-cols-3">
 
-        {# Payment methods #}
         <div class="lg:col-span-2">
-            <h1 class="mb-6 text-2xl font-display font-bold tracking-tight">{{ 'checkout.payment.title'|trans }}</h1>
+            <h1 class="mb-6 text-2xl font-display font-bold tracking-tight">
+                {{ 'checkout.payment.title'|trans }}
+            </h1>
 
-            <form method="post"
-                  action="{{ path('front_checkout_confirm', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}">
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('checkout_confirm') }}">
+            {% if paymentMethods is empty %}
+                <p class="text-muted text-sm">{{ 'checkout.payment.no_methods'|trans }}</p>
+            {% else %}
 
-                <div class="space-y-3">
+                {# Method selector #}
+                <div class="space-y-3 mb-6" id="payment-method-list">
                     {% for method in paymentMethods %}
                         <label class="flex cursor-pointer items-center gap-4 rounded-xl border border-border p-4 hover:border-accent transition-colors has-[:checked]:border-accent has-[:checked]:bg-accent/5">
                             <input type="radio"
-                                   name="payment_method_id"
+                                   name="payment_method"
                                    value="{{ method.id }}"
+                                   data-gateway-type="{{ method.gatewayType }}"
                                    {% if loop.first %}checked{% endif %}
                                    class="h-4 w-4 text-accent border-border focus:ring-accent">
                             <span class="text-sm font-medium">{{ method.name }}</span>
                         </label>
-                    {% else %}
-                        <p class="text-muted text-sm">{{ 'checkout.payment.no_methods'|trans }}</p>
                     {% endfor %}
                 </div>
 
-                <button type="submit"
-                        class="mt-6 w-full rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent/90 transition-colors">
-                    {{ 'checkout.payment.confirm'|trans }}
-                </button>
-            </form>
+                {# Gateway sections — shown/hidden by JS, populated after paymentInitiate #}
+                {% for method in paymentMethods %}
+
+                    {% if method.gatewayType == 'stripe' %}
+                        <div id="stripe-section-{{ method.id }}"
+                             class="hidden"
+                             data-controller="stripe-payment"
+                             data-stripe-payment-publishable-key-value=""
+                             data-stripe-payment-client-secret-value=""
+                             data-stripe-payment-payment-confirm-url-value="{{ path('front_checkout_payment_confirm', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}">
+
+                            <div data-stripe-payment-target="cardElement"
+                                 class="rounded-md border border-border bg-white p-4 min-h-[42px]"></div>
+
+                            <p data-stripe-payment-target="errorMessage"
+                               class="hidden mt-2 text-sm text-red-600"
+                               role="alert"></p>
+
+                            <button type="button"
+                                    data-action="click->stripe-payment#pay"
+                                    data-stripe-payment-target="submitButton"
+                                    data-label="{{ 'checkout.payment.confirm'|trans }}"
+                                    data-loading-label="{{ 'checkout.payment.processing'|trans }}"
+                                    disabled
+                                    class="mt-4 w-full rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                {{ 'checkout.payment.confirm'|trans }}
+                            </button>
+                        </div>
+                    {% endif %}
+
+                    {% if method.gatewayType == 'paypal' %}
+                        <div id="paypal-section-{{ method.id }}"
+                             class="hidden"
+                             data-controller="paypal-payment"
+                             data-paypal-payment-client-id-value=""
+                             data-paypal-payment-currency-value="{{ cart.currencyCode }}"
+                             data-paypal-payment-create-order-url-value="{{ path('front_checkout_paypal_create_order', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}"
+                             data-paypal-payment-capture-order-url-value="{{ path('front_checkout_paypal_capture_order', app_locales|length > 1 ? {_locale: app.request.locale} : {}) }}">
+
+                            <div data-paypal-payment-target="buttonsContainer" class="min-h-[45px]"></div>
+
+                            <p data-paypal-payment-target="errorMessage"
+                               class="hidden mt-2 text-sm text-red-600"
+                               role="alert"></p>
+                        </div>
+                    {% endif %}
+
+                {% endfor %}
+
+                {# Loading indicator shown while calling paymentInitiate #}
+                <div id="payment-loading" class="hidden mt-4 flex items-center gap-2 text-sm text-muted">
+                    <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    <span>{{ 'checkout.payment.processing'|trans }}</span>
+                </div>
+
+                <p id="payment-global-error" class="hidden mt-4 text-sm text-red-600" role="alert"></p>
+
+            {% endif %}
         </div>
 
-        {# Order summary sidebar #}
         {% include 'front/checkout/_summary.html.twig' with {cart: cart} %}
 
     </div>
 </div>
+
+<script type="module">
+    const initiateUrl = {{ path('front_checkout_payment_initiate', app_locales|length > 1 ? {_locale: app.request.locale} : {})|json_encode|raw }};
+
+    const radios = document.querySelectorAll('input[name="payment_method"]');
+    const loadingEl = document.getElementById('payment-loading');
+    const globalErrorEl = document.getElementById('payment-global-error');
+
+    function hideAllSections() {
+        document.querySelectorAll('[id^="stripe-section-"], [id^="paypal-section-"]')
+            .forEach(el => el.classList.add('hidden'));
+    }
+
+    function showGlobalError(message) {
+        if (globalErrorEl) {
+            globalErrorEl.textContent = message;
+            globalErrorEl.classList.remove('hidden');
+        }
+    }
+
+    async function onMethodChange(radio) {
+        hideAllSections();
+        if (globalErrorEl) globalErrorEl.classList.add('hidden');
+        if (loadingEl) loadingEl.classList.remove('hidden');
+
+        let data;
+        try {
+            const res = await fetch(initiateUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentMethodId: parseInt(radio.value) }),
+            });
+            data = await res.json();
+        } catch {
+            if (loadingEl) loadingEl.classList.add('hidden');
+            showGlobalError('{{ 'checkout.payment.error_generic'|trans }}');
+            return;
+        }
+
+        if (loadingEl) loadingEl.classList.add('hidden');
+
+        if (data.error) {
+            showGlobalError('{{ 'checkout.payment.error_generic'|trans }}');
+            return;
+        }
+
+        if (data.gatewayType === 'stripe') {
+            const section = document.getElementById('stripe-section-' + radio.value);
+            if (!section) return;
+            section.classList.remove('hidden');
+            // Inject values — Stimulus will react via clientSecretValueChanged()
+            section.dataset.stripePaymentPublishableKeyValue = data.publishableKey;
+            section.dataset.stripePaymentClientSecretValue = data.clientSecret;
+        } else if (data.gatewayType === 'paypal') {
+            const section = document.getElementById('paypal-section-' + radio.value);
+            if (!section) return;
+            section.classList.remove('hidden');
+            section.dataset.paypalPaymentClientIdValue = data.clientId;
+        }
+    }
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', () => onMethodChange(radio));
+    });
+
+    // Auto-initiate for the pre-selected method on page load
+    const checked = document.querySelector('input[name="payment_method"]:checked');
+    if (checked) onMethodChange(checked);
+</script>
 {% endblock %}

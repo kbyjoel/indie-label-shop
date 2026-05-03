@@ -25,6 +25,9 @@ class Payment extends BasePayment
     #[ORM\Column(type: 'string', length: 255)]
     protected $currencyCode;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    protected $details = [];
+
     #[ORM\ManyToOne(targetEntity: Order::class, inversedBy: 'payments')]
     #[ORM\JoinColumn(name: 'order_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     protected $order;

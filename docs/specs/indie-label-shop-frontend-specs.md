@@ -762,7 +762,7 @@ Le tunnel d'achat (étapes adresse et livraison) et l'espace compte client sont 
 - Configurer le firewall Symfony pour les routes `/compte/*` (accès réservé aux clients connectés)
 - Ajouter les tests fonctionnels `tests/Controller/Front/` : `HomeControllerTest`, `BandControllerTest`, `AlbumControllerTest`, `ProductControllerTest`, `CartControllerTest`
 
-###   Step 7: Intégration paiement Stripe & PayPal
+###   Step 7: Intégration paiement Stripe & PayPal ✅
 La page de paiement accepte les cartes bancaires via Stripe Elements et PayPal via Smart Buttons ; les webhooks garantissent la fiabilité des mises à jour d'état.
 
 - Installer `stripe/stripe-php` et `paypal/checkout-sdk-php` via Composer
