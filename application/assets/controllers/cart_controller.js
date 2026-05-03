@@ -35,6 +35,10 @@ export default class extends Controller {
             const data = await res.json();
             if (data.success) {
                 this.countValue = data.cartCount;
+                document.dispatchEvent(new CustomEvent('cart:item-added', {
+                    bubbles: false,
+                    detail: { cartCount: data.cartCount },
+                }));
                 this._showFeedback('✓', false);
             }
         } catch (_) {

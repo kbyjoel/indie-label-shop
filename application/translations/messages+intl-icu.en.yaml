@@ -67,6 +67,9 @@ cart:
         unit: unit
         quantity: Quantity
         remove: Remove
+    mini:
+        title: Added to cart
+        cta: View cart
 
 checkout:
     steps:

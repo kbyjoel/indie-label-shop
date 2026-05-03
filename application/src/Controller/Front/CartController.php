@@ -8,7 +8,9 @@ use App\Component\Cart\CartContext;
 use App\Component\Cart\CartManager;
 use App\Entity\OrderItem;
 use App\Entity\ProductVariant;
+use Aropixel\AdminBundle\Component\Media\Resolver\PathResolverInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,7 +23,51 @@ class CartController extends AbstractController
         private CartContext $cartContext,
         private CartManager $cartManager,
         private EntityManagerInterface $em,
+        private CacheManager $cacheManager,
+        private PathResolverInterface $pathResolver,
     ) {
+    }
+
+    #[Route('/panier/mini', name: 'front_cart_mini', methods: ['GET'])]
+    public function mini(Request $request): JsonResponse
+    {
+        if (0 === $this->cartContext->getCartItemCount($request)) {
+            return $this->json(['count' => 0, 'total' => 0, 'items' => []]);
+        }
+
+        $cart = $this->cartContext->getCart($request);
+        $items = [];
+
+        foreach ($cart->getItems() as $item) {
+            /** @var OrderItem $item */
+            $variant = $item->getVariant();
+            /** @var \App\Entity\ProductVariant|null $variant */
+            $product = $variant?->getProduct();
+            /** @var \App\Entity\Product|null $product */
+            $rawImage = $product?->getImage()?->getImage();
+
+            $imageUrl = null;
+            if (null !== $rawImage) {
+                $path = parse_url($this->pathResolver->getImagePath($rawImage), \PHP_URL_PATH);
+                $imageUrl = $this->cacheManager->getBrowserPath((string) $path, 'product_card', [], null);
+            }
+
+            $items[] = [
+                'id' => (int) $item->getId(),
+                'name' => $product?->getName() ?? '—',
+                'variantLabel' => $variant?->getOptionValuesLabel() ?? '',
+                'qty' => $item->getQuantity(),
+                'unitPrice' => $item->getUnitPrice(),
+                'lineTotal' => $item->getTotal(),
+                'image' => $imageUrl,
+            ];
+        }
+
+        return $this->json([
+            'count' => $cart->getItems()->count(),
+            'total' => $cart->getTotal(),
+            'items' => $items,
+        ]);
     }
 
     #[Route('/panier', name: 'front_cart_index', methods: ['GET'])]
@@ -80,6 +126,7 @@ class CartController extends AbstractController
         return $this->json([
             'success' => true,
             'cartCount' => $cart->getItems()->count(),
+            'cartTotal' => $cart->getTotal(),
         ]);
     }
 

@@ -14,7 +14,8 @@
             {{ 'cart.continue_shopping'|trans }}
         </a>
     {% else %}
-        <div data-controller="cart">
+        <div data-controller="cart"
+             data-cart-count-value="{{ cart_item_count() }}">
             <ol class="divide-y divide-border">
                 {% for item in cart.items %}
                     {% set variant = item.variant %}

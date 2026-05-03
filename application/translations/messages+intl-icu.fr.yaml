@@ -67,6 +67,9 @@ cart:
         unit: unité
         quantity: Quantité
         remove: Supprimer
+    mini:
+        title: Ajouté au panier
+        cta: Voir mon panier
 
 checkout:
     steps:
