@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ locale|replace({'_': '-'}) }}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Votre commande {{ order.number }}</title>
+<title>{{ 'email.order_confirmed.html_title'|trans({'number': order.number}, 'messages', locale) }}</title>
 <style>
   body { margin: 0; padding: 0; background: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; }
   .wrapper { max-width: 600px; margin: 32px auto; background: #ffffff; border-radius: 8px; overflow: hidden; }
@@ -25,18 +25,18 @@
 <body>
 <div class="wrapper">
   <div class="header">
-    <h1>Confirmation de commande</h1>
+    <h1>{{ 'email.order_confirmed.header'|trans({}, 'messages', locale) }}</h1>
   </div>
   <div class="body">
-    <p style="font-size:15px;margin:0 0 24px;">Merci pour votre commande&nbsp;<strong>{{ order.number }}</strong>. Retrouvez le récapitulatif ci-dessous. La facture est jointe à cet email.</p>
+    <p style="font-size:15px;margin:0 0 24px;">{{ 'email.order_confirmed.intro'|trans({'number': order.number}, 'messages', locale) }}</p>
 
-    <h2>Articles</h2>
+    <h2>{{ 'email.order_confirmed.items_heading'|trans({}, 'messages', locale) }}</h2>
     <table>
       <thead>
         <tr>
-          <th>Article</th>
-          <th>Qté</th>
-          <th class="right">Prix</th>
+          <th>{{ 'email.order_confirmed.col_item'|trans({}, 'messages', locale) }}</th>
+          <th>{{ 'email.order_confirmed.col_qty'|trans({}, 'messages', locale) }}</th>
+          <th class="right">{{ 'email.order_confirmed.col_price'|trans({}, 'messages', locale) }}</th>
         </tr>
       </thead>
       <tbody>
@@ -51,14 +51,14 @@
       </tbody>
       <tfoot>
         <tr class="total-row">
-          <td colspan="2">Total</td>
+          <td colspan="2">{{ 'email.order_confirmed.total'|trans({}, 'messages', locale) }}</td>
           <td class="right">{{ (order.total / 100)|number_format(2, ',', '\u{202F}') }}&nbsp;€</td>
         </tr>
       </tfoot>
     </table>
 
     {% if order.shippingAddress %}
-      <h2>Adresse de livraison</h2>
+      <h2>{{ 'email.order_confirmed.shipping_heading'|trans({}, 'messages', locale) }}</h2>
       <div class="address-block">
         {{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}<br>
         {% if order.shippingAddress.company %}{{ order.shippingAddress.company }}<br>{% endif %}
@@ -76,14 +76,14 @@
     {% endfor %}
     {% if hasDigital %}
       <div class="digital-notice">
-        Vos fichiers numériques sont disponibles dans votre espace client dès que leur préparation est terminée.
+        {{ 'email.order_confirmed.digital_notice'|trans({}, 'messages', locale) }}
       </div>
     {% endif %}
 
-    <a href="{{ url('front_account_dashboard', app_locales|length > 1 ? {_locale: 'fr'} : {}) }}" class="cta">Accéder à mon espace client</a>
+    <a href="{{ url('front_account_dashboard', app_locales|length > 1 ? {_locale: locale} : {}) }}" class="cta">{{ 'email.order_confirmed.cta'|trans({}, 'messages', locale) }}</a>
   </div>
   <div class="footer">
-    Vous recevez cet email car vous avez passé une commande sur notre boutique.
+    {{ 'email.order_confirmed.footer'|trans({}, 'messages', locale) }}
   </div>
 </div>
 </body>

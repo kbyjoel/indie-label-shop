@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ locale|replace({'_': '-'}) }}">
 <head>
 <meta charset="UTF-8">
-<title>Facture {{ order.number }}</title>
+<title>{{ 'email.invoice.title'|trans({}, 'messages', locale) }} {{ order.number }}</title>
 <style>
   body { margin: 0; padding: 40px; font-family: DejaVu Sans, sans-serif; font-size: 13px; color: #1a1a1a; }
   h1 { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
@@ -21,12 +21,12 @@
 
 <div class="section" style="display:flex;justify-content:space-between;">
   <div>
-    <h1>Facture</h1>
+    <h1>{{ 'email.invoice.title'|trans({}, 'messages', locale) }}</h1>
     <p class="label" style="margin:4px 0 0;">N° {{ order.number }}</p>
   </div>
   <div style="text-align:right;">
     <p style="margin:0;font-weight:600;">Indie Label</p>
-    <p style="margin:4px 0 0;color:#6b7280;font-size:12px;">Date : {{ "now"|date("d/m/Y") }}</p>
+    <p style="margin:4px 0 0;color:#6b7280;font-size:12px;">{{ 'email.invoice.date_label'|trans({'date': "now"|date('email.invoice.date_format'|trans({}, 'messages', locale))}, 'messages', locale) }}</p>
   </div>
 </div>
 
@@ -34,7 +34,7 @@
 
 {% if order.shippingAddress %}
 <div class="section">
-  <p class="label" style="margin:0 0 8px;">Facturer à</p>
+  <p class="label" style="margin:0 0 8px;">{{ 'email.invoice.bill_to'|trans({}, 'messages', locale) }}</p>
   <address>
     {{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}<br>
     {% if order.shippingAddress.company %}{{ order.shippingAddress.company }}<br>{% endif %}
@@ -50,10 +50,10 @@
   <table>
     <thead>
       <tr>
-        <th>Article</th>
-        <th>Qté</th>
-        <th>P.U. HT</th>
-        <th class="right">Total HT</th>
+        <th>{{ 'email.invoice.col_item'|trans({}, 'messages', locale) }}</th>
+        <th>{{ 'email.invoice.col_qty'|trans({}, 'messages', locale) }}</th>
+        <th>{{ 'email.invoice.col_unit_price'|trans({}, 'messages', locale) }}</th>
+        <th class="right">{{ 'email.invoice.col_total'|trans({}, 'messages', locale) }}</th>
       </tr>
     </thead>
     <tbody>
@@ -69,7 +69,7 @@
     </tbody>
     <tfoot>
       <tr class="total-row">
-        <td colspan="3">Total TTC</td>
+        <td colspan="3">{{ 'email.invoice.total_row'|trans({}, 'messages', locale) }}</td>
         <td class="right">{{ (order.total / 100)|number_format(2, ',', ' ') }} €</td>
       </tr>
     </tfoot>

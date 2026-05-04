@@ -1,11 +1,10 @@
-Vos fichiers sont prêts — commande {{ orderNumber }}
-====================================================
+{{ 'email.download_ready.header'|trans({}, 'messages', locale) }} — {{ orderNumber }}
 
-Votre téléchargement pour la commande {{ orderNumber }} est prêt au format {{ format|upper }}.
+{{ 'email.download_ready.intro'|trans({'number': orderNumber, 'format': format|upper}, 'messages', locale) }}
 
-Le lien est valable 24 heures{% if expiresAt %} (jusqu'au {{ expiresAt|date('d/m/Y à H:i') }}){% endif %}.
+{% if expiresAt %}{{ 'email.download_ready.expires_until'|trans({'date': expiresAt|date('email.download_ready.date_format'|trans({}, 'messages', locale))}, 'messages', locale) }}{% else %}{{ 'email.download_ready.expires'|trans({}, 'messages', locale) }}{% endif %}
 
-Télécharger mes fichiers :
+{{ 'email.download_ready.cta'|trans({}, 'messages', locale) }} :
 {{ signedUrl }}
 
-Vous pouvez également accéder à vos téléchargements depuis votre espace client.
+{{ 'email.download_ready.account_notice'|trans({}, 'messages', locale) }}

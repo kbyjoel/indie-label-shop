@@ -11,6 +11,7 @@ use Dompdf\Dompdf;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
 #[AsMessageHandler]
@@ -20,6 +21,7 @@ class SendOrderConfirmedHandler
         private readonly EntityManagerInterface $em,
         private readonly MailerInterface $mailer,
         private readonly Environment $twig,
+        private readonly TranslatorInterface $translator,
         private readonly string $mailerFrom,
     ) {
     }
@@ -40,20 +42,25 @@ class SendOrderConfirmedHandler
             return;
         }
 
-        $pdfHtml = $this->twig->render('emails/pdf/invoice.html.twig', ['order' => $order]);
+        $locale = $order->getLocaleCode() ?? 'fr';
+
+        $pdfHtml = $this->twig->render('emails/pdf/invoice.html.twig', ['order' => $order, 'locale' => $locale]);
         $dompdf = new Dompdf();
         $dompdf->loadHtml($pdfHtml);
         $dompdf->render();
         $pdfContent = (string) $dompdf->output();
 
+        $subject = $this->translator->trans('email.order_confirmed.subject', ['number' => $order->getNumber()], 'messages', $locale);
+        $pdfFilename = $this->translator->trans('email.order_confirmed.pdf_filename', [], 'messages', $locale);
+
         $email = (new TemplatedEmail())
             ->from($this->mailerFrom)
             ->to((string) $customer->getEmail())
-            ->subject('Votre commande #' . $order->getNumber())
+            ->subject($subject)
             ->htmlTemplate('emails/order_confirmed.html.twig')
             ->textTemplate('emails/order_confirmed.txt.twig')
-            ->context(['order' => $order])
-            ->attach($pdfContent, 'facture-' . $order->getNumber() . '.pdf', 'application/pdf')
+            ->context(['order' => $order, 'locale' => $locale])
+            ->attach($pdfContent, $pdfFilename . '-' . $order->getNumber() . '.pdf', 'application/pdf')
         ;
 
         $this->mailer->send($email);

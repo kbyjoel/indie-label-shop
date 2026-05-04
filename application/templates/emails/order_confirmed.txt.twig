@@ -1,19 +1,18 @@
-Confirmation de commande {{ order.number }}
-==========================================
+{{ 'email.order_confirmed.txt_title'|trans({'number': order.number}, 'messages', locale) }}
 
-Merci pour votre commande {{ order.number }}.
-La facture PDF est jointe à cet email.
+{{ 'email.order_confirmed.intro'|trans({'number': order.number}, 'messages', locale) }}
+{{ 'email.order_confirmed.txt_invoice'|trans({}, 'messages', locale) }}
 
-ARTICLES
+{{ 'email.order_confirmed.txt_items'|trans({}, 'messages', locale) }}
 --------
 {% for item in order.items %}{% set product = item.variant ? item.variant.product : null %}
 - {{ product ? product.name : '—' }}  x{{ item.quantity }}  {{ (item.total / 100)|number_format(2, ',', ' ') }} €
 {% endfor %}
 
-Total : {{ (order.total / 100)|number_format(2, ',', ' ') }} €
+{{ 'email.order_confirmed.txt_total'|trans({}, 'messages', locale) }} {{ (order.total / 100)|number_format(2, ',', ' ') }} €
 
 {% if order.shippingAddress %}
-ADRESSE DE LIVRAISON
+{{ 'email.order_confirmed.txt_shipping'|trans({}, 'messages', locale) }}
 --------------------
 {{ order.shippingAddress.firstName }} {{ order.shippingAddress.lastName }}
 {% if order.shippingAddress.company %}{{ order.shippingAddress.company }}
@@ -24,6 +23,6 @@ ADRESSE DE LIVRAISON
 {% endif %}
 {% set hasDigital = false %}{% for item in order.items %}{% if item.variant is instanceof('App\\Entity\\Release') and item.variant.media is not null and item.variant.media.isDigital %}{% set hasDigital = true %}{% endif %}{% endfor %}
 {% if hasDigital %}
-Vos fichiers numériques sont disponibles dans votre espace client dès que leur préparation est terminée.
+{{ 'email.order_confirmed.txt_digital'|trans({}, 'messages', locale) }}
 
 {% endif %}

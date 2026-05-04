@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ locale|replace({'_': '-'}) }}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vos fichiers sont prêts — {{ orderNumber }}</title>
+<title>{{ 'email.download_ready.html_title'|trans({'number': orderNumber}, 'messages', locale) }}</title>
 <style>
   body { margin: 0; padding: 0; background: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; }
   .wrapper { max-width: 600px; margin: 32px auto; background: #ffffff; border-radius: 8px; overflow: hidden; }
@@ -18,22 +18,28 @@
 <body>
 <div class="wrapper">
   <div class="header">
-    <h1>Vos fichiers sont prêts</h1>
+    <h1>{{ 'email.download_ready.header'|trans({}, 'messages', locale) }}</h1>
   </div>
   <div class="body">
-    <p style="font-size:15px;margin:0 0 8px;">Votre téléchargement pour la commande&nbsp;<strong>{{ orderNumber }}</strong> est prêt au format&nbsp;<strong>{{ format|upper }}</strong>.</p>
-    <p style="font-size:14px;color:#6b7280;margin:0 0 24px;">Le lien est valable 24&nbsp;heures{% if expiresAt %} (jusqu'au {{ expiresAt|date('d/m/Y à H:i') }}){% endif %}.</p>
+    <p style="font-size:15px;margin:0 0 8px;">{{ 'email.download_ready.intro'|trans({'number': orderNumber, 'format': format|upper}, 'messages', locale) }}</p>
+    <p style="font-size:14px;color:#6b7280;margin:0 0 24px;">
+      {% if expiresAt %}
+        {{ 'email.download_ready.expires_until'|trans({'date': expiresAt|date('email.download_ready.date_format'|trans({}, 'messages', locale))}, 'messages', locale) }}
+      {% else %}
+        {{ 'email.download_ready.expires'|trans({}, 'messages', locale) }}
+      {% endif %}
+    </p>
 
-    <a href="{{ signedUrl }}" class="cta">Télécharger mes fichiers</a>
+    <a href="{{ signedUrl }}" class="cta">{{ 'email.download_ready.cta'|trans({}, 'messages', locale) }}</a>
 
-    <p class="meta">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br>
+    <p class="meta">{{ 'email.download_ready.fallback_label'|trans({}, 'messages', locale) }}<br>
     <span style="word-break:break-all;color:#1d4ed8;">{{ signedUrl }}</span></p>
 
-    <p style="font-size:13px;color:#6b7280;margin-top:32px;">Vous pouvez également accéder à vos téléchargements depuis votre espace client.</p>
-    <a href="{{ url('front_account_dashboard', app_locales|length > 1 ? {_locale: 'fr'} : {}) }}" style="font-size:13px;color:#1a1a1a;">→ Mon espace client</a>
+    <p style="font-size:13px;color:#6b7280;margin-top:32px;">{{ 'email.download_ready.account_notice'|trans({}, 'messages', locale) }}</p>
+    <a href="{{ url('front_account_dashboard', app_locales|length > 1 ? {_locale: locale} : {}) }}" style="font-size:13px;color:#1a1a1a;">{{ 'email.download_ready.account_cta'|trans({}, 'messages', locale) }}</a>
   </div>
   <div class="footer">
-    Vous recevez cet email car vous avez acheté des fichiers numériques sur notre boutique.
+    {{ 'email.download_ready.footer'|trans({}, 'messages', locale) }}
   </div>
 </div>
 </body>

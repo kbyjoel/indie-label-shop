@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[AsMessageHandler]
 class SendDownloadReadyHandler
@@ -20,6 +21,7 @@ class SendDownloadReadyHandler
         private readonly EntityManagerInterface $em,
         private readonly MailerInterface $mailer,
         private readonly DownloadTokenManager $downloadTokenManager,
+        private readonly TranslatorInterface $translator,
         private readonly string $mailerFrom,
     ) {
     }
@@ -42,12 +44,14 @@ class SendDownloadReadyHandler
             return;
         }
 
+        $locale = $order->getLocaleCode() ?? 'fr';
         $signedUrl = $this->downloadTokenManager->refreshSignedUrl($token);
+        $subject = $this->translator->trans('email.download_ready.subject', ['number' => $order->getNumber()], 'messages', $locale);
 
         $email = (new TemplatedEmail())
             ->from($this->mailerFrom)
             ->to((string) $customer->getEmail())
-            ->subject('Vos fichiers sont prêts — commande #' . $order->getNumber())
+            ->subject($subject)
             ->htmlTemplate('emails/download_ready.html.twig')
             ->textTemplate('emails/download_ready.txt.twig')
             ->context([
@@ -55,6 +59,7 @@ class SendDownloadReadyHandler
                 'expiresAt' => $token->getExpiresAt(),
                 'orderNumber' => $order->getNumber(),
                 'format' => $token->getFormat(),
+                'locale' => $locale,
             ])
         ;
 
