@@ -73,6 +73,12 @@ class Band implements Translatable
     #[ORM\OneToOne(targetEntity: BandImage::class, mappedBy: 'band', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?BandImage $image = null;
 
+    /**
+     * @var Collection<int, Concert>
+     */
+    #[ORM\OneToMany(targetEntity: Concert::class, mappedBy: 'band', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $concerts;
+
     /** @phpstan-ignore property.onlyWritten */
     private ?string $translatableLocale = null;
 
@@ -80,6 +86,7 @@ class Band implements Translatable
     {
         $this->members = new ArrayCollection();
         $this->translations = new ArrayCollection();
+        $this->concerts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -236,6 +243,35 @@ class Band implements Translatable
         } else {
             $this->image = $image;
             $this->image->setBand($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Concert>
+     */
+    public function getConcerts(): Collection
+    {
+        return $this->concerts;
+    }
+
+    public function addConcert(Concert $concert): static
+    {
+        if (!$this->concerts->contains($concert)) {
+            $this->concerts->add($concert);
+            $concert->setBand($this);
+        }
+
+        return $this;
+    }
+
+    public function removeConcert(Concert $concert): static
+    {
+        if ($this->concerts->removeElement($concert)) {
+            if ($concert->getBand() === $this) {
+                $concert->setBand(null);
+            }
         }
 
         return $this;

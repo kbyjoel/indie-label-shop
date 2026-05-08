@@ -22,6 +22,7 @@
     {{ forms.tabs([
         {id: 'panel-tab-artist', label: 'Groupe'},
         {id: 'panel-tab-socials', label: 'Réseaux sociaux'},
+        {id: 'panel-tab-concerts', label: 'Concerts'},
     ]) }}
 {% endblock %}
 {% block mainPanel %}
@@ -46,6 +47,15 @@
                 {{ form_row(form.facebook) }}
                 {{ form_row(form.twitter) }}
                 {{ form_row(form.instagram) }}
+            </div>
+        </div>
+    </div>
+
+    {# Tab 3: Concerts #}
+    <div class="tab-pane" id="panel-tab-concerts">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_widget(form.concerts) }}
             </div>
         </div>
     </div>

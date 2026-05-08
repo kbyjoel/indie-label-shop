@@ -5,6 +5,7 @@ namespace App\Form\Admin;
 use App\Entity\BandImage;
 use App\Entity\BandImageCrop;
 use App\Entity\BandTranslation;
+use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
 use Aropixel\AdminBundle\Form\Type\Image\Single\ImageType;
 use Aropixel\AdminBundle\Form\Type\TranslatableType;
@@ -12,12 +13,19 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /** @extends AbstractType<mixed> */
 class BandType extends AbstractType
 {
+    public function __construct(private readonly RequestStack $requestStack)
+    {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $locale = $this->requestStack->getCurrentRequest()?->getLocale() ?? 'fr';
+
         $builder
             ->add('status', HiddenType::class)
             ->add('slug', HiddenType::class)
@@ -57,6 +65,29 @@ class BandType extends AbstractType
                 'data_class' => BandImage::class,
                 'crop_class' => BandImageCrop::class,
                 'required' => false,
+            ])
+            ->add('concerts', CollectionType::class, [
+                'entry_type' => ConcertType::class,
+                'by_reference' => false,
+                'columns' => [
+                    'Date' => [
+                        'field' => 'date',
+                        'render' => function (\Symfony\Component\Form\FormView $field, \Symfony\Component\Form\FormView $item) use ($locale): string {
+                            $date = $item->vars['data']?->getDate();
+                            if (!$date instanceof \DateTimeInterface) {
+                                return '';
+                            }
+                            $formatter = new \IntlDateFormatter($locale, \IntlDateFormatter::SHORT, \IntlDateFormatter::NONE);
+
+                            return $formatter->format($date) ?: '';
+                        },
+                    ],
+                    'Ville'  => ['field' => 'city',   'display' => 'label'],
+                    'Lieu'   => ['field' => 'venue',  'display' => 'label'],
+                    'Statut' => ['field' => 'status', 'display' => 'label'],
+                ],
+                'button_add_label' => 'Ajouter un concert',
+                'form_title' => 'Détails du concert',
             ])
         ;
     }

@@ -108,3 +108,73 @@ Inside the closure, you can access:
 | `entry_type` | `string` | — | The underlying FormType for each item (Required). |
 
 > **Note**: The bundle's layout automatically handles the rendering of the collection and the addition of new items. Avoid using `list_template` and `entry_row_template` unless the standard table layout is absolutely impossible to use. Prefer customizing via the `columns` and `render` options.
+
+---
+
+## Doctrine Entity — Required OneToMany Setup
+
+For a collection to persist correctly, the parent entity must declare a `OneToMany` relation with `cascade: ['persist', 'remove']` and `orphanRemoval: true`, and expose `addXxx`/`removeXxx` methods that sync the owning side.
+
+```php
+// Parent entity (e.g. Band)
+#[ORM\OneToMany(targetEntity: Concert::class, mappedBy: 'band', cascade: ['persist', 'remove'], orphanRemoval: true)]
+private Collection $concerts;
+
+public function __construct()
+{
+    $this->concerts = new ArrayCollection();
+}
+
+public function addConcert(Concert $concert): static
+{
+    if (!$this->concerts->contains($concert)) {
+        $this->concerts->add($concert);
+        $concert->setBand($this); // sync owning side
+    }
+    return $this;
+}
+
+public function removeConcert(Concert $concert): static
+{
+    if ($this->concerts->removeElement($concert)) {
+        if ($concert->getBand() === $this) {
+            $concert->setBand(null);
+        }
+    }
+    return $this;
+}
+```
+
+```php
+// Child entity (e.g. Concert) — owns the FK
+#[ORM\ManyToOne(targetEntity: Band::class, inversedBy: 'concerts')]
+#[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+private ?Band $band = null;
+```
+
+Always add **`'by_reference' => false`** to the `CollectionType` options so Symfony calls `addXxx`/`removeXxx` instead of mutating the collection directly — Doctrine needs these calls to detect changes on the owning side.
+
+---
+
+## Twig — Rendering in a Tabbed Form
+
+The collection renders itself entirely via `form_widget`. In a tabbable admin form (using `forms.tabs`), add a new tab entry and a corresponding `tab-pane`:
+
+```twig
+{# In {% block tabbable %} #}
+{{ forms.tabs([
+    {id: 'panel-tab-general', label: 'Général'},
+    {id: 'panel-tab-concerts', label: 'Concerts'},
+]) }}
+
+{# In {% block mainPanel %} #}
+<div class="tab-pane" id="panel-tab-concerts">
+    <div class="card card-centered card-centered-large">
+        <div class="card-body">
+            {{ form_widget(form.concerts) }}
+        </div>
+    </div>
+</div>
+```
+
+Use `form_widget` (not `form_row`) for collections — the bundle renders the full table and "Add" button automatically.
