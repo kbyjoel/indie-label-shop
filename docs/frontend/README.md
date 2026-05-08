@@ -71,3 +71,4 @@ castor docker:builder -- php bin/console cache:clear
 | Step 6 | Stripe & PayPal payments + webhooks | — |
 | Step 7 | Digital file downloads | — |
 | Step 8 | Post-purchase transactional emails | — |
+| Step 9 | Promotions (automatic + coupon-based) | [promotions.md](promotions.md) |

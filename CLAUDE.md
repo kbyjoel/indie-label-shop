@@ -80,3 +80,38 @@ Admin is built on Aropixel Admin Bundle. Controllers in `src/Controller/Admin/` 
 - **Queue routing:** `config/packages/messenger.yaml`
 - **Static analysis:** `phpstan.neon` (level 8, with Doctrine and Symfony extensions)
 - **Code style:** `.php-cs-fixer.php` (PHP 8.3 target, Symfony+PSR12 rules)
+
+## Service Declaration Conventions
+
+**Prefer PHP attributes over YAML** for any `App\` class that needs DI configuration:
+
+```php
+#[AutoconfigureTag('sylius.promotion_rule_checker', attributes: ['type' => 'cart_quantity'])]
+#[AsEventListener(event: KernelEvents::REQUEST)]
+#[AsMessageHandler]
+```
+
+Reserve YAML for **vendor classes only** (classes we cannot modify). When vendor wiring grows beyond a few lines, extract it into a dedicated file under `config/services/`:
+
+```yaml
+# config/services.yaml
+imports:
+    - { resource: services/promotion.yaml }
+    # one file per domain: payment.yaml, shipping.yaml, etc.
+```
+
+`config/services.yaml` itself should stay thin: global `_defaults`, the `App\` namespace scan, and imports. Domain-specific vendor wiring belongs in `config/services/<domain>.yaml`.
+
+## URL Conventions
+
+All route URLs must be in **English**, regardless of the UI language. This applies to every route in the project: frontend pages, API endpoints, admin routes, etc.
+
+```php
+// correct
+#[Route('/cart/apply-coupon', name: 'front_cart_apply_coupon')]
+#[Route('/checkout/address', name: 'front_checkout_address')]
+
+// incorrect
+#[Route('/panier/appliquer-coupon', ...)]
+#[Route('/commande/adresse', ...)]
+```

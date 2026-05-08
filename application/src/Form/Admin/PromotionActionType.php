@@ -27,11 +27,7 @@ class PromotionActionType extends AbstractType
                 'choices' => [
                     'Remise % sur la commande' => 'order_percentage_discount',
                     'Remise fixe sur la commande' => 'order_fixed_discount',
-                    'Remise % sur chaque article' => 'item_percentage_discount',
-                    'Remise fixe par article' => 'item_fixed_discount',
                     'Remise % sur la livraison' => 'shipping_percentage_discount',
-                    'Remise fixe par unité' => 'unit_fixed_discount',
-                    'Remise % par unité' => 'unit_percentage_discount',
                 ],
             ])
             ->add('percentage', PercentType::class, [

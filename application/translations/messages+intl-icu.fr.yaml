@@ -63,6 +63,8 @@ cart:
     continue_shopping: Continuer mes achats
     checkout: Passer commande
     total: Total
+    subtotal: Sous-total
+    discount: Remise
     item:
         unit: unité
         quantity: Quantité
@@ -70,6 +72,10 @@ cart:
     mini:
         title: Ajouté au panier
         cta: Voir mon panier
+    coupon:
+        placeholder: Code promo
+        apply: Appliquer
+        active: Code appliqué
 
 checkout:
     steps:

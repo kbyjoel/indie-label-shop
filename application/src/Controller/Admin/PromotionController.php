@@ -124,11 +124,11 @@ class PromotionController extends AbstractController
             $rule = $ruleForm->getData();
             $configuration = match ($rule->getType()) {
                 'cart_quantity' => ['count' => (int) $ruleForm->get('count')->getData()],
-                'nth_order' => ['nth_order' => (int) $ruleForm->get('count')->getData()],
+                'nth_order' => ['nth' => (int) $ruleForm->get('count')->getData()],
                 'item_total' => ['WEB' => ['amount' => (int) $ruleForm->get('amount')->getData()]],
-                'contains_product' => ['products' => array_map(fn ($p) => $p->getId(), $ruleForm->get('products')->getData()->toArray())],
+                'contains_product' => ['product_code' => $ruleForm->get('product')->getData()?->getCode()],
                 'customer_group' => ['group_code' => $ruleForm->get('customerGroupCode')->getData()],
-                'total_of_items_from_taxon' => ['taxon' => $ruleForm->get('taxonCode')->getData(), 'WEB' => ['amount' => (int) $ruleForm->get('taxonAmount')->getData()]],
+                'total_of_items_from_taxon' => ['WEB' => ['taxon' => $ruleForm->get('taxonCode')->getData(), 'amount' => (int) $ruleForm->get('taxonAmount')->getData()]],
                 default => [],
             };
             $rule->setConfiguration($configuration);
@@ -140,9 +140,14 @@ class PromotionController extends AbstractController
     {
         foreach ($form->get('actions') as $actionForm) {
             $action = $actionForm->getData();
-            $configuration = str_contains((string) $action->getType(), 'fixed')
-                ? ['WEB' => ['amount' => (int) $actionForm->get('amount')->getData()]]
-                : ['percentage' => $actionForm->get('percentage')->getData()];
+            $configuration = match ($action->getType()) {
+                'order_fixed_discount',
+                'unit_fixed_discount' => ['WEB' => ['amount' => (int) $actionForm->get('amount')->getData()]],
+                'unit_percentage_discount' => ['WEB' => ['percentage' => $actionForm->get('percentage')->getData()]],
+                'order_percentage_discount',
+                'shipping_percentage_discount' => ['percentage' => $actionForm->get('percentage')->getData()],
+                default => [],
+            };
             $action->setConfiguration($configuration);
         }
     }

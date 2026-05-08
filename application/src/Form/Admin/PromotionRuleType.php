@@ -39,7 +39,6 @@ class PromotionRuleType extends AbstractType
                     'Contient un produit spécifique' => 'contains_product',
                     'Groupe de clients' => 'customer_group',
                     'Nième commande du client' => 'nth_order',
-                    'Total articles d\'un taxon' => 'total_of_items_from_taxon',
                 ],
             ])
             // cart_quantity / nth_order
@@ -57,32 +56,20 @@ class PromotionRuleType extends AbstractType
                 'currency' => 'EUR',
             ])
             // contains_product
-            ->add('products', EntityType::class, [
-                'label' => 'Produits',
+            ->add('product', EntityType::class, [
+                'label' => 'Produit',
                 'class' => Product::class,
                 'choice_label' => 'name',
+                'choice_value' => 'code',
                 'mapped' => false,
                 'required' => false,
-                'multiple' => true,
+                'multiple' => false,
             ])
             // customer_group
             ->add('customerGroupCode', TextType::class, [
                 'label' => 'Code du groupe de clients',
                 'mapped' => false,
                 'required' => false,
-            ])
-            // total_of_items_from_taxon
-            ->add('taxonCode', TextType::class, [
-                'label' => 'Code du taxon',
-                'mapped' => false,
-                'required' => false,
-            ])
-            ->add('taxonAmount', MoneyType::class, [
-                'label' => 'Montant minimum du taxon',
-                'mapped' => false,
-                'required' => false,
-                'divisor' => 100,
-                'currency' => 'EUR',
             ])
         ;
 
@@ -95,15 +82,13 @@ class PromotionRuleType extends AbstractType
             $config = $rule->getConfiguration();
             $form = $event->getForm();
 
-            $form->get('count')->setData($config['count'] ?? $config['nth_order'] ?? null);
+            $form->get('count')->setData($config['count'] ?? $config['nth'] ?? null);
             $form->get('amount')->setData($config['WEB']['amount'] ?? null);
             $form->get('customerGroupCode')->setData($config['group_code'] ?? null);
-            $form->get('taxonCode')->setData($config['taxon'] ?? null);
-            $form->get('taxonAmount')->setData($config['WEB']['amount'] ?? null);
 
-            $productIds = $config['products'] ?? [];
-            if ([] !== $productIds) {
-                $form->get('products')->setData($this->em->getRepository(Product::class)->findBy(['id' => $productIds]));
+            $productCode = $config['product_code'] ?? null;
+            if (null !== $productCode) {
+                $form->get('product')->setData($this->em->getRepository(Product::class)->findOneBy(['code' => $productCode]));
             }
         });
     }

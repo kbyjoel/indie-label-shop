@@ -8,11 +8,16 @@ use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Entity\ProductVariant;
 use Doctrine\ORM\EntityManagerInterface;
+use Sylius\Component\Promotion\Processor\PromotionProcessorInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class CartManager
 {
-    public function __construct(private EntityManagerInterface $em)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        #[Autowire(service: 'app.promotion_processor')]
+        private PromotionProcessorInterface $promotionProcessor,
+    ) {
     }
 
     public function addItem(Order $cart, ProductVariant $variant, int $qty = 1): void
@@ -70,5 +75,6 @@ class CartManager
     private function recalculate(Order $cart): void
     {
         $cart->recalculateItemsTotal();
+        $this->promotionProcessor->process($cart);
     }
 }

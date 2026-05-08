@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Core\Model\Order as BaseOrder;
@@ -61,6 +62,13 @@ class Order extends BaseOrder
     #[ORM\JoinColumn(name: 'promotion_coupon_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     protected $promotionCoupon;
 
+    /** @var Collection<array-key, \Sylius\Component\Promotion\Model\PromotionInterface> */
+    #[ORM\ManyToMany(targetEntity: Promotion::class)]
+    #[ORM\JoinTable(name: 'sylius_order_promotion')]
+    #[ORM\JoinColumn(name: 'order_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'promotion_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    protected $promotions;
+
     /** @var Collection<array-key, \Sylius\Component\Order\Model\AdjustmentInterface> */
     #[ORM\OneToMany(targetEntity: Adjustment::class, mappedBy: 'order', cascade: ['all'], orphanRemoval: true)]
     protected $adjustments;
@@ -71,6 +79,7 @@ class Order extends BaseOrder
     public function __construct()
     {
         parent::__construct();
+        $this->promotions = new ArrayCollection();
     }
 
     public function getConfirmationEmailSentAt(): ?\DateTimeImmutable

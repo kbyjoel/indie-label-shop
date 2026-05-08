@@ -63,6 +63,8 @@ cart:
     continue_shopping: Continue shopping
     checkout: Proceed to checkout
     total: Total
+    subtotal: Subtotal
+    discount: Discount
     item:
         unit: unit
         quantity: Quantity
@@ -70,6 +72,10 @@ cart:
     mini:
         title: Added to cart
         cta: View cart
+    coupon:
+        placeholder: Promo code
+        apply: Apply
+        active: Code applied
 
 checkout:
     steps:

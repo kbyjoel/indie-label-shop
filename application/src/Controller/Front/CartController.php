@@ -41,7 +41,7 @@ class CartController extends AbstractController
         foreach ($cart->getItems() as $item) {
             /** @var OrderItem $item */
             $variant = $item->getVariant();
-            /** @var \App\Entity\ProductVariant|null $variant */
+            /** @var ProductVariant|null $variant */
             $product = $variant?->getProduct();
             /** @var \App\Entity\Product|null $product */
             $rawImage = $product?->getImage()?->getImage();

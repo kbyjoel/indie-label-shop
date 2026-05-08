@@ -21,13 +21,13 @@ final class Version20260503152818 extends AbstractMigration
     {
         $this->addSql('ALTER TABLE sylius_order ADD currency_code VARCHAR(3) DEFAULT NULL');
 
-        $this->addSql("
+        $this->addSql('
             UPDATE sylius_order o
             JOIN sylius_channel ch ON ch.id = o.channel_id
             JOIN sylius_currency cu ON cu.id = ch.default_currency_id
             SET o.currency_code = cu.code
             WHERE o.currency_code IS NULL
-        ");
+        ');
     }
 
     public function down(Schema $schema): void

@@ -74,9 +74,86 @@
                 {% endfor %}
             </ol>
 
-            <div class="mt-6 flex items-center justify-end gap-4 border-t border-border pt-6">
+            {# Coupon form #}
+            <div class="mt-6 border-t border-border pt-6"
+                 data-controller="coupon"
+                 data-coupon-apply-url-value="{{ path('front_cart_promotion_apply_coupon') }}"
+                 data-coupon-remove-url-value="{{ path('front_cart_promotion_remove_coupon') }}">
+
+                <form class="flex items-center gap-2" data-action="submit->coupon#applyCoupon">
+                    <input type="text"
+                           data-coupon-target="codeInput"
+                           placeholder="{{ 'cart.coupon.placeholder'|trans }}"
+                           class="flex-1 rounded border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+                    <button type="submit"
+                            data-coupon-target="applyButton"
+                            class="rounded bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent/90 transition-colors">
+                        {{ 'cart.coupon.apply'|trans }}
+                    </button>
+                </form>
+
+                <p class="mt-1 text-sm text-red-600 hidden" data-coupon-target="errorZone"></p>
+
+                {% if cart.promotionCoupon %}
+                    <div class="mt-2 flex items-center gap-2 text-sm text-green-700" data-coupon-target="activeZone">
+                        <span>{{ 'cart.coupon.active'|trans }}</span>
+                        <span class="font-mono font-semibold" data-coupon-target="activeCode">{{ cart.promotionCoupon.code }}</span>
+                        <button type="button"
+                                class="ml-1 text-gray-400 hover:text-red-500"
+                                data-action="coupon#removeCoupon">×</button>
+                    </div>
+                {% else %}
+                    <div class="hidden" data-coupon-target="activeZone">
+                        <span>{{ 'cart.coupon.active'|trans }}</span>
+                        <span class="font-mono font-semibold" data-coupon-target="activeCode"></span>
+                        <button type="button"
+                                class="ml-1 text-gray-400 hover:text-red-500"
+                                data-action="coupon#removeCoupon">×</button>
+                    </div>
+                {% endif %}
+
+                {# Promotion adjustments #}
+                {% set promotionAdjustments = cart.getAdjustments('order_promotion') %}
+                {% if promotionAdjustments|length > 0 %}
+                    <table class="mt-4 w-full" data-coupon-target="adjustmentsList">
+                        {% for adj in promotionAdjustments %}
+                            <tr data-promotions-row>
+                                <td class="py-1 text-sm text-gray-600">
+                                    {{ adj.label }}
+                                    {% if cart.promotionCoupon and adj.originCode == cart.promotionCoupon.promotion.code %}
+                                        <button type="button"
+                                                class="ml-2 text-gray-400 hover:text-red-500"
+                                                data-action="coupon#removeCoupon">×</button>
+                                    {% endif %}
+                                </td>
+                                <td class="py-1 text-sm text-right text-green-700">
+                                    {{ (adj.amount / 100)|number_format(2, ',', '\u{202F}') }} €
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <table class="mt-4 w-full hidden" data-coupon-target="adjustmentsList"></table>
+                {% endif %}
+            </div>
+
+            {# Totals #}
+            <div class="mt-4 space-y-2 border-t border-border pt-4">
+                <div class="flex items-center justify-between text-sm text-muted">
+                    <span>{{ 'cart.subtotal'|trans }}</span>
+                    <span>{{ (cart.itemsTotal / 100)|number_format(2, ',', '\u{202F}') }} €</span>
+                </div>
+                {% set promotionsTotal = cart.getAdjustmentsTotalRecursively('order_promotion') %}
+                <div class="flex items-center justify-between text-sm text-green-700 {{ promotionsTotal == 0 ? 'hidden' : '' }}"
+                     data-promotions-row>
+                    <span>{{ 'cart.discount'|trans }}</span>
+                    <span data-coupon-target="promotionsTotal">{{ (promotionsTotal / 100)|number_format(2, ',', '\u{202F}') }} €</span>
+                </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-end gap-4 border-t border-border pt-4">
                 <span class="text-sm text-muted">{{ 'cart.total'|trans }}</span>
-                <span class="text-lg font-bold" id="cart-total">
+                <span class="text-lg font-bold" id="cart-total" data-coupon-target="cartTotal">
                     {{ (cart.total / 100)|number_format(2, ',', '\u{202F}') }} €
                 </span>
             </div>

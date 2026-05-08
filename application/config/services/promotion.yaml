@@ -1,0 +1,129 @@
+services:
+
+  # --- Rule checkers (vendor classes — tagged manually) ---
+
+  Sylius\Component\Core\Promotion\Checker\Rule\CartQuantityRuleChecker:
+    tags:
+      - { name: sylius.promotion_rule_checker, type: cart_quantity }
+
+  Sylius\Component\Core\Promotion\Checker\Rule\ItemTotalRuleChecker:
+    tags:
+      - { name: sylius.promotion_rule_checker, type: item_total }
+
+  Sylius\Component\Core\Promotion\Checker\Rule\ContainsProductRuleChecker:
+    tags:
+      - { name: sylius.promotion_rule_checker, type: contains_product }
+
+  Sylius\Component\Core\Promotion\Checker\Rule\CustomerGroupRuleChecker:
+    tags:
+      - { name: sylius.promotion_rule_checker, type: customer_group }
+
+  Sylius\Component\Core\Promotion\Checker\Rule\NthOrderRuleChecker:
+    arguments: ['@App\Repository\OrderRepository']
+    tags:
+      - { name: sylius.promotion_rule_checker, type: nth_order }
+
+  # --- Registry: rule checkers ---
+  app.promotion_rule_checker_registry:
+    class: Sylius\Component\Registry\ServiceRegistry
+    arguments:
+      - 'Sylius\Component\Promotion\Checker\Rule\RuleCheckerInterface'
+      - 'promotion rule checker'
+    calls:
+      - register: ['cart_quantity',    '@Sylius\Component\Core\Promotion\Checker\Rule\CartQuantityRuleChecker']
+      - register: ['item_total',       '@Sylius\Component\Core\Promotion\Checker\Rule\ItemTotalRuleChecker']
+      - register: ['contains_product', '@Sylius\Component\Core\Promotion\Checker\Rule\ContainsProductRuleChecker']
+      - register: ['customer_group',   '@Sylius\Component\Core\Promotion\Checker\Rule\CustomerGroupRuleChecker']
+      - register: ['nth_order',        '@Sylius\Component\Core\Promotion\Checker\Rule\NthOrderRuleChecker']
+
+  # --- Eligibility checkers ---
+
+  app.promotion_duration_eligibility_checker:
+    class: Sylius\Component\Promotion\Checker\Eligibility\PromotionDurationEligibilityChecker
+
+  app.promotion_usage_limit_eligibility_checker:
+    class: Sylius\Component\Promotion\Checker\Eligibility\PromotionUsageLimitEligibilityChecker
+
+  app.promotion_rules_eligibility_checker:
+    class: Sylius\Component\Promotion\Checker\Eligibility\PromotionRulesEligibilityChecker
+    arguments: ['@app.promotion_rule_checker_registry']
+
+  app.promotion_coupon_usage_limit_eligibility_checker:
+    class: Sylius\Component\Promotion\Checker\Eligibility\PromotionCouponUsageLimitEligibilityChecker
+
+  app.promotion_coupon_eligibility_checker:
+    class: Sylius\Component\Promotion\Checker\Eligibility\CompositePromotionCouponEligibilityChecker
+    arguments:
+      - ['@app.promotion_coupon_usage_limit_eligibility_checker']
+
+  app.promotion_subject_coupon_eligibility_checker:
+    class: Sylius\Component\Promotion\Checker\Eligibility\PromotionSubjectCouponEligibilityChecker
+    arguments: ['@app.promotion_coupon_eligibility_checker']
+
+  app.promotion_eligibility_checker:
+    class: Sylius\Component\Promotion\Checker\Eligibility\CompositePromotionEligibilityChecker
+    arguments:
+      - - '@app.promotion_duration_eligibility_checker'
+        - '@app.promotion_usage_limit_eligibility_checker'
+        - '@app.promotion_rules_eligibility_checker'
+        - '@app.promotion_subject_coupon_eligibility_checker'
+
+  # --- Shared dependencies for action commands ---
+
+  app.adjustment_factory:
+    class: Sylius\Component\Order\Factory\AdjustmentFactory
+    arguments:
+      - '@app.adjustment_simple_factory'
+
+  app.adjustment_simple_factory:
+    class: Sylius\Resource\Factory\Factory
+    arguments: ['App\Entity\Adjustment']
+
+  # --- Action commands ---
+  # Custom order-level commands that work with flat variant pricing (no ChannelPricing).
+  # Sylius's built-in PercentageDiscountPromotionActionCommand and
+  # FixedDiscountPromotionActionCommand are incompatible: they distribute
+  # discounts per OrderItemUnit and call ChannelPricing::getMinimumPrice().
+
+  App\Component\Promotion\Action\OrderPercentageDiscountCommand:
+    tags:
+      - { name: sylius.promotion_action, type: order_percentage_discount }
+
+  App\Component\Promotion\Action\OrderFixedDiscountCommand:
+    tags:
+      - { name: sylius.promotion_action, type: order_fixed_discount }
+
+  Sylius\Component\Core\Promotion\Action\ShippingPercentageDiscountPromotionActionCommand:
+    arguments:
+      - '@app.adjustment_factory'
+    tags:
+      - { name: sylius.promotion_action, type: shipping_percentage_discount }
+
+  # --- Registry: action commands ---
+  app.promotion_action_registry:
+    class: Sylius\Component\Registry\ServiceRegistry
+    arguments:
+      - 'Sylius\Component\Promotion\Action\PromotionActionCommandInterface'
+      - 'promotion action'
+    calls:
+      - register: ['order_percentage_discount',   '@App\Component\Promotion\Action\OrderPercentageDiscountCommand']
+      - register: ['order_fixed_discount',        '@App\Component\Promotion\Action\OrderFixedDiscountCommand']
+      - register: ['shipping_percentage_discount','@Sylius\Component\Core\Promotion\Action\ShippingPercentageDiscountPromotionActionCommand']
+
+  # --- Applicator ---
+  app.promotion_applicator:
+    class: Sylius\Component\Promotion\Action\PromotionApplicator
+    arguments: ['@app.promotion_action_registry']
+
+  # --- Provider ---
+  app.pre_qualified_promotions_provider:
+    class: Sylius\Component\Core\Provider\ActivePromotionsByChannelProvider
+    arguments: ['@App\Repository\PromotionRepository']
+
+  # --- Processor ---
+  app.promotion_processor:
+    class: Sylius\Component\Promotion\Processor\PromotionProcessor
+    arguments:
+      - '@app.pre_qualified_promotions_provider'
+      - '@app.promotion_eligibility_checker'
+      - '@app.promotion_applicator'

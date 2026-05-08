@@ -37,6 +37,14 @@
             <span>{{ 'checkout.summary.subtotal'|trans }}</span>
             <span>{{ (cart.itemsTotal / 100)|number_format(2, ',', '\u{202F}') }} €</span>
         </div>
+
+        {% for adj in cart.getAdjustments('order_promotion') %}
+            <div class="flex justify-between text-green-700">
+                <span>{{ adj.label }}</span>
+                <span>{{ (adj.amount / 100)|number_format(2, ',', '\u{202F}') }} €</span>
+            </div>
+        {% endfor %}
+
         {% if shippingTotal > 0 %}
             <div class="flex justify-between text-muted">
                 <span>{{ 'checkout.summary.shipping'|trans }}</span>
