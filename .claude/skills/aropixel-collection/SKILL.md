@@ -106,8 +106,38 @@ Inside the closure, you can access:
 | `form_title` | `string` | `"Détails de l'élément"` | Title of the edit offcanvas. |
 | `sortable` | `bool` | `true` | Enables drag-and-drop sorting. |
 | `entry_type` | `string` | — | The underlying FormType for each item (Required). |
+| `toolbar_template` | `string\|null` | `null` | Path to a Twig template rendered next to the "Add" button (import links, bulk actions, etc.). |
 
 > **Note**: The bundle's layout automatically handles the rendering of the collection and the addition of new items. Avoid using `list_template` and `entry_row_template` unless the standard table layout is absolutely impossible to use. Prefer customizing via the `columns` and `render` options.
+
+---
+
+## Extra toolbar button — `toolbar_template`
+
+Use `toolbar_template` to add controls alongside the "Add" button (import link, bulk action, etc.).
+
+```php
+// In the form type
+->add('tracklists', CollectionType::class, [
+    'entry_type' => TracklistType::class,
+    'button_add_label' => 'Ajouter un morceau',
+    'toolbar_template' => 'admin/album/_tracklists_toolbar.html.twig',
+])
+```
+
+The toolbar template is rendered with `{{ include() }}` — it **inherits the current Twig context**, so parent-template variables are NOT available. Use `app.request.attributes.get('id')` to retrieve the current entity ID from the route parameter:
+
+```twig
+{# templates/admin/album/_tracklists_toolbar.html.twig #}
+{% set album_id = app.request.attributes.get('id') %}
+{% if album_id %}
+    <a href="{{ path('admin_album_batch_masters', {id: album_id}) }}" class="btn btn-secondary btn-sm">
+        Masters en lot
+    </a>
+{% endif %}
+```
+
+The `{% if album_id %}` guard hides the button on the "new" form where no ID exists yet.
 
 ---
 

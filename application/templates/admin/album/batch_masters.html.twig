@@ -1,0 +1,79 @@
+{% extends '@AropixelAdmin/base.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+
+{% block meta_title %}Masters en lot — {{ album.name }}{% endblock %}
+
+{% block header_title %}Masters en lot — {{ album.name }}{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        {label: 'text.home', url: url('_admin')},
+        {label: 'Albums', url: url('admin_album_index')},
+        {label: album.name, url: url('admin_album_edit', {id: album.id})},
+        {label: 'Masters en lot'},
+    ]) }}
+{% endblock %}
+
+{% block header_actions %}
+    <a href="{{ path('admin_album_edit', {id: album.id}) }}" class="btn btn-secondary">
+        Retour à l'album
+    </a>
+{% endblock %}
+
+{% block body %}
+    <div
+        class="card card-centered"
+        data-controller="batch-upload"
+        data-batch-upload-tracks-value="{{ tracksData|json_encode }}"
+    >
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" action="{{ path('admin_album_batch_masters', {id: album.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('batch_masters_' ~ album.id) }}">
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Fichiers masters (WAV ou FLAC)</label>
+                    <input
+                        type="file"
+                        name="masters[]"
+                        multiple
+                        accept="audio/flac,audio/wav"
+                        class="form-control"
+                        data-batch-upload-target="input"
+                        data-action="change->batch-upload#fileInputChange"
+                    >
+                    <div class="form-text">
+                        Les fichiers seront attribués aux tracks dans l'ordre alphabétique/numérique de leur nom.
+                        {% if tracksData|length > 0 %}
+                            Tracks existantes : {{ tracksData|length }}.
+                        {% endif %}
+                        Si plus de fichiers que de tracks, des tracks supplémentaires seront créées automatiquement.
+                    </div>
+                </div>
+
+                <div data-batch-upload-target="preview" class="d-none mb-4">
+                    <h6>Prévisualisation de l'attribution</h6>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 80px">Position</th>
+                                <th>Track</th>
+                                <th>Fichier</th>
+                                <th style="width: 220px">Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody data-batch-upload-target="tbody"></tbody>
+                    </table>
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    disabled
+                    data-batch-upload-target="submit"
+                >
+                    Confirmer et uploader
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

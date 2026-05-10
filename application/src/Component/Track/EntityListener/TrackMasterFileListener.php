@@ -2,7 +2,7 @@
 
 namespace App\Component\Track\EntityListener;
 
-use App\Component\Track\Message\EncodeTrackMp3Message;
+use App\Component\Track\Message\NormalizeMasterToFlacMessage;
 use App\Entity\TrackMasterFile;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Events;
@@ -31,7 +31,7 @@ class TrackMasterFileListener
     {
         $track = $trackMasterFile->getTrack();
         if ($track && $track->getId()) {
-            $this->bus->dispatch(new EncodeTrackMp3Message($track->getId()));
+            $this->bus->dispatch(new NormalizeMasterToFlacMessage($track->getId()));
         }
     }
 }

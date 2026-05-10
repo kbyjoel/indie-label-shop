@@ -36,11 +36,11 @@ class EncodeTrackMp3Handler
         }
 
         $filename = $masterFile->getFile()->getFilename();
-        $storagePath = 'files/' . $filename;
+        $storagePath = $track->getNormalizedMasterPath() ?? 'files/' . $filename;
+        $ext = $track->getNormalizedMasterPath() ? 'flac' : (pathinfo((string) $filename, \PATHINFO_EXTENSION) ?: 'flac');
 
         // Stream master from private.storage to a local temp file for FFmpeg
         $masterStream = $this->privateStorage->readStream($storagePath);
-        $ext = pathinfo((string) $filename, \PATHINFO_EXTENSION) ?: 'flac';
         $tmpMasterPath = sys_get_temp_dir() . '/' . uniqid('master_', true) . '.' . $ext;
         $handle = fopen($tmpMasterPath, 'w+');
         if (false === $handle) {

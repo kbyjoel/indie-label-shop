@@ -26,6 +26,14 @@ services:
     App\:
         resource: '../src/'
 
+    App\Controller\Admin\AlbumController:
+        arguments:
+            $privateStorage: '@private.storage'
+
+    App\Component\Track\MessageHandler\NormalizeMasterToFlacHandler:
+        arguments:
+            $privateStorage: '@private.storage'
+
     App\Component\Track\MessageHandler\EncodeTrackMp3Handler:
         arguments:
             $previewsStorage: '@previews.storage'

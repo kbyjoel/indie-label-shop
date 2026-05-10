@@ -23,6 +23,7 @@ framework:
             Symfony\Component\Notifier\Message\SmsMessage: async
 
             # Route your messages to the transports
+            'App\Component\Track\Message\NormalizeMasterToFlacMessage': async
             'App\Component\Track\Message\EncodeTrackMp3Message': async
             'App\Component\Download\Message\GenerateDownloadMessage': async
             'App\Component\Mail\Message\SendOrderConfirmedMessage': async

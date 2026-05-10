@@ -1,0 +1,6 @@
+{% set album_id = app.request.attributes.get('id') %}
+{% if album_id %}
+    <a href="{{ path('admin_album_batch_masters', {id: album_id}) }}" class="btn btn-secondary">
+        Masters en lot
+    </a>
+{% endif %}

@@ -33,6 +33,9 @@ class Track extends ProductVariant
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $waveformPath = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $normalizedMasterPath = null;
+
     #[ORM\PrePersist]
     public function generateCode(): void
     {
@@ -134,6 +137,18 @@ class Track extends ProductVariant
     public function setWaveformPath(?string $waveformPath): self
     {
         $this->waveformPath = $waveformPath;
+
+        return $this;
+    }
+
+    public function getNormalizedMasterPath(): ?string
+    {
+        return $this->normalizedMasterPath;
+    }
+
+    public function setNormalizedMasterPath(?string $normalizedMasterPath): self
+    {
+        $this->normalizedMasterPath = $normalizedMasterPath;
 
         return $this;
     }

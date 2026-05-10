@@ -89,6 +89,7 @@ class AlbumType extends AbstractType
                 ],
                 'button_add_label' => 'Ajouter un morceau',
                 'form_title' => 'Détails du morceau',
+                'toolbar_template' => 'admin/album/_tracklists_toolbar.html.twig',
             ])
             ->add('releases', CollectionType::class, [
                 'entry_type' => ReleaseType::class,

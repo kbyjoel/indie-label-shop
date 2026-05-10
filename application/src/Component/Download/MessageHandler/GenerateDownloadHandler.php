@@ -119,8 +119,8 @@ class GenerateDownloadHandler
                 }
 
                 $filename = $masterFile->getFile()->getFilename();
-                $storagePath = 'files/' . $filename;
-                $ext = pathinfo((string) $filename, \PATHINFO_EXTENSION) ?: 'flac';
+                $storagePath = $track->getNormalizedMasterPath() ?? 'files/' . $filename;
+                $ext = $track->getNormalizedMasterPath() ? 'flac' : (pathinfo((string) $filename, \PATHINFO_EXTENSION) ?: 'flac');
 
                 $masterStream = $this->privateStorage->readStream($storagePath);
                 $tmpMasterPath = sys_get_temp_dir() . '/' . uniqid('master_', true) . '.' . $ext;
