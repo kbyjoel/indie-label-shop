@@ -6,6 +6,7 @@ namespace App\Controller\Front;
 
 use App\Repository\AlbumRepository;
 use App\Repository\BandRepository;
+use Aropixel\BlogBundle\Repository\PostRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -13,11 +14,12 @@ use Symfony\Component\Routing\Attribute\Route;
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'front_home_index')]
-    public function index(AlbumRepository $albumRepository, BandRepository $bandRepository): Response
+    public function index(AlbumRepository $albumRepository, BandRepository $bandRepository, PostRepository $postRepository): Response
     {
         return $this->render('front/home/index.html.twig', [
             'latestAlbums' => $albumRepository->findLatestOnline(6),
             'bands' => $bandRepository->findAllOnline(),
+            'latestPosts' => $postRepository->findPublished(['createdAt' => 'DESC'], 3),
         ]);
     }
 }

@@ -11,6 +11,7 @@ use App\Component\Payment\PaymentProcessor;
 use App\Component\Shipment\ShippingCalculator;
 use App\Entity\Address;
 use App\Entity\Adjustment;
+use App\Entity\Customer;
 use App\Entity\Order;
 use App\Entity\Payment;
 use App\Entity\PaymentMethod;
@@ -51,6 +52,10 @@ class CheckoutController extends AbstractController
         /** @var ShopUser $shopUser */
         $shopUser = $this->getUser();
         $customer = $shopUser->getCustomer();
+        if (null === $customer) {
+            throw $this->createAccessDeniedException();
+        }
+        assert($customer instanceof Customer);
         $cart->setCustomer($customer);
 
         $address = $cart->getShippingAddress() ?? $this->cloneAddress($customer->getDefaultAddress() ?? new Address());

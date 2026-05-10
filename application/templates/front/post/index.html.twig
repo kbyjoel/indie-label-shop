@@ -1,0 +1,43 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'post.index.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+
+    <h1 class="mb-10 text-3xl font-display font-bold tracking-tight">
+        {{ 'post.index.title'|trans }}
+    </h1>
+
+    {% if posts is empty %}
+        <p class="text-sm text-muted">{{ 'post.index.empty'|trans }}</p>
+    {% else %}
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {% for post in posts %}
+                {{ include('front/partials/_post_card.html.twig') }}
+            {% endfor %}
+        </div>
+
+        {% if posts.haveToPaginate %}
+            <nav class="mt-12 flex items-center justify-center gap-4" aria-label="Pagination">
+                {% if posts.hasPreviousPage %}
+                    <a href="{{ path('front_post_index', {page: posts.previousPage}) }}"
+                       class="inline-flex items-center gap-1 text-sm text-muted hover:text-black transition-colors">
+                        ← {{ 'pagination.previous'|trans }}
+                    </a>
+                {% endif %}
+                <span class="text-sm text-muted">
+                    {{ posts.currentPage }} / {{ posts.nbPages }}
+                </span>
+                {% if posts.hasNextPage %}
+                    <a href="{{ path('front_post_index', {page: posts.nextPage}) }}"
+                       class="inline-flex items-center gap-1 text-sm text-muted hover:text-black transition-colors">
+                        {{ 'pagination.next'|trans }} →
+                    </a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    {% endif %}
+
+</div>
+{% endblock %}

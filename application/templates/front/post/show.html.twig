@@ -1,0 +1,42 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ post.metaTitle ?: post.title }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+
+    <a href="{{ path('front_post_index') }}"
+       class="mb-8 inline-flex items-center gap-1 text-sm text-muted hover:text-black transition-colors">
+        ← {{ 'post.show.back'|trans }}
+    </a>
+
+    <article>
+        {% if post.image %}
+            <div class="mb-8 overflow-hidden rounded-lg">
+                <img src="{{ post.image|aropixel_imagine_filter('post_image') }}"
+                     alt="{{ post.image.attrAlt ?: post.title }}"
+                     class="w-full object-cover">
+            </div>
+        {% endif %}
+
+        <header class="mb-8">
+            <p class="mb-2 text-sm text-muted">
+                {{ 'post.show.published_on'|trans }} {{ post.createdAt|date('d/m/Y') }}
+            </p>
+            <h1 class="text-3xl font-display font-bold tracking-tight sm:text-4xl">
+                {{ post.title }}
+            </h1>
+            {% if post.excerpt %}
+                <p class="mt-4 text-lg text-muted">{{ post.excerpt }}</p>
+            {% endif %}
+        </header>
+
+        {% if post.description %}
+            <div class="prose prose-neutral max-w-none">
+                {{ post.description|raw }}
+            </div>
+        {% endif %}
+    </article>
+
+</div>
+{% endblock %}

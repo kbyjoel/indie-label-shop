@@ -38,6 +38,29 @@
         {% endif %}
     </section>
 
+    {# Latest news #}
+    <section class="mb-16">
+        <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-2xl font-display font-bold tracking-tight">
+                {{ 'home.latest_news'|trans }}
+            </h2>
+            <a href="{{ path('front_post_index') }}"
+               class="text-sm text-accent hover:text-accent-hover transition-colors">
+                {{ 'home.see_all_news'|trans }} →
+            </a>
+        </div>
+
+        {% if latestPosts is empty %}
+            <p class="text-sm text-muted">{{ 'home.no_news'|trans }}</p>
+        {% else %}
+            <div class="grid grid-cols-1 gap-8 sm:grid-cols-3">
+                {% for post in latestPosts %}
+                    {{ include('front/partials/_post_card.html.twig') }}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+
     {# Artists #}
     <section>
         <div class="mb-6 flex items-center justify-between">

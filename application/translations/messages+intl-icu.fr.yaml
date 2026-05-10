@@ -4,6 +4,7 @@ site:
 nav:
     albums: Albums
     artists: Artistes
+    news: Actualités
     shop: Boutique
     cart: Panier
     account: Mon compte
@@ -19,6 +20,9 @@ home:
     latest_releases: Dernières sorties
     no_releases: Aucune sortie pour l'instant.
     see_all_albums: Voir tous les albums
+    latest_news: Dernières actualités
+    no_news: Aucune actualité pour l'instant.
+    see_all_news: Voir toutes les actualités
     artists: Artistes
     no_artists: Aucun artiste pour l'instant.
     see_all_artists: Voir tous les artistes
@@ -232,3 +236,11 @@ email:
         col_unit_price: "P.U. HT"
         col_total: "Total HT"
         total_row: "Total TTC"
+
+post:
+    index:
+        title: Actualités
+        empty: Aucune actualité pour l'instant.
+    show:
+        back: Retour aux actualités
+        published_on: Publié le

@@ -4,6 +4,7 @@ site:
 nav:
     albums: Albums
     artists: Artists
+    news: News
     shop: Shop
     cart: Cart
     account: My account
@@ -19,6 +20,9 @@ home:
     latest_releases: Latest Releases
     no_releases: No releases yet.
     see_all_albums: See all albums
+    latest_news: Latest News
+    no_news: No news yet.
+    see_all_news: See all news
     artists: Artists
     no_artists: No artists yet.
     see_all_artists: See all artists
@@ -232,3 +236,11 @@ email:
         col_unit_price: "Unit price"
         col_total: "Total"
         total_row: "Total"
+
+post:
+    index:
+        title: News
+        empty: No news yet.
+    show:
+        back: Back to news
+        published_on: Published on
