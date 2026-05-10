@@ -78,6 +78,7 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
     private function buildShopMenu(): Menu
     {
         $menu = new Menu('content', 'Shop');
+        $menu->addItem(new Link('Commandes', 'admin_order_index', [], ['icon' => 'fas fa-receipt']));
         $menu->addItem(new Link('Clients', 'admin_customer_index', [], ['icon' => 'fas fa-list-ul']));
         $menu->addItem(new Link('Paiements', 'admin_payment_method_index', [], ['icon' => 'fas fa-credit-card']));
         $menu->addItem(new Link('Livraison', 'admin_shipping_method_index', [], ['icon' => 'fas fa-truck']));

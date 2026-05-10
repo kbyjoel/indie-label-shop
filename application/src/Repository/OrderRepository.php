@@ -28,6 +28,28 @@ class OrderRepository extends ServiceEntityRepository implements OrderRepository
         parent::__construct($registry, Order::class);
     }
 
+    public function findOneForAdmin(int $id): ?Order
+    {
+        return $this->createQueryBuilder('o')
+            ->leftJoin('o.customer', 'c')
+            ->leftJoin('o.items', 'i')
+            ->leftJoin('i.variant', 'v')
+            ->leftJoin('v.product', 'p')
+            ->leftJoin('o.payments', 'pay')
+            ->leftJoin('pay.method', 'pm')
+            ->leftJoin('o.shipments', 's')
+            ->leftJoin('s.method', 'sm')
+            ->leftJoin('o.shippingAddress', 'sa')
+            ->leftJoin('o.billingAddress', 'ba')
+            ->leftJoin('o.adjustments', 'adj')
+            ->addSelect('c', 'i', 'v', 'p', 'pay', 'pm', 's', 'sm', 'sa', 'ba', 'adj')
+            ->where('o.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
     public function countByCustomer(CustomerInterface $customer): int
     {
         return (int) $this->createQueryBuilder('o')

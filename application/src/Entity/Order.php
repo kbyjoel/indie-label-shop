@@ -8,6 +8,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Sylius\Component\Core\Model\Order as BaseOrder;
+use Sylius\Component\Core\OrderCheckoutStates;
+use Sylius\Component\Core\OrderPaymentStates;
+use Sylius\Component\Core\OrderShippingStates;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'sylius_order')]
@@ -72,6 +75,45 @@ class Order extends BaseOrder
     /** @var Collection<array-key, \Sylius\Component\Order\Model\AdjustmentInterface> */
     #[ORM\OneToMany(targetEntity: Adjustment::class, mappedBy: 'order', cascade: ['all'], orphanRemoval: true)]
     protected $adjustments;
+
+    // Inherited from TimestampableTrait (Sylius\Component\Order\Model\Order)
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    protected $createdAt;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    protected $updatedAt;
+
+    // Inherited from Sylius\Component\Order\Model\Order
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    protected $checkoutCompletedAt;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    protected $notes;
+
+    #[ORM\Column(type: 'integer')]
+    protected $itemsTotal = 0;
+
+    #[ORM\Column(type: 'integer')]
+    protected $adjustmentsTotal = 0;
+
+    // Inherited from Sylius\Component\Core\Model\Order
+    #[ORM\Column(type: 'string', length: 255)]
+    protected $checkoutState = OrderCheckoutStates::STATE_CART;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    protected $paymentState = OrderPaymentStates::STATE_CART;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    protected $shippingState = OrderShippingStates::STATE_CART;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    protected $localeCode;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    protected $customerIp;
+
+    #[ORM\Column(type: 'boolean')]
+    protected bool $createdByGuest = true;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $confirmationEmailSentAt = null;

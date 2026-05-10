@@ -1,0 +1,9 @@
+{% set config = {
+    'cart':               {class: 'secondary', label: '—'},
+    'ready':              {class: 'primary',   label: 'À expédier'},
+    'partially_shipped':  {class: 'warning',   label: 'Part. expédiée'},
+    'shipped':            {class: 'success',   label: 'Expédiée'},
+    'cancelled':          {class: 'danger',    label: 'Annulé'},
+} %}
+{% set c = config[state] ?? {class: 'secondary', label: state} %}
+<span class="badge bg-{{ c.class }}">{{ c.label }}</span>

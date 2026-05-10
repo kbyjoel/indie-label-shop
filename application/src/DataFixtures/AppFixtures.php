@@ -30,6 +30,9 @@ use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
+use Sylius\Component\Core\OrderCheckoutStates;
+use Sylius\Component\Core\OrderPaymentStates;
+use Sylius\Component\Core\OrderShippingStates;
 
 class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface
 {
@@ -399,8 +402,21 @@ class AppFixtures extends Fixture implements FixtureGroupInterface, DependentFix
                 $order->setCustomer($customer);
                 $order->setChannel($channel);
                 $order->setNumber($faker->unique()->numerify('ORD-######'));
-                $order->setState($faker->randomElement([Order::STATE_NEW, Order::STATE_FULFILLED, Order::STATE_CANCELLED]));
+                $order->setCurrencyCode('EUR');
+                $order->setLocaleCode('fr');
                 $order->setCreatedAt($faker->dateTimeBetween('-1 year', 'now'));
+
+                $orderState = $faker->randomElement([Order::STATE_NEW, Order::STATE_FULFILLED, Order::STATE_CANCELLED]);
+                $order->setState($orderState);
+                $order->setCheckoutState(OrderCheckoutStates::STATE_COMPLETED);
+
+                [$paymentState, $shippingState] = match ($orderState) {
+                    Order::STATE_FULFILLED  => [OrderPaymentStates::STATE_PAID,               OrderShippingStates::STATE_SHIPPED],
+                    Order::STATE_CANCELLED  => [OrderPaymentStates::STATE_CANCELLED,           OrderShippingStates::STATE_CANCELLED],
+                    default                 => [$faker->randomElement([OrderPaymentStates::STATE_AWAITING_PAYMENT, OrderPaymentStates::STATE_PAID]), OrderShippingStates::STATE_READY],
+                };
+                $order->setPaymentState($paymentState);
+                $order->setShippingState($shippingState);
 
                 // Billing & Shipping Address
                 $address = new Address();

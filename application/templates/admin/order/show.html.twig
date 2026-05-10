@@ -1,0 +1,256 @@
+{% extends '@AropixelAdmin/base.html.twig' %}
+{% import '@AropixelAdmin/Macro/breadcrumb.html.twig' as nav %}
+
+{% block meta_title %}Commande #{{ order.number ?? order.id }}{% endblock %}
+
+{% block header_title %}Commande #{{ order.number ?? order.id }}{% endblock %}
+
+{% block header_breadcrumb %}
+    {{ nav.breadcrumbs([
+        {label: 'text.home', url: url('_admin')},
+        {label: 'Commandes', url: url('admin_order_index')},
+        {label: 'Commande #' ~ (order.number ?? order.id)},
+    ]) }}
+{% endblock %}
+
+{% block header_actions %}
+    <a href="{{ path('admin_order_index') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+    </a>
+{% endblock %}
+
+{% block body %}
+
+{# ── En-tête ─────────────────────────────────────────────────────────────── #}
+<div class="card mb-4">
+    <div class="card-body d-flex flex-wrap align-items-center gap-3">
+        <div>
+            <span class="text-muted small">Date</span><br>
+            <strong>{{ order.createdAt ? order.createdAt|date('d/m/Y H:i') : '—' }}</strong>
+        </div>
+        <div class="vr"></div>
+        <div>
+            <span class="text-muted small">Commande</span><br>
+            {% include 'admin/order/_badge_order_state.html.twig' with {state: order.state} %}
+        </div>
+        <div>
+            <span class="text-muted small">Paiement</span><br>
+            {% include 'admin/order/_badge_payment_state.html.twig' with {state: order.paymentState} %}
+        </div>
+        {% if order.shippingState != 'shipping_skipped' %}
+        <div>
+            <span class="text-muted small">Expédition</span><br>
+            {% include 'admin/order/_badge_shipping_state.html.twig' with {state: order.shippingState} %}
+        </div>
+        {% endif %}
+        {% if order.customer %}
+        <div class="vr"></div>
+        <div>
+            <span class="text-muted small">Client</span><br>
+            <a href="{{ path('admin_customer_view', {id: order.customer.id}) }}">{{ order.customer.email }}</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+
+{# ── Colonne principale ──────────────────────────────────────────────────── #}
+<div class="col-lg-8">
+
+    {# Articles #}
+    <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Articles commandés</h5></div>
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Produit</th>
+                        <th style="width:80px;" class="text-center">Qté</th>
+                        <th style="width:100px;" class="text-end">P. unit.</th>
+                        <th style="width:100px;" class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items %}
+                    <tr>
+                        <td>
+                            {{ item.productName }}
+                            {% if item.variantName %}
+                                <small class="text-muted">· {{ item.variantName }}</small>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-end">{{ (item.unitPrice / 100)|number_format(2, ',', ' ') }} €</td>
+                        <td class="text-end">{{ (item.total / 100)|number_format(2, ',', ' ') }} €</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted py-3">Aucun article.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# Récapitulatif financier #}
+    <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Récapitulatif</h5></div>
+        <div class="card-body p-0">
+            <table class="table mb-0">
+                {% set itemsTotal = 0 %}
+                {% for item in order.items %}{% set itemsTotal = itemsTotal + item.total %}{% endfor %}
+                <tr>
+                    <td>Sous-total articles</td>
+                    <td class="text-end">{{ (itemsTotal / 100)|number_format(2, ',', ' ') }} €</td>
+                </tr>
+                {% if adjustmentsByType['shipping'] is defined %}
+                    {% for adj in adjustmentsByType['shipping'] %}
+                    <tr>
+                        <td>{{ adj.label }}</td>
+                        <td class="text-end">{{ (adj.amount / 100)|number_format(2, ',', ' ') }} €</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                {% if adjustmentsByType['promotion'] is defined %}
+                    {% for adj in adjustmentsByType['promotion'] %}
+                    <tr class="text-success">
+                        <td>{{ adj.label }}</td>
+                        <td class="text-end">{{ (adj.amount / 100)|number_format(2, ',', ' ') }} €</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                {% if adjustmentsByType['tax'] is defined %}
+                    {% for adj in adjustmentsByType['tax'] %}
+                    <tr class="text-muted">
+                        <td>{{ adj.label }}</td>
+                        <td class="text-end">{{ (adj.amount / 100)|number_format(2, ',', ' ') }} €</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                <tr class="table-active fw-bold">
+                    <td>Total</td>
+                    <td class="text-end">{{ (order.total / 100)|number_format(2, ',', ' ') }} {{ order.currencyCode }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    {# Paiements #}
+    {% if order.payments|length > 0 %}
+    <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Paiement(s)</h5></div>
+        <div class="card-body p-0">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Méthode</th>
+                        <th>État</th>
+                        <th class="text-end">Montant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in order.payments %}
+                    <tr>
+                        <td>{{ payment.method ? payment.method.name : '—' }}</td>
+                        <td>{% include 'admin/order/_badge_payment_state.html.twig' with {state: payment.state} %}</td>
+                        <td class="text-end">{{ (payment.amount / 100)|number_format(2, ',', ' ') }} {{ payment.currencyCode }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {# Expéditions #}
+    {% if order.shippingState != 'shipping_skipped' and order.shipments|length > 0 %}
+    <div class="card mb-4">
+        <div class="card-header"><h5 class="mb-0">Expédition(s)</h5></div>
+        {% for shipment in order.shipments %}
+        <div class="card-body {% if not loop.last %}border-bottom{% endif %}">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                    <strong>{{ shipment.method ? shipment.method.name : '—' }}</strong>
+                    &nbsp;{% include 'admin/order/_badge_shipping_state.html.twig' with {state: shipment.state} %}
+                </div>
+            </div>
+
+            {# Numéro de suivi #}
+            {% if shipment.state in ['ready', 'shipped'] %}
+            <form method="post" action="{{ path('admin_order_tracking', {id: order.id, shipmentId: shipment.id}) }}" class="d-flex gap-2 align-items-center">
+                <input type="hidden" name="_token" value="{{ csrf_token('tracking' ~ shipment.id) }}">
+                <input type="text" name="tracking" class="form-control form-control-sm" style="max-width:220px;"
+                       placeholder="N° de suivi" value="{{ shipment.tracking ?? '' }}">
+                <button type="submit" class="btn btn-sm btn-outline-primary">Enregistrer</button>
+            </form>
+            {% elseif shipment.tracking %}
+                <span class="text-muted small">Suivi : {{ shipment.tracking }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>{# /col-lg-8 #}
+
+{# ── Colonne latérale ────────────────────────────────────────────────────── #}
+<div class="col-lg-4">
+
+    {# Adresse de livraison #}
+    {% if order.shippingAddress %}
+    <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0">Adresse de livraison</h6></div>
+        <div class="card-body">
+            {% include 'admin/order/_address.html.twig' with {address: order.shippingAddress} %}
+        </div>
+    </div>
+    {% endif %}
+
+    {# Adresse de facturation #}
+    {% if order.billingAddress %}
+    <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0">Adresse de facturation</h6></div>
+        <div class="card-body">
+            {% include 'admin/order/_address.html.twig' with {address: order.billingAddress} %}
+        </div>
+    </div>
+    {% endif %}
+
+    {# Actions #}
+    <div class="card mb-4">
+        <div class="card-header"><h6 class="mb-0">Actions</h6></div>
+        <div class="card-body d-grid gap-2">
+
+            {# Marquer expédiée #}
+            {% if order.paymentState == 'paid' and order.shippingState == 'ready' %}
+            <form method="post" action="{{ path('admin_order_ship', {id: order.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('ship' ~ order.id) }}">
+                <button type="submit" class="btn btn-success w-100"
+                        onclick="return confirm('Marquer cette commande comme expédiée ?')">
+                    <i class="fas fa-truck me-1"></i> Marquer expédiée
+                </button>
+            </form>
+            {% endif %}
+
+            {# Annuler #}
+            {% if order.state == 'new' %}
+            <form method="post" action="{{ path('admin_order_cancel', {id: order.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ order.id) }}">
+                <button type="submit" class="btn btn-danger w-100"
+                        onclick="return confirm('Annuler cette commande ? Cette action est irréversible.')">
+                    <i class="fas fa-times me-1"></i> Annuler la commande
+                </button>
+            </form>
+            {% endif %}
+
+            {% if order.state != 'new' and not (order.paymentState == 'paid' and order.shippingState == 'ready') %}
+            <p class="text-muted small mb-0">Aucune action disponible pour cet état.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>{# /col-lg-4 #}
+
+</div>{# /row #}
+
+{% endblock %}

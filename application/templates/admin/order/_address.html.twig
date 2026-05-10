@@ -1,0 +1,10 @@
+{% if address.company %}
+<div>{{ address.company }}</div>
+{% endif %}
+<div>{{ address.firstName }} {{ address.lastName }}</div>
+{% if address.phoneNumber %}
+<div class="text-muted small">{{ address.phoneNumber }}</div>
+{% endif %}
+<div>{{ address.street }}</div>
+<div>{{ address.postcode }} {{ address.city }}</div>
+<div>{{ address.countryCode }}</div>

@@ -1,0 +1,12 @@
+{% set config = {
+    'cart':                {class: 'secondary', label: '—'},
+    'awaiting_payment':    {class: 'warning',   label: 'En attente'},
+    'authorized':          {class: 'info',      label: 'Autorisé'},
+    'partially_paid':      {class: 'warning',   label: 'Part. payée'},
+    'paid':                {class: 'success',   label: 'Payée'},
+    'partially_refunded':  {class: 'warning',   label: 'Part. remb.'},
+    'refunded':            {class: 'secondary', label: 'Remboursée'},
+    'cancelled':           {class: 'danger',    label: 'Annulé'},
+} %}
+{% set c = config[state] ?? {class: 'secondary', label: state} %}
+<span class="badge bg-{{ c.class }}">{{ c.label }}</span>
