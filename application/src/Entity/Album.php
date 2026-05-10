@@ -71,6 +71,13 @@ class Album extends Product implements Translatable
     #[ORM\OneToOne(targetEntity: AlbumImage::class, mappedBy: 'album', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?AlbumImage $artwork = null;
 
+    /**
+     * @var Collection<int, AlbumPhoto>
+     */
+    #[ORM\OneToMany(targetEntity: AlbumPhoto::class, mappedBy: 'album', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $photos;
+
     public function __construct()
     {
         parent::__construct();
@@ -78,6 +85,7 @@ class Album extends Product implements Translatable
         $this->artists = new ArrayCollection();
         $this->tracklists = new ArrayCollection();
         $this->albumTranslations = new ArrayCollection();
+        $this->photos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -281,6 +289,33 @@ class Album extends Product implements Translatable
             if ($tracklist->getAlbum() === $this) {
                 $tracklist->setAlbum(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AlbumPhoto>
+     */
+    public function getPhotos(): Collection
+    {
+        return $this->photos;
+    }
+
+    public function addPhoto(AlbumPhoto $photo): self
+    {
+        if (!$this->photos->contains($photo)) {
+            $this->photos->add($photo);
+            $photo->setAlbum($this);
+        }
+
+        return $this;
+    }
+
+    public function removePhoto(AlbumPhoto $photo): self
+    {
+        if ($this->photos->removeElement($photo) && $photo->getAlbum() === $this) {
+            $photo->setAlbum(null);
         }
 
         return $this;

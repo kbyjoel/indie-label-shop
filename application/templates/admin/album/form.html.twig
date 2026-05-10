@@ -24,6 +24,7 @@
     {{ forms.tabs([
         {id: 'panel-tab-general', label: 'Général'},
         {id: 'panel-tab-description', label: 'Description'},
+        {id: 'panel-tab-photos', label: 'Photos'},
         {id: 'panel-tab-tracks', label: 'Tracks'},
         {id: 'panel-tab-releases', label: 'Releases'},
         {id: 'panel-tab-relations', label: 'Relations'},
@@ -41,6 +42,7 @@
                 {{ form_row(form.band) }}
                 {{ form_row(form.catalogNumber) }}
                 {{ form_row(form.releaseDate) }}
+                {{ form_row(form.taxCategory) }}
                 {{ form_row(form.artwork) }}
             </div>
         </div>
@@ -55,7 +57,16 @@
         </div>
     </div>
 
-    {# Tab 3: Tracks #}
+    {# Tab 3: Photos #}
+    <div class="tab-pane" id="panel-tab-photos">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.photos) }}
+            </div>
+        </div>
+    </div>
+
+    {# Tab 4: Tracks #}
     <div class="tab-pane" id="panel-tab-tracks">
         <div class="card card-centered card-centered-large">
             <div class="card-body">

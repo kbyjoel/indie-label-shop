@@ -4,6 +4,7 @@ namespace App\Form\Admin;
 
 use App\Entity\Album;
 use App\Entity\AlbumImage;
+use App\Entity\AlbumPhoto;
 use App\Entity\AlbumTranslation;
 use App\Entity\Band;
 use App\Entity\TaxCategory;
@@ -11,6 +12,7 @@ use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Aropixel\AdminBundle\Form\Type\DateTimeType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
 use Aropixel\AdminBundle\Form\Type\FilterableEntitiesType;
+use Aropixel\AdminBundle\Form\Type\Image\Gallery\GalleryType as GalleryWidgetType;
 use Aropixel\AdminBundle\Form\Type\Image\Single\ImageType;
 use Aropixel\AdminBundle\Form\Type\TranslatableType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -90,6 +92,10 @@ class AlbumType extends AbstractType
                 'button_add_label' => 'Ajouter un morceau',
                 'form_title' => 'Détails du morceau',
                 'toolbar_template' => 'admin/album/_tracklists_toolbar.html.twig',
+            ])
+            ->add('photos', GalleryWidgetType::class, [
+                'image_class' => AlbumPhoto::class,
+                'fields' => ['title' => true],
             ])
             ->add('releases', CollectionType::class, [
                 'entry_type' => ReleaseType::class,
