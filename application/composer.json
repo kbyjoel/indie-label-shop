@@ -8,6 +8,8 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "aropixel/admin-bundle": "dev-main",
+        "aropixel/blog-bundle": "dev-main",
+        "aropixel/page-bundle": "dev-main",
         "doctrine/doctrine-bundle": "^3.2",
         "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.6",

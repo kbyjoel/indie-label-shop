@@ -86,6 +86,13 @@ class Band implements Translatable
     #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $videoClips;
 
+    /**
+     * @var Collection<int, BandPhoto>
+     */
+    #[ORM\OneToMany(targetEntity: BandPhoto::class, mappedBy: 'band', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $photos;
+
     /** @phpstan-ignore property.onlyWritten */
     private ?string $translatableLocale = null;
 
@@ -95,6 +102,7 @@ class Band implements Translatable
         $this->translations = new ArrayCollection();
         $this->concerts = new ArrayCollection();
         $this->videoClips = new ArrayCollection();
+        $this->photos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -309,6 +317,33 @@ class Band implements Translatable
             if ($videoClip->getBand() === $this) {
                 $videoClip->setBand(null);
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BandPhoto>
+     */
+    public function getPhotos(): Collection
+    {
+        return $this->photos;
+    }
+
+    public function addPhoto(BandPhoto $photo): self
+    {
+        if (!$this->photos->contains($photo)) {
+            $this->photos->add($photo);
+            $photo->setBand($this);
+        }
+
+        return $this;
+    }
+
+    public function removePhoto(BandPhoto $photo): self
+    {
+        if ($this->photos->removeElement($photo) && $photo->getBand() === $this) {
+            $photo->setBand(null);
         }
 
         return $this;

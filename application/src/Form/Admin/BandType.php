@@ -4,9 +4,11 @@ namespace App\Form\Admin;
 
 use App\Entity\BandImage;
 use App\Entity\BandImageCrop;
+use App\Entity\BandPhoto;
 use App\Entity\BandTranslation;
 use Aropixel\AdminBundle\Form\Type\CollectionType;
 use Aropixel\AdminBundle\Form\Type\EditorType;
+use Aropixel\AdminBundle\Form\Type\Image\Gallery\GalleryType as GalleryWidgetType;
 use Aropixel\AdminBundle\Form\Type\Image\Single\ImageType;
 use Aropixel\AdminBundle\Form\Type\TranslatableType;
 use Symfony\Component\Form\AbstractType;
@@ -97,6 +99,10 @@ class BandType extends AbstractType
                 'button_add_label' => 'Ajouter un clip vidéo',
                 'form_title' => 'Code du clip vidéo',
                 'sortable' => true,
+            ])
+            ->add('photos', GalleryWidgetType::class, [
+                'image_class' => BandPhoto::class,
+                'fields' => ['title' => true],
             ])
         ;
     }

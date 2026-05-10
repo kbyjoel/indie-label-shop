@@ -18,4 +18,6 @@ return [
     Aropixel\AdminBundle\AropixelAdminBundle::class => ['all' => true],
     Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class => ['dev' => true, 'test' => true],
     Symfonycasts\TailwindBundle\SymfonycastsTailwindBundle::class => ['all' => true],
+    Aropixel\BlogBundle\AropixelBlogBundle::class => ['all' => true],
+    Aropixel\PageBundle\AropixelPageBundle::class => ['all' => true],
 ];

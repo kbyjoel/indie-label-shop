@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9a9ff1faf1c492b4bc107f5033f71a4a",
+    "content-hash": "05f8312c575ccf6be29745ca78d0020f",
     "packages": [
         {
             "name": "aropixel/admin-bundle",
@@ -71,6 +71,100 @@
                 "source": "https://github.com/aropixel/admin-bundle/tree/main"
             },
             "time": "2026-05-10T07:10:55+00:00"
+        },
+        {
+            "name": "aropixel/blog-bundle",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aropixel/blog-bundle.git",
+                "reference": "de3820d503bf53a51325b4ecbeb946bbadb1d009"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aropixel/blog-bundle/zipball/de3820d503bf53a51325b4ecbeb946bbadb1d009",
+                "reference": "de3820d503bf53a51325b4ecbeb946bbadb1d009",
+                "shasum": ""
+            },
+            "require": {
+                "aropixel/admin-bundle": "dev-main"
+            },
+            "require-dev": {
+                "doctrine/doctrine-fixtures-bundle": "^4.0"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Aropixel\\BlogBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Joël Gomez Caballe",
+                    "email": "joel.gomez@aropixel.com"
+                }
+            ],
+            "description": "Gestion de blog pour admin Aropixel",
+            "keywords": [
+                "aropixel blog bundle"
+            ],
+            "support": {
+                "issues": "https://github.com/aropixel/blog-bundle/issues",
+                "source": "https://github.com/aropixel/blog-bundle/tree/main"
+            },
+            "time": "2026-04-27T20:39:08+00:00"
+        },
+        {
+            "name": "aropixel/page-bundle",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aropixel/page-bundle.git",
+                "reference": "14d841f64812aaab00b5a333c40b881b9ec38d33"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aropixel/page-bundle/zipball/14d841f64812aaab00b5a333c40b881b9ec38d33",
+                "reference": "14d841f64812aaab00b5a333c40b881b9ec38d33",
+                "shasum": ""
+            },
+            "require": {
+                "aropixel/admin-bundle": "dev-main"
+            },
+            "require-dev": {
+                "doctrine/doctrine-fixtures-bundle": "^4.0"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Aropixel\\PageBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Joël Gomez Caballe",
+                    "email": "joel.gomez@aropixel.com"
+                }
+            ],
+            "description": "Gestion de page pour admin Aropixel",
+            "keywords": [
+                "aropixel page bundle"
+            ],
+            "support": {
+                "issues": "https://github.com/aropixel/page-bundle/issues",
+                "source": "https://github.com/aropixel/page-bundle/tree/main"
+            },
+            "time": "2026-04-27T20:41:07+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -14796,7 +14890,9 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "aropixel/admin-bundle": 20
+        "aropixel/admin-bundle": 20,
+        "aropixel/blog-bundle": 20,
+        "aropixel/page-bundle": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

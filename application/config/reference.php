@@ -1683,6 +1683,44 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     postcss_config_file?: scalar|Param|null, // Path to PostCSS config file which is passed to the Tailwind CLI // Default: null
  *     strict_mode?: bool|Param|null, // When enabled, an exception will be thrown if there are no built assets (default: false in `test` env, true otherwise) // Default: null
  * }
+ * @psalm-type AropixelBlogConfig = array{
+ *     categories?: scalar|Param|null, // Default: "none"
+ *     forms?: array{
+ *         post?: scalar|Param|null, // Default: "Aropixel\\BlogBundle\\Form\\PostType"
+ *         post_translatable?: scalar|Param|null, // Default: "Aropixel\\BlogBundle\\Form\\PostTranslatableType"
+ *     },
+ *     entities?: array{
+ *         Aropixel\BlogBundle\Entity\PostInterface?: scalar|Param|null, // Default: "Aropixel\\BlogBundle\\Entity\\Post"
+ *         Aropixel\BlogBundle\Entity\PostTranslationInterface?: scalar|Param|null, // Default: "Aropixel\\BlogBundle\\Entity\\PostTranslation"
+ *         Aropixel\BlogBundle\Entity\PostCategoryInterface?: scalar|Param|null, // Default: "Aropixel\\BlogBundle\\Entity\\PostCategory"
+ *         Aropixel\BlogBundle\Entity\PostCategoryTranslationInterface?: scalar|Param|null, // Default: "Aropixel\\BlogBundle\\Entity\\PostCategoryTranslation"
+ *     },
+ * }
+ * @psalm-type AropixelPageConfig = array{
+ *     entities?: array{
+ *         Aropixel\PageBundle\Entity\PageInterface?: scalar|Param|null, // Default: "Aropixel\\PageBundle\\Entity\\Page"
+ *         Aropixel\PageBundle\Entity\PageTranslationInterface?: scalar|Param|null, // Default: "Aropixel\\PageBundle\\Entity\\PageTranslation"
+ *     },
+ *     page_builder?: array{
+ *         enabled?: bool|Param, // Default: true
+ *         title_styles?: list<array{ // Default: []
+ *             value: scalar|Param|null,
+ *             label: scalar|Param|null,
+ *         }>,
+ *         button_colors?: list<array{ // Default: []
+ *             value: scalar|Param|null,
+ *             label: scalar|Param|null,
+ *         }>,
+ *         custom_blocks?: list<array{ // Default: []
+ *             type: scalar|Param|null,
+ *             label: scalar|Param|null,
+ *             icon?: scalar|Param|null, // Default: "fas fa-puzzle-piece"
+ *             category?: scalar|Param|null, // Default: "custom"
+ *         }>,
+ *         custom_css?: scalar|Param|null, // Default: null
+ *         renderer?: scalar|Param|null, // Default: "uikit"
+ *     },
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1700,6 +1738,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     flysystem?: FlysystemConfig,
  *     aropixel_admin?: AropixelAdminConfig,
  *     symfonycasts_tailwind?: SymfonycastsTailwindConfig,
+ *     aropixel_blog?: AropixelBlogConfig,
+ *     aropixel_page?: AropixelPageConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1720,6 +1760,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         flysystem?: FlysystemConfig,
  *         aropixel_admin?: AropixelAdminConfig,
  *         symfonycasts_tailwind?: SymfonycastsTailwindConfig,
+ *         aropixel_blog?: AropixelBlogConfig,
+ *         aropixel_page?: AropixelPageConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1738,6 +1780,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         flysystem?: FlysystemConfig,
  *         aropixel_admin?: AropixelAdminConfig,
  *         symfonycasts_tailwind?: SymfonycastsTailwindConfig,
+ *         aropixel_blog?: AropixelBlogConfig,
+ *         aropixel_page?: AropixelPageConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1757,6 +1801,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         flysystem?: FlysystemConfig,
  *         aropixel_admin?: AropixelAdminConfig,
  *         symfonycasts_tailwind?: SymfonycastsTailwindConfig,
+ *         aropixel_blog?: AropixelBlogConfig,
+ *         aropixel_page?: AropixelPageConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

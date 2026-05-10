@@ -2,6 +2,12 @@
     "aropixel/admin-bundle": {
         "version": "dev-release/symfony7"
     },
+    "aropixel/blog-bundle": {
+        "version": "dev-main"
+    },
+    "aropixel/page-bundle": {
+        "version": "dev-main"
+    },
     "doctrine/deprecations": {
         "version": "1.1",
         "recipe": {

@@ -24,6 +24,7 @@
         {id: 'panel-tab-socials', label: 'Réseaux sociaux'},
         {id: 'panel-tab-concerts', label: 'Concerts'},
         {id: 'panel-tab-videos', label: 'Clips vidéo'},
+        {id: 'panel-tab-photos', label: 'Photos'},
     ]) }}
 {% endblock %}
 {% block mainPanel %}
@@ -66,6 +67,15 @@
         <div class="card card-centered card-centered-large">
             <div class="card-body">
                 {{ form_widget(form.videoClips) }}
+            </div>
+        </div>
+    </div>
+
+    {# Tab 5: Photos #}
+    <div class="tab-pane" id="panel-tab-photos">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_row(form.photos) }}
             </div>
         </div>
     </div>

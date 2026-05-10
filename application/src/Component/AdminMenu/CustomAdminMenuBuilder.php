@@ -21,10 +21,11 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
     public function buildMenu(): array
     {
         $additionalMenus = [];
-        $additionalMenus[] = $this->buildContentMenu();
+        $additionalMenus[] = $this->buildRosterMenu();
         $additionalMenus[] = $this->buildMerchMenu();
         $additionalMenus[] = $this->buildShopMenu();
         $additionalMenus[] = $this->buildSettingsMenu();
+        $additionalMenus[] = $this->buildContentMenu();
 
         // Menus reserved for ROLE_SUPER_ADMIN
         if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
@@ -34,12 +35,21 @@ class CustomAdminMenuBuilder implements AdminMenuBuilderInterface
         return $additionalMenus;
     }
 
-    private function buildContentMenu(): Menu
+    private function buildRosterMenu(): Menu
     {
-        $menu = new Menu('content', 'Catalogue');
+        $menu = new Menu('roster', 'Catalogue');
         $menu->addItem(new Link('Groupes', 'admin_band_index', [], ['icon' => 'fas fa-newspaper']));
         $menu->addItem(new Link('Albums', 'admin_album_index', [], ['icon' => 'fas fa-compact-disc']));
         $menu->addItem(new Link('Médias', 'admin_media_index', [], ['icon' => 'fas fa-photo-video']));
+
+        return $menu;
+    }
+
+    private function buildContentMenu(): Menu
+    {
+        $menu = new Menu('content', 'Contenu');
+        $menu->addItem(new Link('Actualités', 'aropixel_blog_post_index', [], ['icon' => 'fas fa-newspaper']));
+        $menu->addItem(new Link('Pages', 'aropixel_page_index', [], ['icon' => 'fas fa-newspaper']));
 
         return $menu;
     }
