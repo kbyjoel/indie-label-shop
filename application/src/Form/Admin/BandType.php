@@ -89,6 +89,15 @@ class BandType extends AbstractType
                 'button_add_label' => 'Ajouter un concert',
                 'form_title' => 'Détails du concert',
             ])
+            ->add('videoClips', CollectionType::class, [
+                'entry_type' => BandVideoClipType::class,
+                'by_reference' => false,
+                'list_template' => 'admin/band/video_clips/_collection_list.html.twig',
+                'entry_row_template' => 'admin/band/video_clips/_collection_row.html.twig',
+                'button_add_label' => 'Ajouter un clip vidéo',
+                'form_title' => 'Code du clip vidéo',
+                'sortable' => true,
+            ])
         ;
     }
 }

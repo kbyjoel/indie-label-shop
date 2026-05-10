@@ -23,6 +23,7 @@
         {id: 'panel-tab-artist', label: 'Groupe'},
         {id: 'panel-tab-socials', label: 'Réseaux sociaux'},
         {id: 'panel-tab-concerts', label: 'Concerts'},
+        {id: 'panel-tab-videos', label: 'Clips vidéo'},
     ]) }}
 {% endblock %}
 {% block mainPanel %}
@@ -56,6 +57,15 @@
         <div class="card card-centered card-centered-large">
             <div class="card-body">
                 {{ form_widget(form.concerts) }}
+            </div>
+        </div>
+    </div>
+
+    {# Tab 4: Clips vidéo #}
+    <div class="tab-pane" id="panel-tab-videos">
+        <div class="card card-centered card-centered-large">
+            <div class="card-body">
+                {{ form_widget(form.videoClips) }}
             </div>
         </div>
     </div>

@@ -79,6 +79,13 @@ class Band implements Translatable
     #[ORM\OneToMany(targetEntity: Concert::class, mappedBy: 'band', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $concerts;
 
+    /**
+     * @var Collection<int, BandVideoClip>
+     */
+    #[ORM\OneToMany(targetEntity: BandVideoClip::class, mappedBy: 'band', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $videoClips;
+
     /** @phpstan-ignore property.onlyWritten */
     private ?string $translatableLocale = null;
 
@@ -87,6 +94,7 @@ class Band implements Translatable
         $this->members = new ArrayCollection();
         $this->translations = new ArrayCollection();
         $this->concerts = new ArrayCollection();
+        $this->videoClips = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -271,6 +279,35 @@ class Band implements Translatable
         if ($this->concerts->removeElement($concert)) {
             if ($concert->getBand() === $this) {
                 $concert->setBand(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, BandVideoClip>
+     */
+    public function getVideoClips(): Collection
+    {
+        return $this->videoClips;
+    }
+
+    public function addVideoClip(BandVideoClip $videoClip): static
+    {
+        if (!$this->videoClips->contains($videoClip)) {
+            $this->videoClips->add($videoClip);
+            $videoClip->setBand($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVideoClip(BandVideoClip $videoClip): static
+    {
+        if ($this->videoClips->removeElement($videoClip)) {
+            if ($videoClip->getBand() === $this) {
+                $videoClip->setBand(null);
             }
         }
 

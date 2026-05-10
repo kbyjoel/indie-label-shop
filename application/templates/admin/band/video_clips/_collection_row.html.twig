@@ -1,0 +1,50 @@
+{% set hasCode = item.vars.data is not null and item.vars.data.iframeCode is not null %}
+<div class="col-12 col-sm-6"
+     data-form-collection="item"
+     data-form-collection-index="{{ item.vars.name }}"
+     data-form-collection-edit
+     data-controller="video-clip-collection"
+     style="cursor: pointer;">
+
+    <div class="position-relative">
+        <div class="bg-secondary rounded overflow-hidden video-clip-preview"
+             style="aspect-ratio: 16 / 9;"
+             data-video-clip-collection-target="preview">
+            {% if hasCode %}
+                {{ item.vars.data.iframeCode|raw }}
+            {% else %}
+                <div class="d-flex flex-column align-items-center justify-content-center text-white-50 w-100 h-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="52" height="52" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
+                    </svg>
+                    <small class="mt-2">Cliquer pour ajouter un clip</small>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="position-absolute d-flex gap-1" style="top: 8px; right: 8px; z-index: 10;">
+            <a href="#" class="btn btn-sm btn-secondary" data-form-collection="move" style="cursor: grab;">
+                <i class="fas fa-grip-vertical"></i>
+            </a>
+            <a href="#" class="btn btn-sm btn-danger" data-form-collection="delete">
+                <i class="fas fa-trash"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="d-none">
+        <div class="collection-form-container">
+            <div class="collection-form-content">
+                {{ form_widget(item) }}
+            </div>
+            <div class="collection-form-actions mt-4 pt-3 border-top d-flex justify-content-between">
+                <a class="btn btn-danger text-white" href="#" data-form-collection="delete">
+                    <i class="fas fa-trash me-2"></i> {{ 'text.delete'|trans }}
+                </a>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="offcanvas">
+                    {{ 'text.close'|trans }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

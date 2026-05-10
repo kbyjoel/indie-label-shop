@@ -1,0 +1,14 @@
+<style>
+    .video-clip-preview iframe {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+        border: 0;
+        pointer-events: none;
+    }
+</style>
+<div class="row g-3" data-form-collection="list">
+    {% for item in form %}
+        {{ include(entry_row_template) }}
+    {% endfor %}
+</div>
