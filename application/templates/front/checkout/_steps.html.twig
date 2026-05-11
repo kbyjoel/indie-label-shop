@@ -1,10 +1,17 @@
-{# currentStep: 'address' | 'shipment' | 'payment' #}
-{% set steps = [
+{# currentStep: 'address' | 'shipment' | 'pickup_point' | 'payment' #}
+{# withPickupStep: bool (défaut false) — ajoute l'étape point relais entre shipment et payment #}
+{% set withPickupStep = withPickupStep ?? false %}
+{% set allSteps = [
     {key: 'address', label: 'checkout.steps.address', route: 'front_checkout_address'},
     {key: 'shipment', label: 'checkout.steps.shipment', route: 'front_checkout_shipment'},
+    withPickupStep ? {key: 'pickup_point', label: 'checkout.steps.pickup_point', route: 'front_checkout_pickup_point'} : null,
     {key: 'payment', label: 'checkout.steps.payment', route: 'front_checkout_payment'},
 ] %}
-{% set stepOrder = {address: 0, shipment: 1, payment: 2} %}
+{% set steps = allSteps|filter(s => s is not null) %}
+{% set stepOrder = withPickupStep
+    ? {address: 0, shipment: 1, pickup_point: 2, payment: 3}
+    : {address: 0, shipment: 1, pickup_point: 1, payment: 2}
+%}
 {% set currentIndex = stepOrder[currentStep] %}
 
 <nav aria-label="{{ 'checkout.steps.aria_label'|trans }}">

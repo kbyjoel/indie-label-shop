@@ -2,7 +2,7 @@
 
 **Projet :** Indie Label Shop  
 **Date :** 2026-05-10  
-**Statut :** Brouillon
+**Statut :** Brouillon — mise à jour 2026-05-11
 
 ---
 
@@ -65,10 +65,10 @@ Permettre à une commande d'être livrée dans un **point relais** (Mondial Rela
 
 | Composant | Rôle |
 |-----------|------|
-| `ShippingGatewayInterface` | Contrat unique pour tous les prestataires |
+| `ShippingGatewayInterface` | Contrat unique pour tous les prestataires (inclut les méthodes widget) |
 | `ShippingGatewayRegistry` | Collecte et expose les gateways enregistrés |
 | `PickupPoint` (Value Object) | Représentation d'un point relais (pas en DB) |
-| `PickupPointSearchRequest` | Critères de recherche (adresse, pays, distance) |
+| `PickupPointSearchRequest` | Critères de recherche — utilisé par `NullShippingGateway` en tests |
 | `GenerateShippingLabelMessage` | Message Messenger pour génération de bordereau |
 | `GenerateShippingLabelHandler` | Handler qui appelle la gateway concernée |
 | `ShippingMethod::$gatewayCode` | Code de gateway associé à la méthode (nullable) |
@@ -236,8 +236,25 @@ interface ShippingGatewayInterface
      * @param array<string,mixed> $gatewayConfig
      */
     public function validateConfiguration(array $gatewayConfig): bool;
+
+    /**
+     * Nom du Stimulus controller qui initialise le widget JS de sélection.
+     * Ex: "pickup-point-mondial-relay", "pickup-point-sendcloud"
+     */
+    public function getWidgetControllerName(): string;
+
+    /**
+     * Configuration publique transmise au Stimulus controller pour initialiser le widget.
+     * Ne doit contenir aucune clé secrète (données visibles dans le HTML rendu).
+     *
+     * @param array<string,mixed> $gatewayConfig  Champs non sensibles depuis ShippingMethod
+     * @return array<string,mixed>
+     */
+    public function getWidgetConfig(array $gatewayConfig, Order $cart): array;
 }
 ```
+
+> Toutes les gateways fournissent un widget JS officiel. Il n'y a pas de chemin de rendu alternatif (pas de Leaflet fallback). La recherche et l'affichage des points relais sont entièrement délégués au widget côté navigateur.
 
 ### 4.1 Value Objects label
 
@@ -287,59 +304,107 @@ final class LabelResponse
 
 **Fichier :** `src/Component/Shipping/Gateway/MondialRelayGateway.php`  
 **Code :** `mondial_relay`  
-**API :** SOAP v5.3 / REST (selon contrat) — `ws.mondialrelay.com`
+**Implémente :** `ShippingGatewayInterface`  
+**API backend :** REST — `https://api.mondialrelay.com/`  
+**Widget frontend :** PickupWidget v4 B2C — `https://widget.mondialrelay.com/parcelshop-picker/v4_B2C/script/widget-min.js`
 
 #### Configuration requise
 
-| Clé `gatewayConfig` | Description |
-|---------------------|-------------|
-| `login`             | Identifiant marchand Mondial Relay |
-| `api_key`           | Clé secrète |
-| `company_id`        | Numéro d'enseigne (ex: "BDTEST  ") |
-| `country_code`      | Code pays de l'enseigne (ex: "FR") |
-| `parcel_type`       | Type de colis (ex: "24R", "24L") |
-| `weight_unit`       | "gr" ou "kg" |
+| Origine | Clé | Description |
+|---------|-----|-------------|
+| Env var | `MONDIAL_RELAY_LOGIN` | Identifiant marchand (ex: `"BDTEST  "`) |
+| Env var | `MONDIAL_RELAY_API_KEY` | Clé secrète REST |
+| `gatewayConfig` (DB) | `parcel_type` | Type de colis (ex: `"24R"`, `"24L"`, `"DRI"`) |
+| `gatewayConfig` (DB) | `country_code` | Code pays de l'enseigne (ex: `"FR"`) |
+| `gatewayConfig` (DB) | `weight_unit` | `"gr"` ou `"kg"` |
 
-> Les clés sensibles (`login`, `api_key`) **ne doivent pas** être stockées dans `ShippingMethod::$gatewayConfig` en clair en base.  
-> Voir §8 — Configuration sécurisée.
+> Les env vars ne sont jamais stockées en base. Voir §8.
 
-#### Méthodes API utilisées
+#### Méthodes API REST utilisées
 
-| Méthode interface | Appel API Mondial Relay |
-|-------------------|------------------------|
-| `searchPickupPoints` | `WSI3_PointRelais_Recherche` |
-| `getPickupPoint` | `WSI3_PointRelais_Detail` |
-| `generateLabel` | `WSI2_CreationEtiquette` |
-| `validateConfiguration` | `WSI3_PointRelais_Recherche` avec code postal test |
+| Méthode interface | Endpoint REST Mondial Relay |
+|-------------------|-----------------------------|
+| `searchPickupPoints` | `GET /parcelshops` (utilisé par `NullGateway` et tests) |
+| `getPickupPoint` | `GET /parcelshops/{id}` (validation POST checkout) |
+| `generateLabel` | `POST /labels` |
+| `validateConfiguration` | `GET /parcelshops` avec paramètres tests |
+
+#### Widget PickupWidget v4
+
+Le widget Mondial Relay gère entièrement la carte et la recherche côté navigateur.  
+Il communique avec les serveurs Mondial Relay directement (pas de proxy serveur nécessaire).
+
+```js
+// Configuration passée par getWidgetConfig()
+{
+  "Target": "#Zone_Widget",           // sélecteur DOM
+  "Brand": "BDTEST  ",               // Login marchand (public, sans clé secrète)
+  "Country": "FR",
+  "ColisNumber": 1,
+  "Weight": 1500,                     // poids en grammes, calculé depuis le panier
+  "NbResults": "10",
+  "EnableGeolocalisationButton": "1",
+  "OnParcelShopSelected": "__CALLBACK__"  // remplacé par le Stimulus controller
+}
+```
+
+Le Stimulus controller `pickup_point_mondial_relay_controller.js` :
+1. Injecte le script widget dans le `<head>` (import dynamique ou script tag)
+2. Initialise `new MR_ParcelShopPicker(config)` avec callback
+3. Dans le callback `OnParcelShopSelected` : remplit les champs cachés du formulaire (`pickup_point_id`, `pickup_point_name`, etc.) et affiche le résumé du point choisi
+4. Débloque le bouton "Valider"
 
 #### Client HTTP
 
-Utiliser le composant Symfony `HttpClient` (`ScopingHttpClient` pour isoler le baseUri).  
-Ne pas introduire de dépendance sur un SDK Mondial Relay tiers.
+Composant Symfony `HttpClient` avec `ScopingHttpClient` sur `https://api.mondialrelay.com/`.  
+Authentification HTTP Basic (`login:api_key`). Pas de dépendance sur un SDK tiers.
 
 ### 5.2 `SendcloudGateway`
 
 **Fichier :** `src/Component/Shipping/Gateway/SendcloudGateway.php`  
 **Code :** `sendcloud`  
-**API :** REST v2 — `panel.sendcloud.sc/api/v2/`
+**Implémente :** `ShippingGatewayInterface`  
+**API backend :** REST v2 — `https://panel.sendcloud.sc/api/v2/`  
+**Widget frontend :** Service Point Picker — `https://embed.sendcloud.sc/spp/1.0.0/api.min.js`
 
 #### Configuration requise
 
-| Clé `gatewayConfig` | Description |
-|---------------------|-------------|
-| `public_key`        | Clé publique API Sendcloud |
-| `secret_key`        | Clé secrète API Sendcloud |
-| `carrier`           | Transporteur ciblé (ex: "dpd", "bpost", "mondial_relay") |
-| `service_point_networks` | Tableau de codes réseau (ex: `["MR"]`) |
+| Origine | Clé | Description |
+|---------|-----|-------------|
+| Env var | `SENDCLOUD_PUBLIC_KEY` | Clé publique API |
+| Env var | `SENDCLOUD_SECRET_KEY` | Clé secrète API |
+| `gatewayConfig` (DB) | `carrier` | Transporteur (ex: `"dpd"`, `"bpost"`, `"mondial_relay"`) |
+| `gatewayConfig` (DB) | `service_point_networks` | Tableau codes réseau (ex: `["MR", "DPD"]`) |
 
-#### Méthodes API utilisées
+#### Méthodes API REST utilisées
 
 | Méthode interface | Endpoint Sendcloud |
 |-------------------|--------------------|
-| `searchPickupPoints` | `GET /service-points/` |
-| `getPickupPoint` | `GET /service-points/{id}/` |
-| `generateLabel` | `POST /parcels/` + `GET /labels/` |
+| `searchPickupPoints` | `GET /service-points/` (utilisé par `NullGateway` et tests) |
+| `getPickupPoint` | `GET /service-points/{id}/` (validation POST checkout) |
+| `generateLabel` | `POST /parcels/` + `GET /labels/{id}/` |
 | `validateConfiguration` | `GET /user/` |
+
+#### Widget Service Point Picker
+
+Le widget Sendcloud s'initialise via une API JavaScript asynchrone.
+
+```js
+// Configuration passée par getWidgetConfig()
+{
+  "apiKey": "pub_xxx",        // clé publique uniquement (pas la secrète)
+  "country": "FR",
+  "postalCode": "75001",      // pré-rempli depuis l'adresse de livraison
+  "carriers": ["mondial_relay"],
+  "language": "fr-FR"
+}
+```
+
+Le Stimulus controller `pickup_point_sendcloud_controller.js` :
+1. Charge le script `spp/1.0.0/api.min.js` de manière asynchrone
+2. Appelle `sendcloud.servicePoints.open(config, callback)`
+3. Dans le callback : hydrate les champs cachés du formulaire et affiche le résumé
+4. Débloque le bouton "Valider"
 
 ### 5.3 `NullShippingGateway` (pour tests)
 
@@ -430,65 +495,64 @@ L'étape 2b est **conditionnelle** : elle n'apparaît que si la méthode choisie
 **Route :** `GET|POST /checkout/pickup-point` — `front_checkout_pickup_point`
 
 ```
-GET  → affiche la carte + liste des points relais proches de l'adresse de livraison
-POST → enregistre le point choisi sur le Shipment, redirige vers payment
+GET  → affiche la page de sélection du point relais (widget ou fallback carte)
+POST → valide le point choisi côté serveur, hydrate le Shipment, redirige vers payment
 ```
 
-**Actions :**
+**Actions GET :**
 
-1. Charger le panier courant via `CartContext`.
-2. Vérifier que la méthode de livraison est bien de type relay ; sinon rediriger vers `front_checkout_shipment`.
-3. Construire un `PickupPointSearchRequest` à partir de l'adresse de livraison du panier.
-4. Appeler `ShippingGatewayRegistry::get($gatewayCode)->searchPickupPoints(...)`.
-5. Passer les points au template.
-6. En POST (sélection confirmée) :
-   - Valider que l'`externalId` soumis figure bien dans les résultats (sécurité : ne pas accepter n'importe quel ID).
-   - Appeler `gateway->getPickupPoint($externalId)` pour récupérer les détails complets.
-   - Hydrater `Shipment` avec les champs `pickupPoint*`.
-   - Persister et rediriger.
+1. Charger le panier via `CartContext`.
+2. Vérifier que la méthode est de type relay ; sinon rediriger vers `front_checkout_shipment`.
+3. Récupérer la gateway via `ShippingGatewayRegistry::get($gatewayCode)`.
+4. Appeler `gateway->getWidgetConfig($gatewayConfig, $cart)` → configuration publique du widget.
+5. Passer `widgetControllerName` et `widgetConfig` au template.
+   Aucun appel `searchPickupPoints` côté serveur : la recherche est entièrement déléguée au widget.
 
-### 7.4 API AJAX de recherche de points relais
+**Actions POST :**
 
-Pour permettre une recherche dynamique (changement de code postal) sans rechargement complet :
+1. Récupérer l'`externalId` soumis par le formulaire (champ caché rempli par le widget).
+2. Appeler `gateway->getPickupPoint($externalId, $gatewayConfig)` côté serveur pour valider l'ID et récupérer les données canoniques (protection contre la falsification de formulaire).
+3. Hydrater le `Shipment` avec les champs `pickupPoint*`.
+4. Persister et rediriger vers `front_checkout_payment`.
 
-**Route :** `GET /checkout/pickup-points/search` — `front_checkout_pickup_points_search`  
-**Format :** JSON  
-**Paramètres :** `postal_code`, `city`, `country_code`  
-**Réponse :**
-
-```json
-{
-  "points": [
-    {
-      "externalId": "24R-PMC-59650",
-      "name": "Le Relais Express",
-      "address": "12 rue de la Paix",
-      "postalCode": "59650",
-      "city": "Villeneuve-d'Ascq",
-      "latitude": 50.6292,
-      "longitude": 3.1412,
-      "distanceKm": 0.8,
-      "openingHours": { "lundi": "9h-19h", ... }
-    }
-  ]
-}
-```
-
-### 7.5 Frontend — Sélection point relais
+### 7.4 Frontend — Sélection point relais
 
 **Template :** `templates/front/checkout/pickup_point.html.twig`
 
-Interface en deux panneaux :
-- **Gauche :** liste des points relais (nom, adresse, distance, horaires)
-- **Droite :** carte Leaflet.js (tiles OpenStreetMap, aucune clé API requise)
+Toutes les gateways fournissant un widget, le template est uniforme :
 
-**Stimulus controller :** `pickup_point_controller.js`
-- Charge les points via l'API AJAX ci-dessus
-- Place des marqueurs sur la carte
-- Surligne le point sélectionné dans la liste et sur la carte
-- Remplit un `<input type="hidden" name="pickup_point_id">` avant soumission
+```twig
+<div
+  data-controller="{{ widgetControllerName }}"
+  data-{{ widgetControllerName }}-config-value="{{ widgetConfig|json_encode }}"
+>
+  <div id="relay-widget-container"></div>
 
-**Leaflet.js** : ajouté dans `importmap.php` (pas de clé API, OSM gratuit).
+  {# Résumé du point sélectionné (masqué jusqu'à sélection) #}
+  <div data-{{ widgetControllerName }}-target="summary" hidden>
+    <p data-{{ widgetControllerName }}-target="pointName"></p>
+    <p data-{{ widgetControllerName }}-target="pointAddress"></p>
+  </div>
+
+  {# Champs cachés hydratés par le Stimulus controller #}
+  <input type="hidden" name="pickup_point_id"      data-{{ widgetControllerName }}-target="externalId">
+  <input type="hidden" name="pickup_point_name"    data-{{ widgetControllerName }}-target="name">
+  <input type="hidden" name="pickup_point_address" data-{{ widgetControllerName }}-target="address">
+
+  <button type="submit" data-{{ widgetControllerName }}-target="submitBtn" disabled>
+    Valider ce point relais
+  </button>
+</div>
+```
+
+**Stimulus controllers :**
+
+| Fichier | Gateway | Responsabilité |
+|---------|---------|---------------|
+| `pickup_point_mondial_relay_controller.js` | `mondial_relay` | Charge le script PickupWidget v4, initialise `MR_ParcelShopPicker`, capture `OnParcelShopSelected` |
+| `pickup_point_sendcloud_controller.js` | `sendcloud` | Charge `spp/1.0.0/api.min.js`, ouvre le picker via `sendcloud.servicePoints.open()`, capture la réponse |
+
+Chaque controller suit le même contrat Stimulus : cible `externalId`, `name`, `address`, `summary`, `submitBtn`.
 
 ### 7.6 Validation checkout
 
@@ -687,7 +751,7 @@ ALTER TABLE sylius_shipment
 | Classe | Ce qui est testé |
 |--------|-----------------|
 | `ShippingGatewayRegistry` | `get()` lève une exception si code inconnu |
-| `MondialRelayGateway` | Transformation des réponses SOAP → `PickupPoint[]` (avec fixtures XML) |
+| `MondialRelayGateway` | Transformation des réponses REST JSON → `PickupPoint[]` (avec fixtures JSON) |
 | `SendcloudGateway` | Transformation des réponses JSON → `PickupPoint[]` (avec fixtures JSON) |
 | `GenerateShippingLabelHandler` | Hydratation du Shipment après `LabelResponse` |
 
@@ -703,24 +767,26 @@ ALTER TABLE sylius_shipment
 
 ### Phase 1 — Infrastructure (sans appel réseau)
 
-- [ ] `ShippingGatewayInterface` + Value Objects (`PickupPoint`, `PickupPointSearchRequest`, `LabelRequest`, `LabelResponse`)
+- [ ] `ShippingGatewayInterface` (avec `getWidgetControllerName` et `getWidgetConfig`)
+- [ ] Value Objects (`PickupPoint`, `PickupPointSearchRequest`, `LabelRequest`, `LabelResponse`)
 - [ ] `ShippingGatewayRegistry` avec tag `app.shipping_gateway`
-- [ ] `NullShippingGateway`
+- [ ] `NullShippingGateway` (pour tests)
 - [ ] Extension entités (`ShippingMethod::$gatewayCode/Config`, `Shipment::$pickupPoint*`)
 - [ ] Migrations Doctrine
-- [ ] `CheckoutPickupPointController` + template (données statiques `NullGateway`)
-- [ ] `pickup_point_controller.js` + intégration Leaflet
+- [ ] `CheckoutPickupPointController` + template (widget uniforme)
 
 ### Phase 2 — Gateway Mondial Relay
 
-- [ ] `MondialRelayGateway` (HttpClient SOAP)
+- [ ] `MondialRelayGateway` (HttpClient REST + `WidgetAwareGatewayInterface`)
+- [ ] `pickup_point_mondial_relay_controller.js` (PickupWidget v4)
 - [ ] Formulaire de configuration admin + test de connexion
 - [ ] Fixture `mondial_relay_fr` dans `ShippingFixtures`
-- [ ] Tests unitaires avec fixtures XML
+- [ ] Tests unitaires avec fixtures JSON REST
 
 ### Phase 3 — Gateway Sendcloud (optionnel)
 
-- [ ] `SendcloudGateway` (HttpClient REST)
+- [ ] `SendcloudGateway` (HttpClient REST + `WidgetAwareGatewayInterface`)
+- [ ] `pickup_point_sendcloud_controller.js` (Service Point Picker)
 - [ ] Configuration admin
 - [ ] Tests unitaires avec fixtures JSON
 
@@ -771,7 +837,8 @@ templates/
         └── pickup_point.html.twig
 assets/
 └── controllers/
-    └── pickup_point_controller.js
+    ├── pickup_point_mondial_relay_controller.js
+    └── pickup_point_sendcloud_controller.js
 config/
 └── services/
     └── shipping.yaml
@@ -781,12 +848,16 @@ config/
 
 ## Annexe B — Questions ouvertes
 
-1. **Mondial Relay SOAP vs REST :** Mondial Relay propose une API SOAP v5 historique et une API REST (sous convention). Confirmer la version disponible avec les credentials du client.
+1. ~~**Mondial Relay SOAP vs REST :**~~ **Résolu** — API REST retenue.
 
-2. **Leaflet vs widget propriétaire :** Mondial Relay fournit un widget JS officiel (iframe). L'utiliser simplifie l'implémentation mais réduit le contrôle UX. Décision à prendre avec le client.
+2. ~~**Leaflet vs widget propriétaire :**~~ **Résolu** — Widgets officiels retenus pour Mondial Relay (PickupWidget v4) et Sendcloud (Service Point Picker). Leaflet conservé comme fallback pour les gateways sans widget.
 
-3. **Géocodage :** La recherche par adresse texte requiert parfois un geocoding préalable (adresse → lat/lng). Évaluer si l'API Mondial Relay l'accepte directement ou s'il faut un service tier (Nominatim/OSM — gratuit).
+3. ~~**Géocodage :**~~ **Résolu** — Les widgets Mondial Relay et Sendcloud gèrent la recherche par adresse/code postal nativement. Aucun géocodage externe nécessaire.
 
 4. **Multi-gateway par méthode :** Le modèle actuel associe **une** gateway à **une** méthode. Un cas comme "Sendcloud avec DPD" et "Sendcloud avec Bpost" nécessite deux méthodes distinctes — ce qui semble raisonnable.
 
 5. **Stockage du bordereau :** Le `labelUrl` peut pointer vers une URL externe (URL Sendcloud, par ex.) ou un fichier stocké dans Flysystem. À décider selon la durée de rétention souhaitée.
+
+6. **Données transmises par les widgets :** Les widgets renvoient des structures de données différentes (objet Mondial Relay vs objet Sendcloud). Le mapping vers les champs `Shipment::$pickupPoint*` est à documenter par gateway (dans `getPickupPoint` côté serveur, qui fait foi).
+
+7. **Widget Mondial Relay : login en clair dans le HTML** — le `Brand` (= login marchand) est visible dans la config JS côté client. C'est le comportement standard du widget ; la clé secrète REST reste côté serveur.

@@ -1,0 +1,59 @@
+{% extends 'front/layout.html.twig' %}
+
+{% block page_title %}{{ 'checkout.pickup_point.title'|trans }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+
+    {# Step indicator — avec l'étape point relais #}
+    {{ include('front/checkout/_steps.html.twig', {currentStep: 'pickup_point', withPickupStep: true}) }}
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-3">
+
+        {# Widget sélection point relais #}
+        <div class="lg:col-span-2">
+            <h1 class="mb-6 text-2xl font-display font-bold tracking-tight">{{ 'checkout.pickup_point.title'|trans }}</h1>
+            <p class="mb-6 text-sm text-muted">{{ 'checkout.pickup_point.subtitle'|trans }}</p>
+
+            <div
+                data-controller="{{ widgetControllerName }}"
+                data-{{ widgetControllerName }}-config-value="{{ widgetConfig|json_encode }}"
+            >
+                {# Conteneur du widget JS du transporteur #}
+                <div id="relay-widget-container" class="mb-6 min-h-48"></div>
+
+                {# Résumé du point sélectionné (masqué jusqu'à sélection) #}
+                <div data-{{ widgetControllerName }}-target="summary"
+                     class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4 text-sm" hidden>
+                    <p class="font-semibold text-green-800">{{ 'checkout.pickup_point.selected'|trans }}</p>
+                    <p class="mt-1 text-green-700" data-{{ widgetControllerName }}-target="name"></p>
+                    <p class="text-green-600" data-{{ widgetControllerName }}-target="address"></p>
+                </div>
+
+                {% for message in app.flashes('error') %}
+                    <p class="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{{ message }}</p>
+                {% endfor %}
+
+                <form method="post" action="{{ path('front_checkout_pickup_point') }}">
+                    <input type="hidden" name="pickup_point_id"      data-{{ widgetControllerName }}-target="externalId">
+                    <input type="hidden" name="pickup_point_name"    data-{{ widgetControllerName }}-target="name">
+                    <input type="hidden" name="pickup_point_address" data-{{ widgetControllerName }}-target="address">
+
+                    <button
+                        type="submit"
+                        data-{{ widgetControllerName }}-target="submitBtn"
+                        disabled
+                        class="mt-2 w-full rounded-md bg-accent px-6 py-3 text-sm font-semibold text-white hover:bg-accent/90 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                        {{ 'checkout.pickup_point.confirm'|trans }}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {# Order summary sidebar #}
+        {{ include('front/checkout/_summary.html.twig', {cart: cart}) }}
+
+    </div>
+</div>
+{% endblock %}

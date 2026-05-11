@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
+
+# Shipping gateway services.
+# Gateway implementations are auto-tagged via #[AutoconfigureTag('app.shipping_gateway')]
+# on ShippingGatewayInterface — no explicit registration needed here.
+#
+# Add gateway-specific env var injection below as gateways are implemented:
+#
+# App\Component\Shipping\Gateway\MondialRelayGateway:
+#     arguments:
+#         $login:  '%env(MONDIAL_RELAY_LOGIN)%'
+#         $apiKey: '%env(MONDIAL_RELAY_API_KEY)%'
+#
+# App\Component\Shipping\Gateway\SendcloudGateway:
+#     arguments:
+#         $publicKey: '%env(SENDCLOUD_PUBLIC_KEY)%'
+#         $secretKey: '%env(SENDCLOUD_SECRET_KEY)%'
+
+services: ~

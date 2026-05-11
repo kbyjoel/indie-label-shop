@@ -124,6 +124,10 @@ class CheckoutController extends AbstractController
             $cart->recalculateItemsTotal();
             $this->em->flush();
 
+            if (null !== $method->getGatewayCode()) {
+                return $this->redirectToRoute('front_checkout_pickup_point');
+            }
+
             return $this->redirectToRoute('front_checkout_payment');
         }
 
@@ -147,6 +151,16 @@ class CheckoutController extends AbstractController
         }
         if ($cart->getShipments()->isEmpty()) {
             return $this->redirectToRoute('front_checkout_shipment');
+        }
+
+        $shipment = $cart->getShipments()->first();
+        $shipmentMethod = $shipment instanceof Shipment ? $shipment->getMethod() : null;
+        if ($shipment instanceof Shipment
+            && $shipmentMethod instanceof ShippingMethod
+            && null !== $shipmentMethod->getGatewayCode()
+            && null === $shipment->getPickupPointExternalId()
+        ) {
+            return $this->redirectToRoute('front_checkout_pickup_point');
         }
 
         $paymentMethods = $this->em->getRepository(PaymentMethod::class)->findBy(['enabled' => true]);

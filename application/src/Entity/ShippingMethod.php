@@ -48,6 +48,13 @@ class ShippingMethod extends BaseShippingMethod
     #[ORM\Column(type: 'string', length: 255)]
     protected $calculator;
 
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $gatewayCode = null;
+
+    /** @var array<string,mixed> */
+    #[ORM\Column(type: 'json')]
+    private array $gatewayConfig = [];
+
     #[ORM\Column(type: 'integer', nullable: true)]
     protected $position;
 
@@ -79,6 +86,28 @@ class ShippingMethod extends BaseShippingMethod
     public function getConfiguration(): array
     {
         return $this->configuration;
+    }
+
+    public function getGatewayCode(): ?string
+    {
+        return $this->gatewayCode;
+    }
+
+    public function setGatewayCode(?string $gatewayCode): void
+    {
+        $this->gatewayCode = $gatewayCode;
+    }
+
+    /** @return array<string,mixed> */
+    public function getGatewayConfig(): array
+    {
+        return $this->gatewayConfig;
+    }
+
+    /** @param array<string,mixed> $gatewayConfig */
+    public function setGatewayConfig(array $gatewayConfig): void
+    {
+        $this->gatewayConfig = $gatewayConfig;
     }
 
     protected function createTranslation(): ShippingMethodTranslationInterface
